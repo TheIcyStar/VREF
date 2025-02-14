@@ -1,0 +1,87 @@
+{
+    "name": "XRInput",
+    "maps": [
+        {
+            "name": "XRActions",
+            "id": "71a0dda5-378b-42fe-9560-ddb751b2dbb5",
+            "actions": [
+                {
+                    "name": "Move UI",
+                    "type": "Button",
+                    "id": "2c78db4d-28e5-4a7e-b012-cc6c05bd14ae",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Toggle UI",
+                    "type": "Button",
+                    "id": "18d17469-2df4-496b-8326-bcce653a6316",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "75b46f3a-24eb-4b1b-8f19-0fd293210930",
+                    "path": "<OculusTouchController>/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move UI",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2d5905d8-8fdf-4b31-8c09-4711ae883b56",
+                    "path": "<XRSimulatedController>/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move UI",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "97d2de29-1485-4f2e-8231-9292d5c57f27",
+                    "path": "<OculusTouchController>/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Toggle UI",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3eef9140-b933-4467-adbd-017c013216bd",
+                    "path": "<XRSimulatedController>/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Toggle UI",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "70aea492-1750-4feb-9c5d-e4306badd10b",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Toggle UI",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
