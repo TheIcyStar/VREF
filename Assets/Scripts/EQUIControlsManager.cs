@@ -6,10 +6,10 @@ public class EQUIManager : MonoBehaviour
 {
     public Transform equationUI;
     public Transform playerHead;
-    public float distance = 2f;
-    public float height = 10f;
+    [SerializeField] public float distance = 2f;
+    [SerializeField] public float height = 2.8f;
     private XRInput inputActions;
-    private bool isUIActive = false;
+    private bool isUIActive = true;
 
     private void Awake()
     {
@@ -32,16 +32,18 @@ public class EQUIManager : MonoBehaviour
 
     private void MoveUIInFrontOfPlayer()
     {
+        if(!isUIActive) { ToggleUIVisibility(); }
+
         Vector3 forward = playerHead.forward;
 
         // keeps the UI parallel with the floor
         forward.y = 0;
         forward.Normalize();
 
+        //equationUI.LookAt(playerHead.position);
         equationUI.position = playerHead.position + forward * distance + Vector3.up * height;
-        equationUI.position = new Vector3(equationUI.position.x, 1, equationUI.position.z);
-        equationUI.LookAt(playerHead.position);
-        equationUI.Rotate(0, 180, 0);
+        equationUI.rotation = Quaternion.LookRotation(forward, Vector3.up);
+        //equationUI.Rotate(0, 180, 0);
     }
 
     private void ToggleUIVisibility()
