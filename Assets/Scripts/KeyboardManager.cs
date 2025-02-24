@@ -4,19 +4,24 @@ using System.Collections.Generic;
 
 public class KeyboardManager : MonoBehaviour
 {
+    // text field from the UI
     public TMP_InputField equationInput;
-    private int cursorIndex = 0;
-    // use a list to store the starting and ending positions of each token
-    private List<(int start, int end, int tokenIndex)> tokenRanges = new List<(int, int, int)>();
-    // map used for O(1) lookup of the above list (on cursor pos change)
-    // keys are the string index and values are the corresponding token index
-    // CHANGE TO PURE ARRAY IMPLEMENTATION
-    private Dictionary<int, int> rangeMap = new Dictionary<int, int>();
-    // use another list for the tokens themselves
+    // string index of the cursor
+    private int cursorIndex;
+    // list of the tokens
     private List<EquationToken> tokens = new List<EquationToken>();
+    // list of the starting and ending string index positions of each token
+    private List<(int start, int end, int tokenIndex)> tokenRanges = new List<(int, int, int)>();
+    // map used for O(1) lookup of the above list
+    // keys are the string index and values are the corresponding token index
+    private int[] rangeMap;
+    // fixed max character count, can be changed later whenever we make the 
+    // text box stretch to equation size but right now its hard coded
+    private const int MAX_CHARACTERS = 256;
 
     public void Start() 
     {
+        cursorIndex = 0;
         equationInput.onEndEdit.AddListener(OnCursorMoved);
         BuildTokenRanges();
     }
@@ -25,7 +30,15 @@ public class KeyboardManager : MonoBehaviour
     private void BuildTokenRanges()
     {
         tokenRanges.Clear();
-        rangeMap.Clear();
+        rangeMap = new int[MAX_CHARACTERS];
+
+        // initialize sentinel value marking end of map
+        rangeMap[0] = -2;
+        for (int i = 1; i < MAX_CHARACTERS; i++) {
+            rangeMap[i] = -1;
+        }
+
+        // only used for hard rebuilds
         if (tokens.Count > 0) {
             UpdateTokenRanges(0);
         }
@@ -34,8 +47,6 @@ public class KeyboardManager : MonoBehaviour
     // updates the token map over a specified range starting from a token index
     private void UpdateTokenRanges(int startIndex)
     {
-        // INDEX OUT OF RANGE WHEN ADDING TO BEGINNING OF LIST THAT ALREADY HAS TOKENS
-
         // no tokens on update (should not be possible)
         if (tokens.Count == 0) return;
 
@@ -51,16 +62,7 @@ public class KeyboardManager : MonoBehaviour
 
         // find the string index to start at
         // use previous range as new range might need to be added
-        int currentIndex = (tokenRanges.Count == 0) ? 0 : tokenRanges[startIndex - 1].end + 1;
-
-        // only remap current range and everything in front
-        // reminder: keys are string index
-        // CHANGE TO PURE ARRAY IMPLEMENTATION
-        foreach (var key in new List<int>(rangeMap.Keys)) {
-            if(key >= currentIndex) {
-                rangeMap.Remove(key);
-            }
-        }
+        int currentIndex = (startIndex == 0) ? 0 : tokenRanges[startIndex - 1].end + 1;
 
         // only update current token and everything in front
         for (int i = startIndex; i < tokens.Count; i++) {
@@ -80,6 +82,19 @@ public class KeyboardManager : MonoBehaviour
 
             currentIndex += tokenLength;
         }
+
+        // add -2 to the end of the map
+        rangeMap[(currentIndex > MAX_CHARACTERS) ? MAX_CHARACTERS : currentIndex] = -2;
+
+        // clean up any removed indices in the map
+        int x = currentIndex + 1;
+        while (x < MAX_CHARACTERS && rangeMap[x] != -1) {
+            rangeMap[x] = -1;
+            x++;
+        }
+
+        // note: rangeMap does not get updated when the last token gets removed
+        //       but it updates the moment a token is added (it still works fine)
     }
 
     // string parameter is unused but Unity's structure needs it
@@ -95,107 +110,77 @@ public class KeyboardManager : MonoBehaviour
 
     // backspace button is pressed
     public void BackspaceToken() {
-        // INDEX OUT OF RANGE FOR STRING.REMOVE
-        // AFTER REMOVING A FUNCTION STRING ()
-
         // only delete if there is a token to the left
-        if(cursorIndex > 0) {
-            // find closest token to the right
-            int tokenIndex = GetClosestTokenIndex(cursorIndex);
+        if(cursorIndex == 0 || tokens.Count == 0) return;
 
-            // decrement to find the index of the token to delete
-            tokenIndex--;
+        // find closest token to the left
+        // subtracting 1 will allow the token to be deleted to be selected
+        int tokenIndex = rangeMap[cursorIndex - 1];
 
-            // delete tokenIndex - 1 and update string
-            int tokenLength = tokens[tokenIndex].text.Length;
-            equationInput.text = equationInput.text.Remove(cursorIndex - tokenLength, tokenLength);
-            tokens.RemoveAt(tokenIndex);
-            UpdateTokenRanges(tokenIndex);
-            cursorIndex--;
-        }
+        // delete the token and update the string
+        int tokenLength = tokens[tokenIndex].text.Length;
+        equationInput.text = equationInput.text.Remove(tokenRanges[tokenIndex].start, tokenLength);
+        tokens.RemoveAt(tokenIndex);
+
+        // remove the previous range
+        tokenRanges.RemoveAt(tokenIndex);
+
+        // update the ranges and the cursor
+        UpdateTokenRanges(tokenIndex);
+
+        // update the cursor index after deletion
+        cursorIndex = (tokenIndex > 0) ? tokenRanges[tokenIndex - 1].end + 1: 0;
     }
 
     // inserts a token at the current cursor position and updates the token list accordingly
     private void InsertTokenAtCursor(string text, int type)
     {
-        // find closest token to the right
-        // i.e. xysin|() where | is cursor position would find ( and not sin
-        int tokenIndex = GetClosestTokenIndex(cursorIndex);
         EquationToken newToken = new EquationToken(text, type);
 
-        // update the text
-        equationInput.text = equationInput.text.Insert(cursorIndex, text);
-
-        // swap tokens when cursor is inside a token
-        // dont have to get end of token because of rightmost token logic described above
-        if (tokenIndex < tokens.Count && cursorIndex > tokenRanges[tokenIndex].start) {
-            tokens[tokenIndex] = newToken; 
+        // no previous tokens
+        if (tokens.Count == 0) {
+            tokens.Add(newToken);
+            equationInput.text = text;
+            UpdateTokenRanges(0);
+            cursorIndex = tokenRanges[0].end + 1;
+            return;
         }
-        // otherwise add the token
+
+        // find closest token to the right of cursor
+        int tokenIndex = rangeMap[cursorIndex];
+        
+        // add token to the end
+        if (tokenIndex == -2) {
+            tokens.Add(newToken);
+            equationInput.text += text;
+            UpdateTokenRanges(tokens.Count - 1);
+            cursorIndex = tokenRanges[tokens.Count - 1].end + 1;
+            return;
+        }
+
+        // maybe can combine count == 0 and index == -2
+        
+        // swap tokens when cursor is inside a token
+        if (cursorIndex > tokenRanges[tokenIndex].start) {
+            equationInput.text = equationInput.text[..tokenRanges[tokenIndex].start] +
+                                 text +
+                                 equationInput.text[(tokenRanges[tokenIndex].end + 1)..];
+            tokens[tokenIndex] = newToken;
+        }
         else {
+            // otherwise add the token
+            equationInput.text = equationInput.text.Insert(cursorIndex, text);
             tokens.Insert(tokenIndex, newToken);
         }
+
+        // if the cursor is at the end of a token, it will already map to the next token instead
+        // so no need to check at the end
 
         // update the map after insertion
         UpdateTokenRanges(tokenIndex);
 
-        // manually update cursor position
-        cursorIndex += text.Length;
-
-        DebugTokenList();
-    }
-
-    // O(1) lookup of closest token using the range map
-    // CHANGE TO PURE ARRAY IMPLEMENTATION
-    private int GetClosestTokenIndex(int cursorPos) 
-    {
-        if (rangeMap.TryGetValue(cursorPos, out int tokenIndex)) {
-            return tokenIndex;
-        }
-
-        // handle edges of the text area if value is not in map
-        if (tokenRanges.Count > 0 && cursorPos <= tokenRanges[0].start) {
-            return 0;
-        }
-
-        for (int i = tokenRanges.Count - 1; i >= 0; i--) {
-            if (tokenRanges[i].end < cursorPos)
-                return tokenRanges[i].tokenIndex + 1;
-        }
-
-        return 0;
-    }
-
-    private void DebugTokenList()
-{
-        string tokenString = "Tokens: ";
-        foreach (var token in tokens) {
-            tokenString += $"[{token.text}] ";
-        }
-
-        Debug.Log(tokenString);
-
-        if (rangeMap.Count == 0) {
-            Debug.Log("Range Map is empty.");
-        }
-        else {
-            string rangeMapString = "Range Map: ";
-            foreach (var kvp in rangeMap) {
-                rangeMapString += $"({kvp.Key} -> {kvp.Value}), ";
-            }
-            Debug.Log(rangeMapString);
-        }
-
-        if (tokenRanges.Count == 0) {
-            Debug.Log("Token Ranges is empty.");
-        }
-        else {
-            string rangeListString = "Token Ranges: ";
-            foreach (var range in tokenRanges) {
-                rangeListString += $"[{range.start}-{range.end} -> Token {range.tokenIndex}], ";
-            }
-            Debug.Log(rangeListString);
-        }
+        // update cursor position
+        cursorIndex = tokenRanges[tokenIndex].end + 1;
     }
 
     // wrapper functions used by the buttons since unity doesnt allow
