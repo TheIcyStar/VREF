@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 using UnityEngine;
 
 // ONLY SUPPORTS y = mx + b RIGHT NOW
+// eventually, classify the equation in parser through rules (?)
 public class EquationGrapher : MonoBehaviour
 {
     // the root node of the equation tree

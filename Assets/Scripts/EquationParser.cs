@@ -23,9 +23,9 @@ public class EquationParser
 
     // grammar:
     // add suport for relational operators in the equation rule later
-    // add equation rule!
     /*
-    Equation     ->    Expression ('=' Expression)?
+    Equation     ->    Expression ('=' Expression)?             // not implemented
+    Linear       ->    (Variable | Number) = Expression         // not implemented
     Expression   ->    Term (( '+' | '-' ) Term )*
     Term         ->    Unary (( '*' | '/' ) Unary )*
     Unary        ->    ( '-' Unary ) | Power
@@ -98,6 +98,7 @@ public class EquationParser
             op = UseToken(TYPE_OPERATOR);
             ParseTreeNode right = ParseUnary();
             node = new ParseTreeNode(op) { left = node, right = right };
+            op = CurrenToken();
         }
 
         return node;

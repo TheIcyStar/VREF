@@ -9,6 +9,10 @@ public class KeyboardManager : MonoBehaviour
     //       COMPRESS THE TOKEN LIST AFTER GRAPH BUTTON IS PRESSED BUT BEFORE SENDING TO PARSER
     //       ALSO ADD NUMBERS TO THE UI
 
+    // MINOR FIX: i dont like how this has both tokenizer functionality and
+    //            keyboard inputs, i want to separate the tokenizer into its own
+    //            script, and make this function have ONLY the wrappers and the start
+
     // text field from the UI
     public TMP_InputField equationInput;
     // string index of the cursor
@@ -107,10 +111,36 @@ public class KeyboardManager : MonoBehaviour
         cursorIndex = equationInput.caretPosition;
     }
 
+    // called when the graph button is pressed
+    // parses the token list and sends the parse tree to the grapher
     public void ConfirmEquation()
     {
         EquationParser parser = new EquationParser();
         ParseTreeNode expressionTree = parser.Parse(tokens);
+
+        string treeOutput = "Parse Tree:\n";
+        BuildParseTreeString(expressionTree, "", true, ref treeOutput);
+        Debug.Log(treeOutput);
+    }
+
+    private void BuildParseTreeString(ParseTreeNode node, string indent, bool isLeft, ref string output)
+    {
+        if (node == null) return;
+
+        // Determine the branch direction
+        string branch = isLeft ? "├── " : "└── ";
+
+        // Append to the output string
+        output += indent + branch + (node.token != null ? node.token.text : "NULL") + "\n";
+
+        // Increase indentation for child nodes
+        string newIndent = indent + (isLeft ? "│   " : "    ");
+
+        // Print left and right children recursively
+        if (node.left != null || node.right != null) {
+            BuildParseTreeString(node.left, newIndent, true, ref output);
+            BuildParseTreeString(node.right, newIndent, false, ref output);
+        }
     }
 
     // backspace button is pressed
@@ -119,7 +149,8 @@ public class KeyboardManager : MonoBehaviour
         if(cursorIndex == 0 || tokens.Count == 0) return;
 
         // find closest token to the left
-        // subtracting 1 will allow the token to be deleted to be selected
+        // subtracting 1 will allow the correct token to be chosen (left of cursor)
+        //  because the range map would normally find whats right of the cursor
         int tokenIndex = rangeMap[cursorIndex - 1];
 
         // delete the token and update the string
@@ -179,7 +210,7 @@ public class KeyboardManager : MonoBehaviour
         }
 
         // if the cursor is at the end of a token, it will already map to the next token instead
-        // so no need to check at the end
+        // so no need to check if the cursor is before the end
 
         // update the map after insertion
         UpdateTokenRanges(tokenIndex);
