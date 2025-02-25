@@ -4,6 +4,11 @@ using System.Collections.Generic;
 
 public class KeyboardManager : MonoBehaviour
 {
+    // TODO: ADD A TOKEN COMPRESSOR TO MAKE NUMBERS WORK CORRECTLY
+    //       RIGHT NOW ONLY WHOLE NUMBERS WORK
+    //       COMPRESS THE TOKEN LIST AFTER GRAPH BUTTON IS PRESSED BUT BEFORE SENDING TO PARSER
+    //       ALSO ADD NUMBERS TO THE UI
+
     // text field from the UI
     public TMP_InputField equationInput;
     // string index of the cursor
@@ -105,7 +110,7 @@ public class KeyboardManager : MonoBehaviour
     public void ConfirmEquation()
     {
         EquationParser parser = new EquationParser();
-        // [Type] expressionTree = parser.Parse(tokens);
+        ParseTreeNode expressionTree = parser.Parse(tokens);
     }
 
     // backspace button is pressed
