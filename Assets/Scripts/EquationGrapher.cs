@@ -8,21 +8,21 @@ using UnityEngine;
 public class EquationGrapher : MonoBehaviour
 {
     // the root node of the equation tree
-    private ParseTreeNode equationTree;
+    public ParseTreeNode equationTree;
     // graphing range and resolution
     private float xMin = -10f, xMax = 10f, step = 1f;
     // 2d for now
     public LineRenderer lineRenderer;
 
     private void Start() {
-        equationTree = CreateTestTree();
+        // equationTree = CreateTestTree();
         if(equationTree != null && lineRenderer != null) {
             GraphEquation();
         }
     }
 
     // evaulates each point in the range and adds them to the line renderer
-    private void GraphEquation() {
+    public void GraphEquation() {
         List<Vector3> points = new List<Vector3>();
 
         for(float x = xMin; x <= xMax; x += step) {
@@ -69,25 +69,25 @@ public class EquationGrapher : MonoBehaviour
         return 0;
     }
 
-    private ParseTreeNode CreateTestTree()
-    {
-        // mx + b
-        EquationToken m = new EquationToken(".5", EquationParser.TYPE_NUMBER);
-        EquationToken x = new EquationToken("x", EquationParser.TYPE_VARIABLE);
-        EquationToken mult = new EquationToken("*", EquationParser.TYPE_OPERATOR);
-        EquationToken b = new EquationToken("1", EquationParser.TYPE_NUMBER);
-        EquationToken plus = new EquationToken("+", EquationParser.TYPE_OPERATOR);
+    // private ParseTreeNode CreateTestTree()
+    // {
+    //     // mx + b
+    //     EquationToken m = new EquationToken(".5", EquationParser.TYPE_NUMBER);
+    //     EquationToken x = new EquationToken("x", EquationParser.TYPE_VARIABLE);
+    //     EquationToken mult = new EquationToken("*", EquationParser.TYPE_OPERATOR);
+    //     EquationToken b = new EquationToken("1", EquationParser.TYPE_NUMBER);
+    //     EquationToken plus = new EquationToken("+", EquationParser.TYPE_OPERATOR);
 
-        // parse tree:
-        //     +
-        //    / \
-        //   *   b
-        //  / \
-        // m   x
+    //     // parse tree:
+    //     //     +
+    //     //    / \
+    //     //   *   b
+    //     //  / \
+    //     // m   x
 
-        ParseTreeNode multiplyNode = new ParseTreeNode(mult) { left = new ParseTreeNode(m), right = new ParseTreeNode(x) };
-        ParseTreeNode root = new ParseTreeNode(plus) { left = multiplyNode, right = new ParseTreeNode(b) };
+    //     ParseTreeNode multiplyNode = new ParseTreeNode(mult) { left = new ParseTreeNode(m), right = new ParseTreeNode(x) };
+    //     ParseTreeNode root = new ParseTreeNode(plus) { left = multiplyNode, right = new ParseTreeNode(b) };
 
-        return root;
-    }
+    //     return root;
+    // }
 }
