@@ -7,7 +7,12 @@ public class KeyboardManager : MonoBehaviour
     // TODO: ADD A TOKEN COMPRESSOR TO MAKE NUMBERS WORK CORRECTLY
     //       RIGHT NOW ONLY WHOLE NUMBERS WORK
     //       COMPRESS THE TOKEN LIST AFTER GRAPH BUTTON IS PRESSED BUT BEFORE SENDING TO PARSER
+    //       THIS WOULD ALSO ADD * BETWEEN SOME TOKENS
     //       ALSO ADD NUMBERS TO THE UI
+    //
+    //       IMPLEMENT A GRAPH MANAGER CLASS WHICH STORES A LIST OF GAMEOBJECTS
+    //       THAT EACH HAVE THE EQUATIONGRAPHER CLASS ATTACHED
+    //       THIS CLASS SHOULD SEND THE PARSED TREE OVER TO THAT CLASS
 
     // MINOR FIX: i dont like how this has both tokenizer functionality and
     //            keyboard inputs, i want to separate the tokenizer into its own
@@ -117,29 +122,12 @@ public class KeyboardManager : MonoBehaviour
     {
         EquationParser parser = new EquationParser();
         ParseTreeNode expressionTree = parser.Parse(tokens);
-
-        string treeOutput = "Parse Tree:\n";
-        BuildParseTreeString(expressionTree, "", true, ref treeOutput);
-        Debug.Log(treeOutput);
-    }
-
-    private void BuildParseTreeString(ParseTreeNode node, string indent, bool isLeft, ref string output)
-    {
-        if (node == null) return;
-
-        // Determine the branch direction
-        string branch = isLeft ? "├── " : "└── ";
-
-        // Append to the output string
-        output += indent + branch + (node.token != null ? node.token.text : "NULL") + "\n";
-
-        // Increase indentation for child nodes
-        string newIndent = indent + (isLeft ? "│   " : "    ");
-
-        // Print left and right children recursively
-        if (node.left != null || node.right != null) {
-            BuildParseTreeString(node.left, newIndent, true, ref output);
-            BuildParseTreeString(node.right, newIndent, false, ref output);
+        
+        // TEMPORARY WAY OF SENDING THE PARSED TREE
+        EquationGrapher grapher = FindObjectOfType<EquationGrapher>();
+        if (grapher != null) {
+            grapher.equationTree = expressionTree;
+            grapher.GraphEquation();
         }
     }
 
