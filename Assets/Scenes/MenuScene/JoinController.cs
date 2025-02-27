@@ -1,9 +1,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
-using System.Collections;
 using System.Threading.Tasks;
-using System;
 
 
 enum ServerResponseStatus {
@@ -15,8 +13,8 @@ enum ServerResponseStatus {
 
 public class JoinController : MonoBehaviour {
     public GameObject hostInputField;
-    public GameObject roomInputField;
     public GameObject joinButton;
+    public string roomId;
     private TMP_Text buttonTextComponent;
 
     void Start(){
@@ -25,8 +23,6 @@ public class JoinController : MonoBehaviour {
 
     public async void beginJoin() {
         string hostname = hostInputField.GetComponent<TMP_InputField>().text; //TODO: auto-prepend the url with http:// or https://
-        string roomId = roomInputField.GetComponent<TMP_InputField>().text;
-
 
         if(roomId == ""){
             buttonTextComponent.text = "Need hoostname!";
@@ -66,6 +62,8 @@ public class JoinController : MonoBehaviour {
         }
 
         buttonTextComponent.text = "Joining...";
+        ServerConnection.instance.hostname = hostname;
+        ServerConnection.instance.roomId = roomId;
     }
 
     //Async function for checking if the host and room number are OK
@@ -92,7 +90,7 @@ public class JoinController : MonoBehaviour {
     }
 
     private async Task<ServerResponseStatus> checkRoom(string host, string room) {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(host+"/rooms/"+room)){
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(host+"/rooms/"+room)) {
             await webRequest.SendWebRequest();
 
             while(!webRequest.isDone){
@@ -111,7 +109,7 @@ public class JoinController : MonoBehaviour {
         }
     }
 
-    private void resetButtonText(){
+    private void resetButtonText() {
             buttonTextComponent.text = "Join Room";
     }
 }
