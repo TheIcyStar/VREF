@@ -7757,6 +7757,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1813235323}
   m_CullTransparentMesh: 0
+--- !u!224 &1818194735 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4941219564456579801, guid: dc067c577ec1b854684d789b6e727cc0, type: 3}
+  m_PrefabInstance: {fileID: 1818485377}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1818485377
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9200,6 +9205,7 @@ GameObject:
   - component: {fileID: 1999815595}
   - component: {fileID: 1999815594}
   - component: {fileID: 1999815598}
+  - component: {fileID: 1999815599}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -9290,9 +9296,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1999815598}
-        m_TargetAssemblyTypeName: Teleport, Assembly-CSharp
-        m_MethodName: TeleportToPlayerPosition
+      - m_Target: {fileID: 1999815599}
+        m_TargetAssemblyTypeName: EQUIManager, Assembly-CSharp
+        m_MethodName: MoveUIInFrontOfPlayer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9354,6 +9360,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   menuWelcome: {fileID: 0}
+--- !u!114 &1999815599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1999815592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 974cb2d44f61b2d4ab3500e022b95856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equationUI: {fileID: 1818194735}
+  playerHead: {fileID: 1850398373}
+  distance: 2
+  height: 0
 --- !u!1001 &2000563008
 PrefabInstance:
   m_ObjectHideFlags: 0
