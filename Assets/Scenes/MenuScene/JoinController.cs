@@ -24,8 +24,8 @@ public class JoinController : MonoBehaviour {
     public async void beginJoin() {
         string hostname = hostInputField.GetComponent<TMP_InputField>().text; //TODO: auto-prepend the url with http:// or https://
 
-        if(roomId == ""){
-            buttonTextComponent.text = "Need hoostname!";
+        if(hostname == ""){
+            buttonTextComponent.text = "Need hostname!";
             Invoke("resetButtonText", 3);
             return;
         }
