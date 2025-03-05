@@ -12,14 +12,13 @@ public class EquationGrapher : MonoBehaviour
     // graphing range and resolution
     private float xMin = -10f, xMax = 10f, step = 1f;
     // 2d for now
-    public LineRenderer lineRenderer;
 
-    private void Start() {
-        // equationTree = CreateTestTree();
-        if(equationTree != null && lineRenderer != null) {
-            GraphEquation();
-        }
-    }
+    // private void Start() {
+    //     // equationTree = CreateTestTree();
+    //     if(equationTree != null && lineRenderer != null) {
+    //         GraphEquation();
+    //     }
+    // }
 
     // evaulates each point in the range and adds them to the line renderer
     public void GraphEquation() {

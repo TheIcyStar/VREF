@@ -5,18 +5,20 @@ using UnityEditor.Experimental.GraphView;
 
 public class EquationParser
 {
-    // WORKS!
-    // i tested x/z+(sin(x*z))-y and it worked perfectly
-    // there is more to test but im moving on to the grapher now
-
     // recursive descent parsers (like this one) are apparently exponentially slow
     // but i dont think that will matter for this project
     // if it becomes a problem, we can implement a recurisve predictive parser instead
     // but this one is a lot simpler
 
+    // passed in token list
     private List<EquationToken> tokens;
+    // index of the current token
     private int tokenIndex;
 
+    // graph manager
+    public GameObject graphManagerObj; 
+
+    // node types
     public const int TYPE_NUMBER = 0;
     public const int TYPE_VARIABLE = 1;
     public const int TYPE_FUNCTION = 2;
@@ -44,10 +46,11 @@ public class EquationParser
     */
 
     // takes list of tokens from keyboard and parses them into a tree
-    public ParseTreeNode Parse(List<EquationToken> tokens) {
+    public void Parse(List<EquationToken> tokens) {
         this.tokens = tokens;
         tokenIndex = 0;
-        return ParseExpression();
+        ParseTreeNode equationTree = ParseExpression();
+        graphManagerObj.GetComponent<GraphManager>().CreateNewGraph(equationTree);
     }
 
     // returns true if the current token is the same type as the type passed in

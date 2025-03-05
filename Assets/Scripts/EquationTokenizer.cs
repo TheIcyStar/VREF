@@ -185,7 +185,7 @@ public class EquationTokenizer
     public void ParseEquation()
     {
         EquationParser parser = new EquationParser();
-        ParseTreeNode expressionTree = parser.Parse(tokens);
+        parser.Parse(tokens);
         
         // // TEMPORARY WAY OF SENDING THE PARSED TREE
         // EquationGrapher grapher = FindObjectOfType<EquationGrapher>();
