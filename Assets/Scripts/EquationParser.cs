@@ -9,6 +9,11 @@ public class EquationParser
     // i tested x/z+(sin(x*z))-y and it worked perfectly
     // there is more to test but im moving on to the grapher now
 
+    // recursive descent parsers (like this one) are apparently exponentially slow
+    // but i dont think that will matter for this project
+    // if it becomes a problem, we can implement a recurisve predictive parser instead
+    // but this one is a lot simpler
+
     private List<EquationToken> tokens;
     private int tokenIndex;
 

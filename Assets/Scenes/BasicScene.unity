@@ -2622,6 +2622,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   equationInput: {fileID: 1346234978}
+  graphManager: {fileID: 0}
 --- !u!114 &638414808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4288,6 +4289,7 @@ GameObject:
   - component: {fileID: 1249617919}
   - component: {fileID: 1249617918}
   - component: {fileID: 1249617922}
+  - component: {fileID: 1249617923}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -4340,7 +4342,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 40d5f39ae0668b14f9d71f56c2981be7, type: 2}
+  - {fileID: -4125471728267972529, guid: 00c9c177e828a57439e290aef2a23b3f, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4466,6 +4468,18 @@ MonoBehaviour:
   m_Teleporting:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1249617923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249617917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5b26204275b3b74d9bf5ae27f7af488, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1346234977
 GameObject:
   m_ObjectHideFlags: 0
@@ -4943,6 +4957,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1505889434}
+  - component: {fileID: 1505889435}
   m_Layer: 0
   m_Name: Graph Area Anchor
   m_TagString: Untagged
@@ -4966,6 +4981,18 @@ Transform:
   - {fileID: 1148465021}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1505889435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505889433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5b26204275b3b74d9bf5ae27f7af488, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1563498662
 GameObject:
   m_ObjectHideFlags: 0
@@ -6034,7 +6061,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   equationUI: {fileID: 887457536}
-  playerHead: {fileID: 0}
+  playerHead: {fileID: 1573866879}
   distance: 2
   height: 2.8
 --- !u!114 &2036020343
