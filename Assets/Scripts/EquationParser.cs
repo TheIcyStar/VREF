@@ -5,20 +5,18 @@ using UnityEditor.Experimental.GraphView;
 
 public class EquationParser
 {
-    // recursive descent parsers (like this one) are apparently exponentially slow
-    // but i dont think that will matter for this project
-    // if it becomes a problem, we can implement a recurisve predictive parser instead
-    // but this one is a lot simpler
+    // NOTES/TODO: recursive descent parsers (like this one) are apparently exponentially slow
+    //             but i dont think that will matter for this project
+    //             if it becomes a problem, we can implement a recurisve predictive parser instead
+    //             but this one is a lot simpler
 
     // passed in token list
     private List<EquationToken> tokens;
     // index of the current token
     private int tokenIndex;
 
-    // graph manager
-    public GameObject graphManagerObj; 
-
     // node types
+    // public because the grapher uses them
     public const int TYPE_NUMBER = 0;
     public const int TYPE_VARIABLE = 1;
     public const int TYPE_FUNCTION = 2;
@@ -46,11 +44,12 @@ public class EquationParser
     */
 
     // takes list of tokens from keyboard and parses them into a tree
-    public void Parse(List<EquationToken> tokens) {
+    // then sends the tree to the graph manager
+    public ParseTreeNode Parse(List<EquationToken> tokens) {
         this.tokens = tokens;
         tokenIndex = 0;
         ParseTreeNode equationTree = ParseExpression();
-        graphManagerObj.GetComponent<GraphManager>().CreateNewGraph(equationTree);
+        return equationTree;
     }
 
     // returns true if the current token is the same type as the type passed in

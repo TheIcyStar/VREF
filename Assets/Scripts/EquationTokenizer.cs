@@ -5,25 +5,15 @@ using UnityEngine.Android;
 
 public class EquationTokenizer
 {   
-    // TODO: ADD A TOKEN COMPRESSOR TO MAKE NUMBERS WORK CORRECTLY
-    //       RIGHT NOW ONLY WHOLE NUMBERS WORK
-    //       COMPRESS THE TOKEN LIST AFTER GRAPH BUTTON IS PRESSED BUT BEFORE SENDING TO PARSER
-    //       THIS WOULD ALSO ADD * BETWEEN SOME TOKENS
-    //       ALSO ADD NUMBERS TO THE UI
-    //
-    //       IMPLEMENT A GRAPH MANAGER CLASS WHICH STORES A LIST OF GAMEOBJECTS
-    //       THAT EACH HAVE THE EQUATIONGRAPHER CLASS ATTACHED
-    //       THIS CLASS SHOULD SEND THE PARSED TREE OVER TO THAT CLASS
-
     // text field from the UI passed in through keyboardManager
     private TMP_InputField equationInput;
     // list of the tokens
-    public List<EquationToken> tokens = new List<EquationToken>();
+    public List<EquationToken> tokens { get; private set; } = new List<EquationToken>();
     // list of the starting and ending string index positions of each token
     private List<(int start, int end, int tokenIndex)> tokenRanges = new List<(int, int, int)>();
     // map used for O(1) lookup of the above list
     // keys are the string index and values are the corresponding token index
-    private int[] rangeMap;
+    private int[] rangeMap = new int[MAX_CHARACTERS];
     // fixed max character count, can be changed later whenever we make the 
     // text box stretch to equation size but right now its hard coded
     private const int MAX_CHARACTERS = 256;
@@ -36,8 +26,6 @@ public class EquationTokenizer
     public void BuildTokenRanges()
     {
         tokenRanges.Clear();
-        rangeMap = new int[MAX_CHARACTERS];
-
         // initialize sentinel value marking end of map
         rangeMap[0] = -2;
         for (int i = 1; i < MAX_CHARACTERS; i++) {
@@ -181,17 +169,13 @@ public class EquationTokenizer
         return cursorIndex;
     }
 
-    // sends the token list to be parsed
-    public void ParseEquation()
+    // cleans up the token list
+    public void CleanUpEquation()
     {
-        EquationParser parser = new EquationParser();
-        parser.Parse(tokens);
-        
-        // // TEMPORARY WAY OF SENDING THE PARSED TREE
-        // EquationGrapher grapher = FindObjectOfType<EquationGrapher>();
-        // if (grapher != null) {
-        //     grapher.equationTree = expressionTree;
-        //     grapher.GraphEquation();
-        // }
+        // TODO: ADD A TOKEN COMPRESSOR TO MAKE NUMBERS WORK CORRECTLY
+        //       RIGHT NOW ONLY WHOLE NUMBERS WORK
+        //       COMPRESS THE TOKEN LIST AFTER GRAPH BUTTON IS PRESSED BUT BEFORE SENDING TO PARSER
+        //       THIS WOULD ALSO ADD * BETWEEN SOME TOKENS
+        //       ALSO ADD NUMBERS TO THE UI
     }
 }

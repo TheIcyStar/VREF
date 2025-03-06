@@ -6,19 +6,17 @@ public class KeyboardManager : MonoBehaviour
 {
     // text field from the UI
     public TMP_InputField equationInput;
-    // graph manager gameobject
-    public GameObject graphManager;
     // string index of the cursor
     private int cursorIndex;
-    // equation tokenizer that handles creating tokens
-    private EquationTokenizer tokenizer;
+    // handles all equation logic (tokenizing, parsing)
+    public EquationManager equationManager;
 
     public void Start() 
     {
-        tokenizer = new EquationTokenizer(equationInput);
+        equationManager.InitializeEqManager(equationInput);
         cursorIndex = 0;
         equationInput.onEndEdit.AddListener(OnCursorMoved);
-        tokenizer.BuildTokenRanges();
+        equationManager.InitializeTokenizer();
     }
 
     // string parameter is unused but Unity's structure needs it
@@ -29,18 +27,18 @@ public class KeyboardManager : MonoBehaviour
     // called when the graph button is pressed
     public void ConfirmEquation()
     {
-        tokenizer.ParseEquation();
+        equationManager.ProcessEquation();
     }
 
     // backspace button is pressed
     public void BackspaceToken() {
-        cursorIndex = tokenizer.RemoveTokenAtCursor(cursorIndex);
+        cursorIndex = equationManager.RemoveToken(cursorIndex);
     }
 
     // inserts a token at the current cursor position and updates the token list accordingly
     private void TokenPressed(string text, int type)
     {
-        cursorIndex = tokenizer.InsertTokenAtCursor(text, type, cursorIndex);
+        cursorIndex = equationManager.InsertToken(text, type, cursorIndex);
     }
 
     // wrapper functions used by the buttons since unity doesnt allow
