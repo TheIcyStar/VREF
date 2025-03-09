@@ -30,7 +30,7 @@ public class EQUIManager : MonoBehaviour
     }
 
 
-    public void MoveUIInFrontOfPlayer()
+    private void MoveUIInFrontOfPlayer()
     {
         if(!isUIActive) { ToggleUIVisibility(); }
 
@@ -46,7 +46,7 @@ public class EQUIManager : MonoBehaviour
         //equationUI.Rotate(0, 180, 0);
     }
 
-    public void ToggleUIVisibility()
+    private void ToggleUIVisibility()
     {
         isUIActive = !isUIActive;
         equationUI.gameObject.SetActive(isUIActive);
