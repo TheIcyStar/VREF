@@ -68,6 +68,8 @@ public class GraphManager : MonoBehaviour
     }
 
     // finds all the variables in the equation and adds them to a set
+    // potentially could create the set during tree creation if this
+    // full tree traversal ends up being too costly
     private void DetermineVariables(ParseTreeNode equationTree, HashSet<string> variables) {
         if (equationTree == null) return;
 
