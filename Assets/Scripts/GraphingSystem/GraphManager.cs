@@ -13,7 +13,7 @@ public class GraphManager : MonoBehaviour
 
     // global graph settings from options menu
     // storing default values for now
-    public GraphSettings globalGraphSettings = new GraphSettings(-10, 10, -10, 10, 1);
+    public GraphSettings globalGraphSettings = new GraphSettings(-10, 10, -10, 10, -10, 10, .1f);
 
     // keep track of graph count solely for naming
     private int graphCount;
@@ -30,12 +30,10 @@ public class GraphManager : MonoBehaviour
     // creates the graph object and attaches the script
     public void CreateNewGraph(ParseTreeNode equationTree) {
         // determine what equation type is by parsing the whole tree
-        int equationType = DetermineEquationType(equationTree);
+        var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
 
-        // creates an instance of the prefab
+        // create and name an instance of the prefab
         GameObject graphPrefabObj = Instantiate(graphPrefab, this.transform);
-
-        // name the instance
         graphPrefabObj.name = $"Graph {graphCount}";
         graphCount++;
 
@@ -50,45 +48,77 @@ public class GraphManager : MonoBehaviour
         // axes script here
         // gridlines script here (maybe combine both?)
 
+        // initialize renderer
+        IGraphRenderer renderer;
+
         // attach the correct renderer
-        // CHECK TYPES AND ADD CORRECT RENDERER IN THE FUTURE
-        IGraphRenderer renderer = new LineGraphRenderer(graphObj.AddComponent<LineRenderer>());
-        /*else if (equationType == TYPE_MESH) {
-            renderer = new MeshGraphRenderer(graphObj.AddComponent<MeshFilter>(), graphObj.AddComponent<MeshRenderer>());
-        }*/
+        if(equationType == TYPE_LINE) renderer = new LineGraphRenderer(graphObj.AddComponent<LineRenderer>());
+        else                          renderer = new LineGraphRenderer(graphObj.AddComponent<LineRenderer>());  // default
 
         // add the graph object and its corresponding scripts to the dictionary
         graphs[graphPrefabObj] = (grapher, renderer);
 
-        grapher.InitializeGraph(equationTree, renderer, globalGraphSettings);
+        grapher.InitializeGraph(equationTree, renderer, globalGraphSettings, inputVars, outputVar);
     }
 
     // determines the type of equation by analyzing the parse tree
-    private int DetermineEquationType(ParseTreeNode equationTree) {
-        HashSet<string> variables = new HashSet<string>();
-        DetermineVariables(equationTree, variables);
+    // also returns the input and output variables
+    // ONLY WORKS WITH [output var] = [f(input var)] FOR NOW
+    private (int, HashSet<GraphVariable>, GraphVariable) DetermineEquationType(ParseTreeNode equationTree) {
+        // initialize a set to store all the input vars
+        HashSet<GraphVariable> inputVars = new HashSet<GraphVariable>();
+        GraphVariable outputVar;
+
+        // default to y = f(x)
+        if(equationTree == null || equationTree.token.text != "=") {
+            inputVars.Add(GraphVariable.X);
+            outputVar = GraphVariable.Y;
+            return (TYPE_LINE, inputVars, outputVar);
+        }
+
+        // find output var (left of equal sign)
+        outputVar = ConvertToGraphVariable(equationTree.left.token.text);
+
+        // intialize equation type
+        int equationType;
+
+        // add all input variables to the set (right of equal sign)
+        DetermineVariables(equationTree.right, inputVars);
 
         // this logic needs to change to support parametrics, planes, etc... in the future
-        // right now only [var] = [expression] will work
-        if (variables.Count == 1) return TYPE_LINE;
-        if (variables.Count == 2) return TYPE_LINE;
-        if (variables.Count == 3) return TYPE_MESH;
+        if (inputVars.Count == 0 || inputVars.Count == 1) equationType = TYPE_LINE;
+        else if (inputVars.Count == 2)                    equationType = TYPE_MESH;
+        else                                              equationType = TYPE_LINE;
 
-        // default
-        return TYPE_LINE;
+        return (equationType, inputVars, outputVar);
     }
 
-    // finds all the variables in the equation and adds them to a set
+    // finds all the variables in the given tree and adds them to a set
     // potentially could create the set during tree creation if this
     // full tree traversal ends up being too costly
-    private void DetermineVariables(ParseTreeNode equationTree, HashSet<string> variables) {
+    private void DetermineVariables(ParseTreeNode equationTree, HashSet<GraphVariable> variables) {
         if (equationTree == null) return;
 
         if (equationTree.token.type == EquationParser.TYPE_VARIABLE) {
-            variables.Add(equationTree.token.text);
+            variables.Add(ConvertToGraphVariable(equationTree.token.text));
         }
 
         DetermineVariables(equationTree.left, variables);
         DetermineVariables(equationTree.right, variables);
+    }
+
+    // converts a string to a GraphVariable
+    // if we really want to optimize everything down the line
+    // we can change the tree to use an enum for every possible
+    // token to avoid using strings entirely
+    private GraphVariable ConvertToGraphVariable(string stringVar)
+    {
+        return stringVar switch
+        {
+            "x" => GraphVariable.X,
+            "y" => GraphVariable.Y,
+            "z" => GraphVariable.Z,
+            _ => GraphVariable.Constant
+        };
     }
 }
