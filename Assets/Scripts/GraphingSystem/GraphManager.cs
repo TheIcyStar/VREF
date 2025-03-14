@@ -4,24 +4,51 @@ using UnityEditor.Experimental.GraphView;
 
 public class GraphManager : MonoBehaviour
 {
+    // graph prefab
+    public GameObject graphPrefab;
+
+    // dictionary mapping a graph gameobject to all its scripts
+    // to avoid having to find them using GetComponent
+    private Dictionary<GameObject, (EquationGrapher grapher, IGraphRenderer renderer)> graphs;
+
     // global graph settings from options menu
     // storing default values for now
     public GraphSettings globalGraphSettings = new GraphSettings(-10, 10, -10, 10, 1);
+
+    // keep track of graph count solely for naming
+    private int graphCount;
 
     // equation renderer types
     private const int TYPE_LINE = 0;
     private const int TYPE_MESH = 1;
 
-    // list of graphs currently in the scene, as well as their EquationGrapher to avoid using GetComponent
-    private List<(GameObject, EquationGrapher)> graphs;
-
     public void Start() {
-        graphs = new List<(GameObject, EquationGrapher)>();
+        graphs = new();
+        graphCount = 1;
     }
 
+    // creates the graph object and attaches the script
     public void CreateNewGraph(ParseTreeNode equationTree) {
+        // determine what equation type is by parsing the whole tree
         int equationType = DetermineEquationType(equationTree);
-        var (graphObj, grapher) = CreateNewGraphObject();
+
+        // creates an instance of the prefab
+        GameObject graphPrefabObj = Instantiate(graphPrefab, this.transform);
+
+        // name the instance
+        graphPrefabObj.name = $"Graph {graphCount}";
+        graphCount++;
+
+        // get the children objects
+        GameObject graphObj = graphPrefabObj.transform.GetChild(0).gameObject; // graph
+        GameObject axesObj = graphPrefabObj.transform.GetChild(1).gameObject;  // axes
+        GameObject gridObj = graphPrefabObj.transform.GetChild(2).gameObject;  // gridlines
+
+        // attach the equation grapher class (manages the state of each individual graph,
+        // maybe the name of that script should be changed for clarity)
+        EquationGrapher grapher = graphObj.AddComponent<EquationGrapher>();
+        // axes script here
+        // gridlines script here (maybe combine both?)
 
         // attach the correct renderer
         // CHECK TYPES AND ADD CORRECT RENDERER IN THE FUTURE
@@ -30,26 +57,10 @@ public class GraphManager : MonoBehaviour
             renderer = new MeshGraphRenderer(graphObj.AddComponent<MeshFilter>(), graphObj.AddComponent<MeshRenderer>());
         }*/
 
+        // add the graph object and its corresponding scripts to the dictionary
+        graphs[graphPrefabObj] = (grapher, renderer);
+
         grapher.InitializeGraph(equationTree, renderer, globalGraphSettings);
-
-        graphs.Add((graphObj, grapher));
-    }
-
-    // creates the graph object and attaches the script
-    // eventually instead of adding an empty gameobject
-    // we should have graph prefabs for each kind of graph
-    private (GameObject, EquationGrapher) CreateNewGraphObject() {
-        // create new object
-        GameObject graphObj = new GameObject($"Graph {graphs.Count + 1}");
-        
-        // make it a child of the graph manager
-        graphObj.transform.parent = this.transform;
-
-        // add the script
-        EquationGrapher grapher = graphObj.AddComponent<EquationGrapher>();
-
-        // return both as grapher needs accessed
-        return (graphObj, grapher);
     }
 
     // determines the type of equation by analyzing the parse tree
