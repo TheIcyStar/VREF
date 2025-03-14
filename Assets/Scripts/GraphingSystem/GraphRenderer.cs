@@ -4,6 +4,8 @@ using UnityEditor.Experimental.GraphView;
 using System.Linq;
 using UnityEngine.Animations;
 using System;
+using UnityEngine.UIElements;
+using UnityEngine.Rendering;
 
 // graph variable enum to avoid string comparison
 public enum GraphVariable {
@@ -53,8 +55,6 @@ public class LineGraphRenderer : IGraphRenderer
     {
         this.lineRenderer = renderer;
         this.lineRenderer.useWorldSpace = false;
-
-        // eventually, set line width based on scale
         this.lineRenderer.startWidth = .02f;
         this.lineRenderer.endWidth = .02f;
     }
@@ -139,5 +139,4 @@ public class LineGraphRenderer : IGraphRenderer
             _ => new Vector3(inputVarVal, outputVarVal, 0)
         };
     }
-
 }

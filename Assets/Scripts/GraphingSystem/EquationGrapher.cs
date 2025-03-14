@@ -22,20 +22,19 @@ public class EquationGrapher : MonoBehaviour
         this.graphSettings = settings;
         this.inputVars = inputVars;
         this.outputVar = outputVar;
-
-        // eventually, scale the graph based on largest range first
-        // ScaleGraph();
-
+        ScaleGraph();
         VisualizeGraph();
     }
 
-    /*private void ScaleGraph()
+    // scale the graph based on the largest range
+    private void ScaleGraph()
     {
-        float maxRange = Mathf.Max(graphSettings.xMax - graphSettings.xMin, graphSettings.yMax - graphSettings.yMin, graphSettings.zMax - graphSettings.zMin);
-
         // scale the graph object so that the largest dimension fits in view
-        // transform.localScale = Vector3.one * (1f / maxRange);
-    }*/
+        float baseRange = 2f;
+        float maxRange = Mathf.Max(graphSettings.xMax - graphSettings.xMin, graphSettings.yMax - graphSettings.yMin, graphSettings.zMax - graphSettings.zMin);
+        float scaleFactor = baseRange / maxRange;
+        transform.localScale = Vector3.one * scaleFactor;
+    }
 
     // renders the graph using the respective renderer and settings
     private void VisualizeGraph() {
