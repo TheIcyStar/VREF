@@ -33,7 +33,10 @@ public class EquationGrapher : MonoBehaviour
         float baseRange = 2f;
         float maxRange = Mathf.Max(graphSettings.xMax - graphSettings.xMin, graphSettings.yMax - graphSettings.yMin, graphSettings.zMax - graphSettings.zMin);
         float scaleFactor = baseRange / maxRange;
-        transform.localScale = Vector3.one * scaleFactor;
+        this.transform.localScale = Vector3.one * scaleFactor;
+
+        // calculate the y offset so that graph spawns above ground
+        this.transform.position += new Vector3(0, -graphSettings.yMin * scaleFactor, 0);
     }
 
     // renders the graph using the respective renderer and settings

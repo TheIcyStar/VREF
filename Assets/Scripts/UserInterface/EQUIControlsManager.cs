@@ -10,9 +10,9 @@ public class EQUIManager : MonoBehaviour
     // the players main camera
     public Transform playerHead;
     // distance away from the player the UI relocates to
-    [SerializeField] public float distance = 2f;
+    [SerializeField] private float distance = 2f;
     // the exact height the UI relocates to
-    [SerializeField] public float height = 1.5f;
+    [SerializeField] private float height = 1.5f;
     // canvas group of the equation UI used for toggling visibility
     public CanvasGroup equiCanvasGroup;
     private XRInput inputActions;
