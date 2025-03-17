@@ -1025,6 +1025,7 @@ GameObject:
   m_Component:
   - component: {fileID: 408023770}
   - component: {fileID: 408023771}
+  - component: {fileID: 408023772}
   m_Layer: 0
   m_Name: Equation UI Anchor
   m_TagString: Untagged
@@ -1061,6 +1062,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   graphManager: {fileID: 1505889435}
+--- !u!114 &408023772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 408023769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 974cb2d44f61b2d4ab3500e022b95856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equationUI: {fileID: 408023770}
+  playerHead: {fileID: 1573866879}
+  distance: 2
+  height: 1.5
 --- !u!1 &409822073
 GameObject:
   m_ObjectHideFlags: 0
@@ -5886,7 +5903,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2036020338}
-  - component: {fileID: 2036020342}
   - component: {fileID: 2036020341}
   - component: {fileID: 2036020340}
   - component: {fileID: 2036020343}
@@ -5963,22 +5979,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!114 &2036020342
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2036020337}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 974cb2d44f61b2d4ab3500e022b95856, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  equationUI: {fileID: 887457536}
-  playerHead: {fileID: 1573866879}
-  distance: 2
-  height: 2.8
 --- !u!114 &2036020343
 MonoBehaviour:
   m_ObjectHideFlags: 0
