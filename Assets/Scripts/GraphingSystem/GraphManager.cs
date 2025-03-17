@@ -10,8 +10,9 @@ public class GraphManager : MonoBehaviour
     // transform of the equation UI
     public Transform equationUITransform;
     // distance from the UI that all graphs will spawn in from
-    private float distance = 4f;
-
+    [SerializeField] private float graphDisplacement = 4f;
+    // distance from the ground the graph spawns above
+    [SerializeField] private float lowerGraphMargin = .5f;
     // dictionary mapping a graph gameobject to all its scripts
     // to avoid having to find them using GetComponent
     private Dictionary<GameObject, (EquationGrapher grapher, IGraphRenderer renderer)> graphs;
@@ -38,11 +39,11 @@ public class GraphManager : MonoBehaviour
         var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
 
         // create an instance of the prefab, place it past the UI, and name it
-        GameObject graphPrefabObj = Instantiate(graphPrefab);
+        GameObject graphPrefabObj = Instantiate(graphPrefab, this.transform);
         Vector3 forward = equationUITransform.forward;
         forward.y = 0;
         forward.Normalize();
-        graphPrefabObj.transform.position = equationUITransform.position + forward * distance;
+        graphPrefabObj.transform.position = new Vector3(equationUITransform.position.x, lowerGraphMargin, equationUITransform.position.z) + forward * graphDisplacement;
         graphPrefabObj.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
         graphPrefabObj.name = $"Graph {graphCount}";
         graphCount++;
