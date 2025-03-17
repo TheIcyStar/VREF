@@ -1842,14 +1842,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 408023769}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 9.104, y: 1.123, z: 1.941}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2036020338}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &408023771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6118,6 +6118,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   graphPrefab: {fileID: 0}
   equationUITransform: {fileID: 0}
+  graphDisplacement: 4
+  lowerGraphMargin: 0.5
 --- !u!1 &1346234977
 GameObject:
   m_ObjectHideFlags: 0
@@ -7150,7 +7152,7 @@ Transform:
   m_GameObject: {fileID: 1505889433}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 13.830303, y: 0.49627626, z: 1.2119843}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -7170,6 +7172,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   graphPrefab: {fileID: 2918748304824918604, guid: e99ff3c840dbbe449a80cba2a8fc4c65, type: 3}
   equationUITransform: {fileID: 408023770}
+  graphDisplacement: 4
+  lowerGraphMargin: 0.5
 --- !u!1 &1563498662
 GameObject:
   m_ObjectHideFlags: 0

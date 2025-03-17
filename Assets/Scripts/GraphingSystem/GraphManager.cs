@@ -15,7 +15,7 @@ public class GraphManager : MonoBehaviour
     [SerializeField] private float lowerGraphMargin = .5f;
     // dictionary mapping a graph gameobject to all its scripts
     // to avoid having to find them using GetComponent
-    private Dictionary<GameObject, (EquationGrapher grapher, IGraphRenderer renderer)> graphs;
+    private Dictionary<GameObject, (EquationGrapher grapher, AxisRenderer axisRenderer)> graphs;
 
     // global graph settings from options menu
     // storing default values for now
@@ -53,10 +53,11 @@ public class GraphManager : MonoBehaviour
         GameObject axesObj = graphPrefabObj.transform.GetChild(1).gameObject;  // axes
         GameObject gridObj = graphPrefabObj.transform.GetChild(2).gameObject;  // gridlines
 
-        // attach the equation grapher class (manages the state of each individual graph,
+        // access the equation grapher class (manages the state of each individual graph,
         // maybe the name of that script should be changed for clarity)
-        EquationGrapher grapher = graphObj.AddComponent<EquationGrapher>();
-        // axes script here
+        // as well as the axis renderer and gridline renderer
+        EquationGrapher grapher = graphObj.GetComponent<EquationGrapher>();
+        AxisRenderer axisRenderer = axesObj.GetComponent<AxisRenderer>();
         // gridlines script here (maybe combine both?)
 
         // initialize renderer
@@ -67,8 +68,10 @@ public class GraphManager : MonoBehaviour
         else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         // add the graph object and its corresponding scripts to the dictionary
-        graphs[graphPrefabObj] = (grapher, renderer);
+        graphs[graphPrefabObj] = (grapher, axisRenderer);
 
+        axisRenderer.InitializeAxes();
+        axisRenderer.UpdateAxes(globalGraphSettings);
         grapher.InitializeGraph(equationTree, renderer, globalGraphSettings, inputVars, outputVar);
     }
 
