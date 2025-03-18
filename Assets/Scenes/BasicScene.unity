@@ -5981,6 +5981,7 @@ MonoBehaviour:
   equationUITransform: {fileID: 0}
   graphDisplacement: 4
   lowerGraphMargin: 0.5
+  defaultLineColor: {fileID: 0}
 --- !u!1 &1346234977
 GameObject:
   m_ObjectHideFlags: 0
@@ -6899,6 +6900,7 @@ MonoBehaviour:
   equationUITransform: {fileID: 408023770}
   graphDisplacement: 4
   lowerGraphMargin: 0.5
+  defaultLineColor: {fileID: 2100000, guid: 49d0cdeeb713a0846bfd82cdf36ae97f, type: 2}
 --- !u!1 &1563498662
 GameObject:
   m_ObjectHideFlags: 0

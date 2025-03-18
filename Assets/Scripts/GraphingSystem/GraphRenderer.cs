@@ -51,12 +51,13 @@ public class LineGraphRenderer : IGraphRenderer
 {
     private LineRenderer lineRenderer;
 
-    public LineGraphRenderer(LineRenderer renderer)
+    public LineGraphRenderer(LineRenderer renderer, Material lineColor)
     {
         this.lineRenderer = renderer;
         this.lineRenderer.useWorldSpace = false;
         this.lineRenderer.startWidth = .02f;
         this.lineRenderer.endWidth = .02f;
+        this.lineRenderer.material = lineColor;
     }
 
     public void RenderGraph(ParseTreeNode equationTree, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar)
