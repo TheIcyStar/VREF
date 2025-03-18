@@ -19,7 +19,9 @@ public class GraphManager : MonoBehaviour
 
     // global graph settings from options menu
     // storing default values for now
-    public GraphSettings globalGraphSettings = new GraphSettings(-10, 10, -10, 10, -10, 10, .1f);
+    public GraphSettings globalGraphSettings = new GraphSettings(-10, 20, -5, 10, -30, 0, .1f);
+    // default material of graph lines
+    public Material defaultLineColor;
 
     // keep track of graph count solely for naming
     private int graphCount;
@@ -71,7 +73,7 @@ public class GraphManager : MonoBehaviour
         graphs[graphPrefabObj] = (grapher, axisRenderer);
 
         axisRenderer.InitializeAxes();
-        axisRenderer.UpdateAxes(globalGraphSettings);
+        axisRenderer.UpdateAxes(globalGraphSettings, lowerGraphMargin);
         grapher.InitializeGraph(equationTree, renderer, globalGraphSettings, inputVars, outputVar);
     }
 
