@@ -10,6 +10,7 @@ public class ServerConnection : MonoBehaviour {
             Destroy(this);
         } else {
             instance = this;
+            DontDestroyOnLoad(gameObject);
         }
     }
 }

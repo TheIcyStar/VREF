@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
 using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
 
 enum ServerResponseStatus {
@@ -50,7 +51,7 @@ public class JoinController : MonoBehaviour {
             return;
         }
 
-        buttonTextComponent.text = "Checking room...";
+        // buttonTextComponent.text = "Checking room...";
 
         //Server connection OK, check the room
         status = await checkRoom(hostname, roomId);
@@ -64,11 +65,18 @@ public class JoinController : MonoBehaviour {
         buttonTextComponent.text = "Joining...";
         ServerConnection.instance.hostname = hostname;
         ServerConnection.instance.roomId = roomId;
+
+        SceneManager.LoadScene(1);
+    }
+
+    public void beginJoinSolo() {
+        SceneManager.LoadScene(1);
     }
 
     //Async function for checking if the host and room number are OK
     private async Task<ServerResponseStatus> checkConnection(string inputText) {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(inputText)){
+            webRequest.SetRequestHeader("InsecureHttpOption", "AlwaysAllowed"); //Todo: Make server run HTTPS and remove later
             await webRequest.SendWebRequest();
 
 
@@ -91,6 +99,7 @@ public class JoinController : MonoBehaviour {
 
     private async Task<ServerResponseStatus> checkRoom(string host, string room) {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(host+"/rooms/"+room)) {
+            webRequest.SetRequestHeader("InsecureHttpOption", "AlwaysAllowed"); //Todo: Make server run HTTPS and remove later
             await webRequest.SendWebRequest();
 
             while(!webRequest.isDone){
