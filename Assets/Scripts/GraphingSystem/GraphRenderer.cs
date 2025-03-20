@@ -138,11 +138,11 @@ public class LineGraphRenderer : IGraphRenderer
     {
         return (inputVar, outputVar) switch
         {
-            (GraphVariable.X, GraphVariable.Y) => new Vector3(inputVarVal, outputVarVal, 0),
-            (GraphVariable.X, GraphVariable.Z) => new Vector3(inputVarVal, 0, outputVarVal),
-            (GraphVariable.Y, GraphVariable.X) => new Vector3(outputVarVal, inputVarVal, 0),
+            (GraphVariable.X, GraphVariable.Y) => new Vector3(inputVarVal, 0, outputVarVal),
+            (GraphVariable.X, GraphVariable.Z) => new Vector3(inputVarVal, outputVarVal, 0),
+            (GraphVariable.Y, GraphVariable.X) => new Vector3(outputVarVal, 0, inputVarVal),
             (GraphVariable.Y, GraphVariable.Z) => new Vector3(0, inputVarVal, outputVarVal),
-            (GraphVariable.Z, GraphVariable.X) => new Vector3(outputVarVal, 0, inputVarVal),
+            (GraphVariable.Z, GraphVariable.X) => new Vector3(outputVarVal, inputVarVal, 0),
             (GraphVariable.Z, GraphVariable.Y) => new Vector3(0, outputVarVal, inputVarVal),
             _ => new Vector3(inputVarVal, outputVarVal, 0)
         };
