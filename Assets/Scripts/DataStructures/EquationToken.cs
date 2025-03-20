@@ -9,4 +9,8 @@ public class EquationToken
         this.text = text;
         this.type = type;
     }
+
+    public string ToJSON() {
+        return JsonUtility.ToJson(this);
+    }
 }
