@@ -73,7 +73,7 @@ public class GraphManager : MonoBehaviour
         graphs[graphPrefabObj] = (grapher, axisRenderer);
 
         axisRenderer.InitializeAxes();
-        axisRenderer.UpdateAxes(globalGraphSettings, lowerGraphMargin);
+        axisRenderer.UpdateAxes(globalGraphSettings);
         grapher.InitializeGraph(equationTree, renderer, globalGraphSettings, inputVars, outputVar);
     }
 
