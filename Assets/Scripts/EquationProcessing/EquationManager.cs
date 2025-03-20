@@ -1,5 +1,7 @@
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
+using System;
 
 public class EquationManager : MonoBehaviour
 {
@@ -16,10 +18,10 @@ public class EquationManager : MonoBehaviour
     // keeps logic separated between keyboard, tokenizer, and parser
     public void ProcessEquation() {
         // clean up tokens (make implicit * explicit, compress numbers)
-        tokenizer.CleanUpEquation();
+        List<EquationToken> tokens = tokenizer.CleanUpEquation();
 
         // parse the token list into a tree
-        ParseTreeNode equationTree = parser.Parse(tokenizer.tokens);
+        ParseTreeNode equationTree = parser.Parse(tokens);
 
         // send it to the graph manager
         graphManager.CreateNewGraph(equationTree);
