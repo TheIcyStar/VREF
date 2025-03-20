@@ -11,6 +11,6 @@ public class EquationToken
     }
 
     public string ToJSON() {
-        return JsonUtility.ToJson(this);
+        return $"{{\"text\":\"{text}\",\"type\":{type}}}";
     }
 }

@@ -15,6 +15,6 @@ public class ParseTreeNode
     /// </summary>
     /// <returns>JSON string</returns>
     public string ToJSON() {
-        return $"{{\"token\":{this.token.ToJSON()},\"left\":{(this.left != null ? this.left.ToJSON() : "null")},\"right\":{(this.right != null ? this.right.ToJSON() : "null")}}}";
+        return $"{{\"token\":{token.ToJSON()},\"left\":{(left != null ? left.ToJSON() : "null")},\"right\":{(right != null ? right.ToJSON() : "null")}}}";
     }
 }

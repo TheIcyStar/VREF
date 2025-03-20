@@ -1,8 +1,22 @@
 // This file implements the JSON responses that we can expect from various endpoints
 using System;
-using System.Collections.Generic;
-using UnityEngine;
 
+[Serializable]
+public class API_Response<T> { //Can't use nested generics with JsonUtility.FromJson<>() :c
+    public T data;
+    public string error;
+}
+
+public class API_GET_RoomState {
+    public RoomInfo_RoomState data;
+    // public string error;
+}
+
+[Serializable]
+public class API_POST_RoomState {
+    public string key;
+    public RoomInfo_RoomState roomState;
+}
 
 [Serializable]
 public class API_ServerPingResponse {
@@ -11,20 +25,15 @@ public class API_ServerPingResponse {
 }
 
 [Serializable]
-public class API_RoomInfoResponse {
-    public API_RoomInfo data;
-    public string error;
-}
-
-[Serializable]
-public class API_RoomInfo {
+public class RoomInfo {
     public string roomId;
     public string ownerUpdateToken;
-    public API_RoomInfo_RoomState roomState;
+
+    public RoomInfo_RoomState roomState;
 }
 
 [Serializable]
-public class API_RoomInfo_RoomState {
+public class RoomInfo_RoomState {
     public GraphSettings settings;
     public ParseTreeNode[] equations;
 }
