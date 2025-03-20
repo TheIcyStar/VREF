@@ -92,7 +92,8 @@ public class EquationTokenizer
     }
 
     // backspace button is pressed
-    public int RemoveTokenAtCursor(int cursorIndex) {
+    public int RemoveTokenAtCursor(int cursorIndex) 
+    {
         // only delete if there is a token to the left
         if(cursorIndex == 0 || tokens.Count == 0) return 0;
 
@@ -169,13 +170,117 @@ public class EquationTokenizer
         return cursorIndex;
     }
 
-    // cleans up the token list
-    public void CleanUpEquation()
+    // cleans up the token list by:
+    // - adding implicit multiplication
+    // - combining numbers into one token
+    // for now this just returns a new list of tokens based on
+    // the old one because i dont want to touch the
+    // tokenizer code and range maps at all
+    public List<EquationToken> CleanUpEquation()
     {
-        // TODO: ADD A TOKEN COMPRESSOR TO MAKE NUMBERS WORK CORRECTLY
-        //       RIGHT NOW ONLY WHOLE NUMBERS WORK
-        //       COMPRESS THE TOKEN LIST AFTER GRAPH BUTTON IS PRESSED BUT BEFORE SENDING TO PARSER
-        //       THIS WOULD ALSO ADD * BETWEEN SOME TOKENS
-        //       ALSO ADD NUMBERS TO THE UI
+        // empty at first, will obtain main token list's values in CombineNumbers
+        List<EquationToken> cleanTokens = new List<EquationToken>();
+
+        // combine all the numbers
+        CombineNumbers(cleanTokens);
+
+        // add implicit multiplication
+        AddImplicitMultiplication(cleanTokens);
+
+        return cleanTokens;
+    }
+
+    // combines numbers by:
+    // prepending all numbers left of '.' up until a non-number
+    // appending all number right of '.' up until a non-number
+    // 123.456.789 will be one token to catch the error later (when trying to parse)
+    private void CombineNumbers(List<EquationToken> cleanTokens) 
+    {
+        // iterate through all the tokens
+        for (int i = 0; i < tokens.Count; i++) {
+            // if the token is not the last element, check if num.num structure exists
+            if (i < tokens.Count - 2 && tokens[i].type == EquationParser.TYPE_NUMBER && tokens[i + 1].text == "." && tokens[i + 2].type == EquationParser.TYPE_NUMBER) {
+                // check if previous token is also a number
+                // ^1 gets last element
+                if (cleanTokens.Count > 0 && cleanTokens[^1].type == EquationParser.TYPE_NUMBER) {
+                    // merge the current token group from old list with the most recent token added to new list
+                    cleanTokens[^1] = new EquationToken(cleanTokens[^1].text + tokens[i].text + "." + tokens[i + 2].text, EquationParser.TYPE_NUMBER);
+                }
+                // if not, just add it normally
+                else {
+                    cleanTokens.Add(new EquationToken(tokens[i].text + "." + tokens[i + 2].text, EquationParser.TYPE_NUMBER));
+                }
+                
+                // skip the next two tokens
+                i += 2;
+            }
+            // lone decimal point (can only happen as first token)
+            else if(tokens[i].text == ".") {
+                // create a number out of it
+                if(i < tokens.Count - 1 && tokens[i + 1].type == EquationParser.TYPE_NUMBER) {
+                    cleanTokens.Add(new EquationToken("0." + tokens[i + 1].text, EquationParser.TYPE_NUMBER));
+
+                    // skip the next token
+                    i++;
+                }
+                // add just the '.' (might cause problems, probably should cause an error here)
+                else {
+                    cleanTokens.Add(tokens[i]);
+                }
+            }
+            // non decimal number merge
+            else if (tokens[i].type == EquationParser.TYPE_NUMBER) {
+                // check if previous token is also a number
+                if (cleanTokens.Count > 0 && cleanTokens[^1].type == EquationParser.TYPE_NUMBER) {
+                    // merge the current token from old list with the most recent token added to new list
+                    cleanTokens[^1] = new EquationToken(cleanTokens[^1].text + tokens[i].text, EquationParser.TYPE_NUMBER);
+                }
+                // if not, just add it normally
+                else {
+                    cleanTokens.Add(tokens[i]);
+                }
+            }
+            // non-number token, add normally
+            else {
+                cleanTokens.Add(tokens[i]);
+            }
+        }
+    }
+
+    // makes implicit multiplication explicit between:
+    // number * [variable | function | parenthesis]
+    // ) * [variable | function | number | parenthesis]
+    // variable * [function | variable | (]
+
+    // should we allow variable * number to be implicit?
+    // ex: xyz7.349
+    private void AddImplicitMultiplication(List<EquationToken> cleanTokens) 
+    {
+        for (int i = 0; i < cleanTokens.Count - 1; i++) {
+            EquationToken current = cleanTokens[i];
+            EquationToken next = cleanTokens[i + 1];
+
+            // number followed by variable, function, or parenthesis
+            if (current.type == EquationParser.TYPE_NUMBER 
+            && (next.type == EquationParser.TYPE_VARIABLE || next.type == EquationParser.TYPE_FUNCTION || next.type == EquationParser.TYPE_LEFTPAREN)) 
+            {
+                cleanTokens.Insert(i + 1, new EquationToken("*", EquationParser.TYPE_OPERATOR));
+                i++;
+            }
+            // closing parenthesis followed by variable, function, number, or another parenthesis
+            else if (current.type == EquationParser.TYPE_RIGHTPAREN 
+            && (next.type == EquationParser.TYPE_VARIABLE || next.type == EquationParser.TYPE_FUNCTION || next.type == EquationParser.TYPE_NUMBER || next.type == EquationParser.TYPE_LEFTPAREN)) 
+            {
+                cleanTokens.Insert(i + 1, new EquationToken("*", EquationParser.TYPE_OPERATOR));
+                i++;
+            }
+            // variable followed by function, variable, or opening parenthesis
+            else if (current.type == EquationParser.TYPE_VARIABLE 
+            && (next.type == EquationParser.TYPE_FUNCTION || next.type == EquationParser.TYPE_VARIABLE || next.type == EquationParser.TYPE_LEFTPAREN)) 
+            {
+                cleanTokens.Insert(i + 1, new EquationToken("*", EquationParser.TYPE_OPERATOR));
+                i++;
+            }
+        }
     }
 }
