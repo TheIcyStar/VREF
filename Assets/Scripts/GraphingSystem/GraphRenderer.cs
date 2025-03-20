@@ -61,6 +61,9 @@ public class LineGraphRenderer : IGraphRenderer
 
     public void RenderGraph(ParseTreeNode equationTree, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar)
     {
+        // since its explicit, dont need LHS of equal sign
+        equationTree = equationTree.right;
+
         // initialize the list of points
         List<Vector3> points = new List<Vector3>();
 
@@ -104,6 +107,10 @@ public class LineGraphRenderer : IGraphRenderer
             case EquationParser.TYPE_VARIABLE:
                 return node.token.text switch
                 {
+                    // setting to 0 will "null" the equation if incorrect variables are found for this type
+                    // ex: y = xy, y = xz, ...
+                    // probably can remove this if equation validation/error checking is added
+                    // dont really need the switch case either if that is implemented
                     "x" => inputVar == GraphVariable.X ? inputVarVal : 0,
                     "y" => inputVar == GraphVariable.Y ? inputVarVal : 0,
                     "z" => inputVar == GraphVariable.Z ? inputVarVal : 0,

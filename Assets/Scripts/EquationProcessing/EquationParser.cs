@@ -21,18 +21,19 @@ public class EquationParser
     public const int TYPE_VARIABLE = 1;
     public const int TYPE_FUNCTION = 2;
     public const int TYPE_OPERATOR = 3;
-    public const int TYPE_DECIMAL = 4;
-    public const int TYPE_LEFTPAREN = 5;
-    public const int TYPE_RIGHTPAREN = 6;
+    public const int TYPE_RELOP = 4;
+    public const int TYPE_DECIMAL = 5;
+    public const int TYPE_LEFTPAREN = 6;
+    public const int TYPE_RIGHTPAREN = 7;
 
     // grammar:
-    // add suport for relational operators in the equation rule later
+    // add suport for relational operators in the explicit function rule later
     // --------------------------------------------------------------
     // the lower the rule of the grammar, the more precedence it has
     // this is because it will be lower on the tree and calculated first
+    // should probably rewrite this comment with regular definitions to make it simpler
     /*
-    Equation     ->    Expression ('=' Expression)?             // not implemented
-    Linear       ->    (Variable | Number) = Expression         // not implemented
+    Explicit     ->    Variable ('=' | '>' | '<' | '>=' | '<=') Expression      // only = supported
     Expression   ->    Term (( '+' | '-' ) Term )*
     Term         ->    Unary (( '*' | '/' ) Unary )*
     Unary        ->    ( '-' Unary ) | Power
@@ -48,7 +49,7 @@ public class EquationParser
     public ParseTreeNode Parse(List<EquationToken> tokens) {
         this.tokens = tokens;
         tokenIndex = 0;
-        ParseTreeNode equationTree = ParseExpression();
+        ParseTreeNode equationTree = ParseExplicit();
         return equationTree;
     }
 
@@ -77,8 +78,31 @@ public class EquationParser
         return (tokenIndex < tokens.Count) ? tokens[tokenIndex] : null;
     }
 
-    // PARSE EQUATION GOES HERE
-    // ---------------------------
+    // parses an explicit from the token list following the rule of the grammar:
+    // Explicit -> Variable ('=' | '>' | '<' | '>=' | '<=') Expression
+    private ParseTreeNode ParseExplicit() {
+        // parse a variable on the LHS
+        ParseTreeNode node = ParseVariable();
+
+        // find the current token to check if its a relational operator (= < > <= >=)
+        EquationToken relop = CurrentToken();
+
+        // check for ('=' | '>' | '<' | '>=' | '<=') Expression
+        // ONLY '=' SUPPORTED
+        if(relop != null && relop.type == TYPE_RELOP && relop.text == "=") {
+            // use up the relational operator
+            relop = UseToken(TYPE_RELOP);
+
+            // parse the expression on the RHS
+            ParseTreeNode right = ParseExpression();
+
+            // return the root of the explicit function tree
+            node = new ParseTreeNode(relop) { left = node, right = right };
+        }
+
+        // return the root of the explicit function tree (which is also the root of the whole tree)
+        return node;
+    }
 
     // parses an expression from the token list following the rule of the grammar:
     //  Expression -> Term (( '+' | '-' ) Term )*
@@ -104,8 +128,7 @@ public class EquationParser
             op = CurrentToken();
         }
 
-        // return the root of the expression tree (also the root of the whole tree since expressions are first,
-        //  but eventually the root of the whole tree will change to an equation format (linear, planar, ...))
+        // return the root of the expression tree
         return node;
     }
 

@@ -58,7 +58,7 @@ public class KeyboardManager : MonoBehaviour
     public void InsertRightParen() { TokenPressed(")", EquationParser.TYPE_RIGHTPAREN); }
 
     // equal sign
-    public void InsertEquals() { TokenPressed("=", EquationParser.TYPE_OPERATOR); }
+    public void InsertEquals() { TokenPressed("=", EquationParser.TYPE_RELOP); }
 
     // decimal point
     public void InsertDecimal() { TokenPressed(".", EquationParser.TYPE_DECIMAL); }
