@@ -6418,6 +6418,7 @@ MonoBehaviour:
   createRoomButton: {fileID: 8017417931942762680}
   roomsUIContainer: {fileID: 8614544807854518157}
   roomIdDisplay: {fileID: 3425089374733869315}
+  hostInputField: {fileID: 6102426989064400460}
 --- !u!1001 &7778978118823812769
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6668,6 +6669,7 @@ MonoBehaviour:
   createRoomButton: {fileID: 0}
   roomsUIContainer: {fileID: 9163494016964242696}
   roomIdDisplay: {fileID: 0}
+  hostInputField: {fileID: 0}
 --- !u!1001 &8141446661200337395
 PrefabInstance:
   m_ObjectHideFlags: 0
