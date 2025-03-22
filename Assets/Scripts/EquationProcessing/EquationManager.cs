@@ -9,7 +9,15 @@ public class EquationManager : MonoBehaviour
     private EquationTokenizer tokenizer;
     private EquationParser parser;
 
+    // temporary function to pass along debug info to keyboardManager
+    public string GetTokenizerDebugInfo()
+    {
+        return tokenizer != null ? tokenizer.GetDebugInfo() : "Tokenizer not initialized.";
+    }
+
     public void InitializeEqManager(TMP_InputField equationInput) {
+        if (equationInput == null) throw new EquationUIException("Equation input field is not assigned.");
+
         tokenizer = new EquationTokenizer(equationInput);
         parser = new EquationParser();
     }

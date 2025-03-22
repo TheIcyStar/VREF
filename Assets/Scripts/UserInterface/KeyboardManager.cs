@@ -1,19 +1,41 @@
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
+using System;
+using UnityEngine.Rendering;
 
 public class KeyboardManager : MonoBehaviour
 {
     // text field from the UI
     public TMP_InputField equationInput;
+    // error text field from the UI
+    public TMP_Text equationErrorText;
     // string index of the cursor
     private int cursorIndex;
     // handles all equation logic (tokenizing, parsing)
     public EquationManager equationManager;
 
+
+    // temporary text element to debug tokenizer
+    public TMP_Text debugOutputText;
+
+    // update debug text with info
+    // remove this when done
+    public void Update()
+    {
+        debugOutputText.text = equationManager.GetTokenizerDebugInfo();
+    }
+
     public void Start() 
     {
-        equationManager.InitializeEqManager(equationInput);
+        // catch any weird unlinking bugs
+        try {
+            equationManager.InitializeEqManager(equationInput);
+        }
+        catch(EquationUIException equie) {
+            equationErrorText.text = equie.Message;
+        }
+
         cursorIndex = 0;
         equationInput.onEndEdit.AddListener(OnCursorMoved);
         equationManager.InitializeTokenizer();
@@ -27,18 +49,37 @@ public class KeyboardManager : MonoBehaviour
     // called when the graph button is pressed
     public void ConfirmEquation()
     {
-        equationManager.ProcessEquation();
+        // attempt to fully render the equation
+        try {
+            equationManager.ProcessEquation();
+        } catch (TokenizerException te) {
+            equationErrorText.text = te.Message;
+        }
+        // catch parser
+        // catch graph
     }
 
     // backspace button is pressed
     public void BackspaceToken() {
-        cursorIndex = equationManager.RemoveToken(cursorIndex);
+        // attempt to remove the token
+        try {
+            cursorIndex = equationManager.RemoveToken(cursorIndex);
+        } catch (TokenizerException te) {
+            equationErrorText.text = te.Message;
+        }
     }
 
     // inserts a token at the current cursor position and updates the token list accordingly
     private void TokenPressed(string text, int type)
     {
-        cursorIndex = equationManager.InsertToken(text, type, cursorIndex);
+        // attempt to insert the token
+        try {
+            cursorIndex = equationManager.InsertToken(text, type, cursorIndex);
+        } catch (TokenizerException te) {
+            equationErrorText.text = te.Message;
+        } catch (Exception e) {
+            equationErrorText.text = "Unexpected error: " + e.Message;
+        }
     }
 
     // wrapper functions used by the buttons since unity doesnt allow
