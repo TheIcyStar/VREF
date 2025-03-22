@@ -26,7 +26,7 @@ public class EquationTokenizer
 
         try{
             cleanTokens = CleanUpEquation();
-        } catch (TokenizerException te) {
+        } catch (TokenizerException) {
             cleanTokens = new List<EquationToken>();
         }
 
