@@ -16,14 +16,16 @@ public class KeyboardManager : MonoBehaviour
     public EquationManager equationManager;
 
 
-    // temporary text element to debug tokenizer
-    public TMP_Text debugOutputText;
+    // temporary text elements to debug
+    public TMP_Text debugOutputTextTokenizer;
+    public TMP_Text debugOutputTextParser;
 
     // update debug text with info
     // remove this when done
     public void Update()
     {
-        debugOutputText.text = equationManager.GetTokenizerDebugInfo();
+        debugOutputTextTokenizer.text = equationManager.GetTokenizerDebugInfo();
+        debugOutputTextParser.text = equationManager.GetParserDebugInfo();
     }
 
     public void Start() 
@@ -52,10 +54,16 @@ public class KeyboardManager : MonoBehaviour
         // attempt to fully render the equation
         try {
             equationManager.ProcessEquation();
-        } catch (TokenizerException te) {
+            equationErrorText.text = "";
+        } 
+        // catch tokenizer
+        catch (TokenizerException te) {
             equationErrorText.text = te.Message;
         }
         // catch parser
+        catch (ParserException pe) {
+            equationErrorText.text = pe.Message;
+        }
         // catch graph
     }
 
@@ -77,8 +85,6 @@ public class KeyboardManager : MonoBehaviour
             cursorIndex = equationManager.InsertToken(text, type, cursorIndex);
         } catch (TokenizerException te) {
             equationErrorText.text = te.Message;
-        } catch (Exception e) {
-            equationErrorText.text = "Unexpected error: " + e.Message;
         }
     }
 

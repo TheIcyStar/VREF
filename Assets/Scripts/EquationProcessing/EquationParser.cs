@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor.Experimental.GraphView;
+using NUnit.Framework.Interfaces;
+using UnityEngine.Rendering;
 
 public class EquationParser
 {
@@ -32,14 +34,15 @@ public class EquationParser
     // the lower the rule of the grammar, the more precedence it has
     // this is because it will be lower on the tree and calculated first
     // should probably rewrite this comment with regular definitions to make it simpler
+    // ONLY '=' SUPPORTED FOR EXPLICIT FUNCTIONS
     /*
-    Explicit     ->    Variable ('=' | '>' | '<' | '>=' | '<=') Expression      // only = supported
-    Expression   ->    Term (( '+' | '-' ) Term )*
-    Term         ->    Unary (( '*' | '/' ) Unary )*
-    Unary        ->    ( '-' Unary ) | Power
-    Power        ->    Primary ( '^' Unary )*
-    Primary      ->    Function | Number | Variable | '(' Expression ')'
-    Function     ->    ('sin' | 'cos' | 'tan' | 'sqrt' | 'log' | ... ) '(' Expression ')'
+    Explicit     ->    Variable ('=' | '>' | '<' | '>=' | '<=') Expression                      // right-associative (handled in implementation)
+    Expression   ->    Term (( '+' | '-' ) Term )*                                              // left-associative (handled in implementation)
+    Term         ->    Unary (( '*' | '/' ) Unary )*                                            // left-associative (handled in implementation)
+    Unary        ->    ( '-' Unary ) | Power                                                    // right-associative (immediate right recursive)
+    Power        ->    Primary ( '^' Unary )*                                                   // right-associative (right recursive)
+    Primary      ->    Function | Number | Variable | '(' Expression ')'                        
+    Function     ->    ('sin' | 'cos' | 'tan' | 'sqrt' | 'log' | ... ) '(' Expression ')'                       
     Variable     ->    'x' | 'y' | 'z' | ...
     Number       ->    [0-9]+('.'[0-9]+)?
     */
@@ -47,10 +50,25 @@ public class EquationParser
     // takes list of tokens from keyboard and parses them into a tree
     // then sends the tree to the graph manager
     public ParseTreeNode Parse(List<EquationToken> tokens) {
+        // no tokens to parse
+        if (tokens == null || tokens.Count == 0) throw new ParserException("No tokens to parse.");
+
         this.tokens = tokens;
         tokenIndex = 0;
-        ParseTreeNode equationTree = ParseExplicit();
-        return equationTree;
+
+        // try to parse the whole token list
+        try {
+            ParseTreeNode equationTree = ParseExplicit();
+
+            // not all tokens were used
+            if (tokenIndex < tokens.Count) {
+                throw new ParserException($"Unexpected token: {tokens[tokenIndex].text}");
+            }
+
+            return equationTree;
+        } catch (ParserException pe) {
+            throw new ParserException($"Parser failed: {pe.Message}");
+        }
     }
 
     // returns true if the current token is the same type as the type passed in
@@ -64,44 +82,49 @@ public class EquationParser
         return false;
     }
 
-    // returns a used token
+    // calls TypeMatch to use the token
+    // and returns the used token
     private EquationToken UseToken(int type) {
         if(TypeMatch(type)) {
             return tokens[tokenIndex - 1];
         }
-        return null;
+
+        // wrong token
+        throw new ParserException($"Expected token of type {type}, but found: {CurrentToken()?.text ?? "null"}");
     }
 
     // gets the current token
-    // returns null if out of range
+    // all uses of CurrentToken in the parser should never be out of bounds 
+    // (it will throw a generic error they somehow are)
     private EquationToken CurrentToken() {
-        return (tokenIndex < tokens.Count) ? tokens[tokenIndex] : null;
+        return (tokenIndex < tokens.Count) ? tokens[tokenIndex] : throw new ParserException("Token index out of range when parsing.");
     }
 
     // parses an explicit from the token list following the rule of the grammar:
     // Explicit -> Variable ('=' | '>' | '<' | '>=' | '<=') Expression
     private ParseTreeNode ParseExplicit() {
+        if(tokenIndex + 3 > tokens.Count) throw new ParserException("Explicit function must be in this format: [variable] = [expression]");
+
         // parse a variable on the LHS
         ParseTreeNode node = ParseVariable();
 
-        // find the current token to check if its a relational operator (= < > <= >=)
+        // try to find the current token to check if its a relational operator (= < > <= >=)
         EquationToken relop = CurrentToken();
 
         // check for ('=' | '>' | '<' | '>=' | '<=') Expression
         // ONLY '=' SUPPORTED
-        if(relop != null && relop.type == TYPE_RELOP && relop.text == "=") {
-            // use up the relational operator
-            relop = UseToken(TYPE_RELOP);
-
-            // parse the expression on the RHS
-            ParseTreeNode right = ParseExpression();
-
-            // return the root of the explicit function tree
-            node = new ParseTreeNode(relop) { left = node, right = right };
+        if (relop.type != TYPE_RELOP || relop.text != "=") {
+            throw new ParserException($"Expected relational operator after variable (only '=' supported), but found: {relop?.text ?? "null"}");
         }
 
+        // use up the relational operator
+        relop = UseToken(TYPE_RELOP);
+
+        // parse the expression on the RHS
+        ParseTreeNode right = ParseExpression();
+
         // return the root of the explicit function tree (which is also the root of the whole tree)
-        return node;
+        return new ParseTreeNode(relop) { left = node, right = right };
     }
 
     // parses an expression from the token list following the rule of the grammar:
@@ -110,22 +133,28 @@ public class EquationParser
         // parse a term on the LHS
         ParseTreeNode node = ParseTerm();
 
-        // find the current token to check if its an operator (+ -)
-        EquationToken op = CurrentToken();
+        // loop through the rest of the expression
+        // keep checking for (( '+' | '-' ) Term )* until 
+        // a different token or end of token list
+        while (tokenIndex < tokens.Count) {
+            // find the current token to check if its an operator (+ -)
+            EquationToken op = CurrentToken();
 
-        // keep checking for (( '+' | '-' ) Term )* until a different token
-        while (op != null && op.type == TYPE_OPERATOR && (op.text == "+" || op.text == "-")) {
-            // use up the operator
-            op = UseToken(TYPE_OPERATOR);
+            if (op.type == TYPE_OPERATOR && (op.text == "+" || op.text == "-")) {
+                // use up the operator
+                op = UseToken(TYPE_OPERATOR);
 
-            // parse a term on the RHS
-            ParseTreeNode right = ParseTerm();
+                // parse a term on the RHS
+                ParseTreeNode right = ParseTerm();
 
-            // make the operator the parent of the two terms
-            node = new ParseTreeNode(op) { left = node, right = right };
-
-            // check the next token for another operator
-            op = CurrentToken();
+                // make the operator the parent of the two terms
+                // left term can either be the term on the left
+                // or the previous operator parent tree
+                node = new ParseTreeNode(op) { left = node, right = right };
+            } else {
+                // no more + or -, stop parsing the expression
+                break;
+            }
         }
 
         // return the root of the expression tree
@@ -138,22 +167,27 @@ public class EquationParser
         // parse a unary operation on the LHS
         ParseTreeNode node = ParseUnary();
 
-        // find the current token to check if its an operator (* /)
-        EquationToken op = CurrentToken();
+        // loop through the rest of the term
+        // keep checking for (( '*' | '/' ) Unary )* until 
+        // a different token or end of token list
+        while (tokenIndex < tokens.Count) {
+            // find the current token to check if its an operator (* /)
+            // should never be out of bounds (will throw error if it somehow is)
+            EquationToken op = CurrentToken();
 
-        // keep checking for (( '*' | '/' ) Unary )* until a different token
-        while (op != null && op.type == TYPE_OPERATOR && (op.text == "*" || op.text == "/")) {
-            // use up the operator
-            op = UseToken(TYPE_OPERATOR);
+            if (op.type == TYPE_OPERATOR && (op.text == "*" || op.text == "/")) {
+                // use up the operator
+                op = UseToken(TYPE_OPERATOR);
 
-            // parse a unary operation on the RHS
-            ParseTreeNode right = ParseUnary();
+                // parse a unary operation on the RHS
+                ParseTreeNode right = ParseUnary();
 
-            // make the operator the parent of the two unary operations
-            node = new ParseTreeNode(op) { left = node, right = right };
-
-            // check the next token for another operator
-            op = CurrentToken();
+                // make the operator the parent of the two unary operations
+                node = new ParseTreeNode(op) { left = node, right = right };
+            } else {
+                // no more * or /, stop parsing the term
+                break;
+            }
         }
 
         // return the root of the term tree
@@ -163,19 +197,21 @@ public class EquationParser
     // parses a unary operator from the token list following the rule of the grammar:
     //  Unary -> ( '-' Unary ) | Power
     private ParseTreeNode ParseUnary() {
-        // find the current token to check if its an operator (-)
-        EquationToken op = CurrentToken();
+        if(tokenIndex < tokens.Count) {
+            // find the current token to check if its an operator (-)
+            EquationToken op = CurrentToken();
 
-        // check for ( '-' Unary )
-        if(op != null && op.type == TYPE_OPERATOR && op.text == "-") {
-            // use up the operator
-            op = UseToken(TYPE_OPERATOR);
+            // check for ( '-' Unary )
+            if(op.type == TYPE_OPERATOR && op.text == "-") {
+                // use up the operator
+                op = UseToken(TYPE_OPERATOR);
 
-            // parse the unary on the RHS
-            ParseTreeNode node = ParseUnary();
+                // parse the unary on the RHS
+                ParseTreeNode node = ParseUnary();
 
-            // return the root of the unary tree
-            return new ParseTreeNode(op) { right = node };
+                // return the root of the unary tree
+                return new ParseTreeNode(op) { right = node };
+            }
         }
 
         // no unary expression found, so parse a power instead and return the root it returns
@@ -183,24 +219,31 @@ public class EquationParser
     }
 
     // parses a power from the token list following the rule of the grammar:
-    //  Power -> Primary ( '^' Unary )*
+    //  Power -> Primary ( '^' Power )*
     private ParseTreeNode ParsePower() {
         // parse a primary on the LHS
         ParseTreeNode node = ParsePrimary();
 
-        // find the current token to check if its a caret
-        EquationToken op = CurrentToken();
+        // loop through the rest of the power
+        // keep checking for Primary ( '^' Unary )* until 
+        // a different token or end of token list
+        while(tokenIndex < tokens.Count) {
+            // find the current token to check if its a caret
+            EquationToken op = CurrentToken();
+            
+            if(op.type == TYPE_OPERATOR && op.text == "^") {
+                // use up the operator
+                op = UseToken(TYPE_OPERATOR);
 
-        // keep checking for Primary ( '^' Unary )* until a different token
-        while (op != null && op.type == TYPE_OPERATOR && op.text == "^") {
-            // use up the operator
-            op = UseToken(TYPE_OPERATOR);
+                // parse a unary on the RHS
+                ParseTreeNode right = ParseUnary();
 
-            // parse a unary on the RHS
-            ParseTreeNode right = ParseUnary();
-
-            // make the exponentiation operator the root of the power tree
-            node = new ParseTreeNode(op) { left = node, right = right };
+                // make the exponentiation operator the root of the power tree
+                node = new ParseTreeNode(op) { left = node, right = right };
+            } else {
+                // no more ^, stop parsing the power
+                break;
+            }
         }
 
         // return the root of the power tree
@@ -211,40 +254,52 @@ public class EquationParser
     //  from the token list following the rule of the grammar:
     //  Primary -> Function | Number | Variable | '(' Expression ')'
     private ParseTreeNode ParsePrimary() {
+        if(tokenIndex >= tokens.Count) throw new ParserException("Unexpected end of input while parsing primary expression.");
+
         // find the current token to check which kind of primary it is
         EquationToken primary = CurrentToken();
 
         // dont use TypeMatch when checked to not consume tokens
-        if(primary != null && primary.type == TYPE_FUNCTION) {
-            return ParseFunction();
-        }
-        else if(primary != null && primary.type == TYPE_NUMBER) {
-            return ParseNumber();
-        }
-        else if(primary != null && primary.type == TYPE_VARIABLE) {
-            return ParseVariable();
-        }
-        else if(TypeMatch(TYPE_LEFTPAREN)) {
+        if(primary.type == TYPE_FUNCTION) return ParseFunction();
+        if(primary.type == TYPE_NUMBER) return ParseNumber();
+        if(primary.type == TYPE_VARIABLE) return ParseVariable();
+
+        if(TypeMatch(TYPE_LEFTPAREN)) {
             ParseTreeNode node = ParseExpression();
-            UseToken(TYPE_RIGHTPAREN);
+            try {
+                UseToken(TYPE_RIGHTPAREN);
+            } catch (ParserException) {
+                throw new ParserException("Expected ')' to match '('");
+            }
             return node;
         }
 
-        // should never happen
-        return null;
+        // not a primary token
+        throw new ParserException($"Unexpected token in primary expression: {primary?.text ?? "null"}");
     }
 
     // parses a function from the token list following the rule of the grammar:
     //  Function -> ('sin' | 'cos' | 'tan' | 'sqrt' | 'log' | ... ) '(' Expression ')'
     private ParseTreeNode ParseFunction() {
+        if(tokenIndex + 4 > tokens.Count) throw new ParserException("Function must be in this format: [definition]([expression])");
+
+        EquationToken current = CurrentToken();
+        if(current.type != TYPE_FUNCTION) throw new ParserException("Missing function declaration while parsing function.");
+
         // use up the function token, but also save it
         EquationToken function = UseToken(TYPE_FUNCTION);
+
+        current = CurrentToken();
+        if(current.type != TYPE_LEFTPAREN) throw new ParserException($"Missing left parenthesis while parsing function: {function.text}");
 
         // use up a left parenthesis
         UseToken(TYPE_LEFTPAREN);
 
         // parse the expression inside the function
         ParseTreeNode node = ParseExpression();
+
+        current = CurrentToken();
+        if(current.type != TYPE_RIGHTPAREN) throw new ParserException($"Missing right parenthesis while parsing function: {function.text}");
 
         // use up a right parenthesis
         UseToken(TYPE_RIGHTPAREN);
@@ -264,5 +319,29 @@ public class EquationParser
     //  Variable -> 'x' | 'y' | 'z' | ...
     private ParseTreeNode ParseVariable() {
         return new ParseTreeNode(UseToken(TYPE_VARIABLE));
+    }
+
+    // temporary functions to debug the parse tree
+    public string DebugParseTree(ParseTreeNode root)
+    {
+        if (root == null)
+            return "Parse tree is null.";
+
+        return DebugParseTreeHelper(root, 0);
+    }
+
+    private string DebugParseTreeHelper(ParseTreeNode node, int depth)
+    {
+        if (node == null) return "";
+
+        string indent = new string(' ', depth * 2);
+        string result = $"{indent}- {node.token.text} [{node.token.type}]\n";
+
+        if (node.left != null)
+            result += DebugParseTreeHelper(node.left, depth + 1);
+        if (node.right != null)
+            result += DebugParseTreeHelper(node.right, depth + 1);
+
+        return result;
     }
 }

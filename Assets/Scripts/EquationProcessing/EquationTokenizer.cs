@@ -22,11 +22,24 @@ public class EquationTokenizer
     public string GetDebugInfo()
     {
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        List<EquationToken> cleanTokens;
+
+        try{
+            cleanTokens = CleanUpEquation();
+        } catch (TokenizerException te) {
+            cleanTokens = new List<EquationToken>();
+        }
 
         sb.AppendLine("=== TOKENS ===");
         for (int i = 0; i < tokens.Count; i++)
         {
             sb.AppendLine($"[{i}] {tokens[i].text} ({tokens[i].type})");
+        }
+
+        sb.AppendLine("\n=== CLEAN TOKENS ===");
+        for (int i = 0; i < cleanTokens.Count; i++)
+        {
+            sb.AppendLine($"[{i}] {cleanTokens[i].text} ({cleanTokens[i].type})");
         }
 
         sb.AppendLine("\n=== TOKEN RANGES ===");
