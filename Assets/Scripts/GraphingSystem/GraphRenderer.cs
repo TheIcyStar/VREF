@@ -28,7 +28,7 @@ public interface IGraphRenderer
             GraphVariable.X => settings.xMin,
             GraphVariable.Y => settings.yMin,
             GraphVariable.Z => settings.zMin,
-            _ => 0
+            _ => throw new GraphEvaluationException("Unknown variable attempting to be graphed.")
         };
     }
 
@@ -40,7 +40,7 @@ public interface IGraphRenderer
             GraphVariable.X => settings.xMax,
             GraphVariable.Y => settings.yMax,
             GraphVariable.Z => settings.zMax,
-            _ => 0
+            _ => throw new GraphEvaluationException("Unknown variable attempting to be graphed.")
         };
     }
 }
@@ -68,9 +68,7 @@ public class LineGraphRenderer : IGraphRenderer
         List<Vector3> points = new List<Vector3>();
 
         // extract the input var
-        GraphVariable inputVar;
-        if(inputVars.Count == 0) inputVar = GraphVariable.Constant;
-        else inputVar = inputVars.First();
+        GraphVariable inputVar = inputVars.First();
 
         // deal with constants later, as this would require multiple variable mappings at the same time
         // i.e. x = 5, z = 0 to get a constant line on the xz plane, as just x = 5 would have to decide which var to set to 0
@@ -95,28 +93,18 @@ public class LineGraphRenderer : IGraphRenderer
     }
 
     // evaluates the equation to solve for the RHS value at a certain independent variable point
-    // string switch is another potential reason to change the tree to use some unified token,
-    // although strings are very modular and are easy for new additions
     private float EvaluateEquation(ParseTreeNode node, GraphVariable inputVar, float inputVarVal)
     {
-        if (node == null) return 0;
         switch (node.token.type)
         {
             case EquationParser.TYPE_NUMBER:
-                return float.TryParse(node.token.text, out float num) ? num : 0;
+                return float.TryParse(node.token.text, out float num) ? num : throw new GraphEvaluationException($"Incorrect number format for '{node.token.text}'.");
             case EquationParser.TYPE_VARIABLE:
-                return node.token.text switch
-                {
-                    // setting to 0 will "null" the equation if incorrect variables are found for this type
-                    // ex: y = xy, y = xz, ...
-                    // probably can remove this if equation validation/error checking is added
-                    // dont really need the switch case either if that is implemented
-                    "x" => inputVar == GraphVariable.X ? inputVarVal : 0,
-                    "y" => inputVar == GraphVariable.Y ? inputVarVal : 0,
-                    "z" => inputVar == GraphVariable.Z ? inputVarVal : 0,
-                    _ => 0
-                };
+                return inputVarVal;
             case EquationParser.TYPE_OPERATOR:
+                // treat missing left operand as 0 so that unary minus works without left operand (negation)
+                // maybe there are some operators that work with only a left operand? so right is also set to 0
+                // every missing operand error should be stopped in the parser before it gets here, so it shouldn't matter
                 float left = node.left != null ? EvaluateEquation(node.left, inputVar, inputVarVal) : 0;
                 float right = node.right != null ? EvaluateEquation(node.right, inputVar, inputVarVal) : 0;
                 return node.token.text switch
@@ -124,9 +112,10 @@ public class LineGraphRenderer : IGraphRenderer
                     "+" => left + right,
                     "-" => left - right,
                     "*" => left * right,
-                    "/" => right != 0 ? left / right : 0,
+                    "/" => right != 0 ? left / right : throw new GraphEvaluationException("Cannot divide by zero."),
                     "^" => Mathf.Pow(left, right),
-                    _ => 0
+                    // should never happen, should be caught in parser
+                    _ => throw new GraphEvaluationException($"Unsupported operator '{node.token.text}'.")
                 };
         }
         return 0;
@@ -143,7 +132,8 @@ public class LineGraphRenderer : IGraphRenderer
             (GraphVariable.Y, GraphVariable.Z) => new Vector3(0, inputVarVal, outputVarVal),
             (GraphVariable.Z, GraphVariable.X) => new Vector3(outputVarVal, 0, inputVarVal),
             (GraphVariable.Z, GraphVariable.Y) => new Vector3(0, outputVarVal, inputVarVal),
-            _ => new Vector3(inputVarVal, outputVarVal, 0)
+            // this will show up for 3d equations that get renderered as 2d, like x = 3
+            _ => throw new GraphEvaluationException("Point lies on unknown plane (only XY, XZ, ZY planes supported).")
         };
     }
 }

@@ -15,3 +15,8 @@ public class EquationUIException : Exception
 {
     public EquationUIException(string message) : base(message) {}
 }
+
+public class GraphEvaluationException : Exception
+{
+    public GraphEvaluationException(string message) : base(message) {}
+}

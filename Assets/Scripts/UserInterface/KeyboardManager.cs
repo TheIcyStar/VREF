@@ -65,6 +65,13 @@ public class KeyboardManager : MonoBehaviour
             equationErrorText.text = pe.Message;
         }
         // catch graph
+        catch (GraphEvaluationException ge) {
+            equationErrorText.text = ge.Message;
+        }
+        // catch everything else
+        catch (Exception e) {
+            equationErrorText.text = e.Message;
+        }
     }
 
     // backspace button is pressed

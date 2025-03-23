@@ -53,7 +53,7 @@ public class GraphManager : MonoBehaviour
 
         // attach the correct renderer
         if(equationType == TYPE_LINE) renderer = new LineGraphRenderer(graphObj.AddComponent<LineRenderer>());
-        else                          renderer = new LineGraphRenderer(graphObj.AddComponent<LineRenderer>());  // default
+        else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         // add the graph object and its corresponding scripts to the dictionary
         graphs[graphPrefabObj] = (grapher, renderer);
@@ -69,11 +69,8 @@ public class GraphManager : MonoBehaviour
         HashSet<GraphVariable> inputVars = new HashSet<GraphVariable>();
         GraphVariable outputVar;
 
-        // default to y = f(x)
         if(equationTree == null || equationTree.token.text != "=") {
-            inputVars.Add(GraphVariable.X);
-            outputVar = GraphVariable.Y;
-            return (TYPE_LINE, inputVars, outputVar);
+            throw new GraphEvaluationException("Explicit equation not found.");
         }
 
         // find output var (left of equal sign)
@@ -85,10 +82,13 @@ public class GraphManager : MonoBehaviour
         // add all input variables to the set (right of equal sign)
         DetermineVariables(equationTree.right, inputVars);
 
-        // this logic needs to change to support parametrics, planes, etc... in the future
-        if (inputVars.Count == 0 || inputVars.Count == 1) equationType = TYPE_LINE;
+        // check to see if there is no explicit variable
+        if(inputVars.Contains(outputVar)) throw new GraphEvaluationException("Variable found on left and right hand side of equation.");
+
+        // this logic needs to change to support constants, parametrics, planes, etc... in the future
+        if (inputVars.Count == 1)                         equationType = TYPE_LINE;
         else if (inputVars.Count == 2)                    equationType = TYPE_MESH;
-        else                                              equationType = TYPE_LINE;
+        else                                              throw new GraphEvaluationException("Unsupported variable amount in right hand side of equation.");
 
         return (equationType, inputVars, outputVar);
     }
@@ -118,7 +118,7 @@ public class GraphManager : MonoBehaviour
             "x" => GraphVariable.X,
             "y" => GraphVariable.Y,
             "z" => GraphVariable.Z,
-            _ => GraphVariable.Constant
+            _ => throw new GraphEvaluationException("Unknown/missing variable attempting to be graphed.")
         };
     }
 }
