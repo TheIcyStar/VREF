@@ -41,7 +41,7 @@ public class EquationParser
     Expression   ->    Term (( '+' | '-' ) Term )*                                              // left-associative (handled in implementation)
     Term         ->    Unary (( '*' | '/' ) Unary )*                                            // left-associative (handled in implementation)
     Unary        ->    ( '-' Unary ) | Power                                                    // right-associative (immediate right recursive)
-    Power        ->    Primary ( '^' Unary )*                                                   // right-associative (right recursive)
+    Power        ->    Primary ( '^' Unary )?                                                   // right-associative (right recursive)
     Primary      ->    Function | Number | Variable | '(' Expression ')'                        
     Function     ->    ('sin' | 'cos' | 'tan' | 'sqrt' | 'log' | ... ) '(' Expression ')'                       
     Variable     ->    'x' | 'y' | 'z' | ...
@@ -61,7 +61,7 @@ public class EquationParser
         ParseTreeNode root = ParseExplicit();
 
         // check if all tokens were used
-        if (tokenIndex < tokens.Count) throw new ParserException($"Unexpected tokens after expression: {string.Join("", tokens.GetRange(tokenIndex, tokens.Count - tokenIndex).ConvertAll(t => t.text))}");
+        if (tokenIndex < tokens.Count) throw new ParserException($"Unexpected tokens after expression: '{string.Join("", tokens.GetRange(tokenIndex, tokens.Count - tokenIndex).ConvertAll(t => t.text))}'.");
 
         return root;
     }
@@ -86,7 +86,7 @@ public class EquationParser
         }
 
         // wrong token
-        throw new ParserException($"but found: {CurrentToken().text}");
+        throw new ParserException($"but found: '{CurrentToken().text}'.");
     }
 
     // parses an explicit from the token list following the rule of the grammar:
@@ -124,7 +124,7 @@ public class EquationParser
 
             // parse a term on the RHS
             ParseTreeNode nextTerm ;
-            try {nextTerm = ParseTerm();} catch (InvalidOperationException) {throw new ParserException($"Missing/invalid right-hand side after operator {op.text}");}
+            try {nextTerm = ParseTerm();} catch (InvalidOperationException) {throw new ParserException($"Missing/invalid right-hand side after operator '{op.text}'.");}
 
             // make the operator the parent of the two terms
             firstTerm = new ParseTreeNode(op) { left = firstTerm, right = nextTerm };
@@ -149,7 +149,7 @@ public class EquationParser
 
             // parse a unary operation on the RHS
             ParseTreeNode nextUnary;
-            try {nextUnary = ParseUnary();} catch (InvalidOperationException) {throw new ParserException($"Missing/invalid right-hand side after operator {op.text}");}
+            try {nextUnary = ParseUnary();} catch (InvalidOperationException) {throw new ParserException($"Missing/invalid right-hand side after operator '{op.text}'.");}
 
             // make the operator the parent of the two unary operations
             firstUnary = new ParseTreeNode(op) { left = firstUnary, right = nextUnary };
@@ -179,20 +179,21 @@ public class EquationParser
     }
 
     // parses a power from the token list following the rule of the grammar:
-    //  Power -> Primary ( '^' Unary )*
+    //  Power -> Primary ( '^' Unary )?
     private ParseTreeNode ParsePower() {
         // parse a primary on the LHS
         ParseTreeNode primary = ParsePrimary();
 
-        // loop through the rest of the power
-        // keep checking for Primary ( '^' Unary )* until 
-        // a different token or end of token list
-        while(TypeMatch(TYPE_OPERATOR) && CurrentToken().text == "^") {
+        // only check for Primary ( '^' Unary ) once 
+        // as '^' is right associative, so additional
+        // powers will be added in the ParseUnary call
+        if(TypeMatch(TYPE_OPERATOR) && CurrentToken().text == "^") {
             // use up the operator
             EquationToken op = UseToken(TYPE_OPERATOR);
 
             // parse a unary on the RHS
-            ParseTreeNode unary = ParseUnary();
+            ParseTreeNode unary;
+            try {unary = ParseUnary();} catch (InvalidOperationException) {throw new ParserException($"Missing/invalid right-hand side after operator '^'.");}
 
             // make the exponentiation operator the root of the power tree
             primary = new ParseTreeNode(op) { left = primary, right = unary };
@@ -238,14 +239,14 @@ public class EquationParser
         EquationToken function = UseToken(TYPE_FUNCTION);
 
         // try to use up a left parenthesis
-        try {UseToken(TYPE_LEFTPAREN);} catch(ParserException) {throw new ParserException($"Missing left parenthesis after function: {function.text}");}
+        try {UseToken(TYPE_LEFTPAREN);} catch(ParserException) {throw new ParserException($"Missing left parenthesis after function: '{function.text}'.");}
 
         // parse the expression inside the function
         ParseTreeNode node;
-        try {node = ParseExpression();} catch(InvalidOperationException) {throw new ParserException($"Missing expression inside function: {function.text}");}
+        try {node = ParseExpression();} catch(InvalidOperationException) {throw new ParserException($"Missing expression inside function: '{function.text}'.");}
 
         // try to use up a right parenthesis
-        try {UseToken(TYPE_RIGHTPAREN);} catch (ParserException) {throw new ParserException($"Missing right parenthesis after function: {function.text}");}
+        try {UseToken(TYPE_RIGHTPAREN);} catch (ParserException) {throw new ParserException($"Missing right parenthesis after function: '{function.text}'.");}
 
         // return the root of the function tree with the only child being the root of the expression tree
         return new ParseTreeNode(function) { right = node };
