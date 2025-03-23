@@ -112,10 +112,24 @@ public class LineGraphRenderer : IGraphRenderer
                     "+" => left + right,
                     "-" => left - right,
                     "*" => left * right,
-                    "/" => right != 0 ? left / right : throw new GraphEvaluationException("Cannot divide by zero."),
+                    // something like 1 / x will have ungraphable values set to NaN
+                    // but something like 1 / 0 will throw an error
+                    "/" => right != 0 ? left / right : (node.left.token.type == EquationParser.TYPE_NUMBER ? throw new GraphEvaluationException("Cannot divide by zero.") : float.NaN),
                     "^" => Mathf.Pow(left, right),
                     // should never happen, should be caught in parser
                     _ => throw new GraphEvaluationException($"Unsupported operator '{node.token.text}'.")
+                };
+            case EquationParser.TYPE_FUNCTION:
+                // functions have their expression on the right
+                // error should already be caught in parser
+                float expression = node.right != null ? EvaluateEquation(node.right, inputVar, inputVarVal) : throw new GraphEvaluationException($"Missing expression inside function '{node.token.text}'.");
+                return node.token.text switch
+                {
+                    "sin" => Mathf.Sin(expression),
+                    "log" => Mathf.Log(expression),
+                    "sqrt" => Mathf.Sqrt(expression),
+                    // should never happen, should be caught in parser
+                    _ => throw new GraphEvaluationException($"Unsupported function type '{node.token.text}'.")
                 };
         }
         return 0;
@@ -132,7 +146,7 @@ public class LineGraphRenderer : IGraphRenderer
             (GraphVariable.Y, GraphVariable.Z) => new Vector3(0, inputVarVal, outputVarVal),
             (GraphVariable.Z, GraphVariable.X) => new Vector3(outputVarVal, 0, inputVarVal),
             (GraphVariable.Z, GraphVariable.Y) => new Vector3(0, outputVarVal, inputVarVal),
-            // this will show up for 3d equations that get renderered as 2d, like x = 3
+            // this should already be caught in GraphManager
             _ => throw new GraphEvaluationException("Point lies on unknown plane (only XY, XZ, ZY planes supported).")
         };
     }
