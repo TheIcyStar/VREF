@@ -51,8 +51,8 @@ public class GraphManager : MonoBehaviour
         // initialize renderer
         IGraphRenderer renderer;
 
-        // attach the correct renderer
-        if(equationType == TYPE_LINE) renderer = new LineGraphRenderer(graphObj.AddComponent<LineRenderer>());
+        // pass in the gameobject to add renderers to
+        if(equationType == TYPE_LINE) renderer = new LineGraphRenderer(graphObj.transform);
         else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         // add the graph object and its corresponding scripts to the dictionary
