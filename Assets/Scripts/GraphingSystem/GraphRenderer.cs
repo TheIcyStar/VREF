@@ -5,10 +5,11 @@ using System;
 using UnityEngine.InputSystem;
 
 // TODO: Do the following when refactoring all scripts
-// -move the utils class to its own file
 // -move the graph variable enum to its own file
 // -change token type to an enum
 // -store token type in its own file
+// -store the interface in a separate file
+// -store LineGraphRenderer in a separate file
 
 // graph variable enum to avoid string comparison
 public enum GraphVariable {
@@ -16,51 +17,6 @@ public enum GraphVariable {
     Y,
     Z,
     Constant
-}
-
-// helpful functions for multiple graph types
-public static class GraphUtils
-{
-    // use binary search to find the edge point to cutoff the graph
-    public static float BinarySearchEdge(
-        // one value inside the range, one value outside the range
-        float inputLow, float inputHigh,
-        // function used to find new points
-        // use a delegate to decouple evaluation logic
-        Func<float, float> evalFunc, 
-        // range you are trying to stay between
-        float minOutput, float maxOutput, 
-        // only search this many times, or up to this accuracy
-        int maxIterations = 20, float epsilon = 0.0001f) 
-    {
-        // keep track of current low and current high
-        float low = inputLow;
-        float high = inputHigh;
-
-        // use binary search
-        for (int i = 0; i < maxIterations && Mathf.Abs(high - low) > epsilon; i++)
-        {
-            // find midpoint
-            float mid = (low + high) / 2f;
-
-            // find new value at this midpoint
-            float val = evalFunc(mid);
-
-             // still out of range, search left
-            if (float.IsNaN(val) || val < minOutput || val > maxOutput)
-            {
-                high = mid;
-            }
-             // still in range, store as best candidate
-            else
-            {
-                low = mid;
-            }
-        }
-
-         // best estimate of last in-range input
-        return low;
-    }
 }
 
 // interface for all graph renderers
@@ -115,7 +71,7 @@ public interface IGraphRenderer
                     "*" => left * right,
                     // something like 1 / x will have ungraphable values set to NaN
                     // but something like 1 / 0 will throw an error
-                    "/" => right != 0 ? left / right : (node.left.token.type == EquationParser.TYPE_NUMBER ? throw new GraphEvaluationException("Cannot divide by zero.") : float.NaN),
+                    "/" => right != 0 ? left / right : (node.right.token.type == EquationParser.TYPE_NUMBER ? throw new GraphEvaluationException("Cannot divide by zero.") : float.NaN),
                     "^" => Mathf.Pow(left, right),
                     // should never happen, should be caught in parser
                     _ => throw new GraphEvaluationException($"Unsupported operator '{node.token.text}'.")
@@ -147,15 +103,21 @@ public class LineGraphRenderer : IGraphRenderer
 
     public LineGraphRenderer(Transform parent)
     {
-        // this.lineRenderer = renderer;
-        // this.lineRenderer.useWorldSpace = false;
-        // this.lineRenderer.startWidth = .02f;
-        // this.lineRenderer.endWidth = .02f;
-
         this.graphParent = parent;
         this.segmentRenderers = new();
     }
 
+    // right now this function uses a very basic approach:
+    // go from inputMin -> inputMax and plot all points
+    // the problem is the output values can be outside the outputRange
+    // one solution was binary search at the edge once the value left the range
+    // you would search between the point in range and the point out of range
+    // to find the closest point to the range value, but that did not end up 
+    // working for graphs with huge jumps from -inf to inf, like y = 1/sin(x)
+    // the next solution to solve this would be to adaptively sample the sections
+    // where the graph jumps too much, and give them a higher step count
+    // this requires much more implementation and will be done later on
+    // for now, endcaps are not touched, and all the points are simply plotted
     public void RenderGraph(ParseTreeNode equationTree, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar)
     {
         // extract the input var
@@ -169,7 +131,6 @@ public class LineGraphRenderer : IGraphRenderer
 
         // initialize list of graph segments
         List<List<Vector3>> segments = new();
-        segments.Add(new List<Vector3>());
 
         // deal with constants later, as this would require multiple variable mappings at the same time
         // i.e. x = 5, z = 0 to get a constant line on the xz plane, as just x = 5 would have to decide which var to set to 0
@@ -181,9 +142,7 @@ public class LineGraphRenderer : IGraphRenderer
         float outputMax = IGraphRenderer.GetAxisMax(settings, outputVar);   
 
         // track when the graph is in range to only graph valid points
-        bool inRange = false;
-        Vector3? previousPoint = null;
-        float previousInputVal = inputMin;
+        bool previousInRange = false;
 
         // go through each point of the indepedent variable and calculate the value of the RHS, then plot
         for (float inputVal = inputMin; inputVal < inputMax; inputVal += settings.step)
@@ -192,54 +151,23 @@ public class LineGraphRenderer : IGraphRenderer
             variables[inputVar.ToString().ToLower()] = inputVal;
             // find what the output evaluates to when given the input at this point
             float outputVal = IGraphRenderer.EvaluateEquation(equationTree, variables);
-            // determine the correct axis of the graph to add the point to
-            Vector3 currentPoint = AssignPoint(inputVal, outputVal, inputVar, outputVar);
+            
+            // check if current function value is in the output range
+            bool currentInRange = !float.IsNaN(outputVal) && outputVal >= outputMin && outputVal <= outputMax;
 
-            // point is in graphing range
-            if (!float.IsNaN(outputVal) && outputVal >= outputMin && outputVal <= outputMax) {
-                // point just entered graphing range
-                // use binary search to find edge point
-                if(!inRange && previousPoint.HasValue)  {
-                    float entryInputVal = GraphUtils.BinarySearchEdge(
-                        previousInputVal, inputVal,
-                        v => {
-                            variables[inputVar.ToString().ToLower()] = v;
-                            return IGraphRenderer.EvaluateEquation(equationTree, variables);
-                        },
-                        outputMin, outputMax
-                    );
-                    variables[inputVar.ToString().ToLower()] = entryInputVal;
-                    float entryOutputVal = IGraphRenderer.EvaluateEquation(equationTree, variables);
-                    Vector3 entryPoint = AssignPoint(entryInputVal, entryOutputVal, inputVar, outputVar);
-                    segments.Last().Add(entryPoint);
-                }
-                // add the current point when in range
+            // only add points when in range
+            if (currentInRange) {
+                // just came back in range, start a new segment
+                if(!previousInRange) segments.Add(new List<Vector3>());
+
+                // determine the correct axis of the graph to add the point to
+                Vector3 currentPoint = AssignPoint(inputVal, outputVal, inputVar, outputVar);
+
+                // add the point to the current segment
                 segments.Last().Add(currentPoint);
-                inRange = true;
             }
-            // point left graphing range
-            // use binary search to find edge point
-            else if(inRange && previousPoint.HasValue) {
-                float exitInputVal = GraphUtils.BinarySearchEdge(
-                    previousInputVal, inputVal,
-                    v => {
-                        variables[inputVar.ToString().ToLower()] = v;
-                        return IGraphRenderer.EvaluateEquation(equationTree, variables);
-                    },
-                    outputMin, outputMax
-                );
-
-                variables[inputVar.ToString().ToLower()] = exitInputVal;
-                float exitOutputVal = IGraphRenderer.EvaluateEquation(equationTree, variables);
-                Vector3 exitPoint = AssignPoint(exitInputVal, exitOutputVal, inputVar, outputVar);
-                segments.Last().Add(exitPoint);
-                // stop the line here and start a new segment
-                segments.Add(new List<Vector3>());
-                inRange = false;
-            }
-
-            previousPoint = inRange ? currentPoint : null;
-            previousInputVal = inputVal;
+            
+            previousInRange = currentInRange;
         }
 
         // basic object pooling, only add new line renderers when needed, and prioritize using old ones
@@ -248,7 +176,7 @@ public class LineGraphRenderer : IGraphRenderer
         {
             if (i >= segmentRenderers.Count)
             {
-                GameObject segmentObj = new GameObject($"Segment {i}");
+                GameObject segmentObj = new GameObject($"Segment {i + 1}");
                 segmentObj.transform.SetParent(graphParent, false);
 
                 LineRenderer newRenderer = segmentObj.gameObject.AddComponent<LineRenderer>();
@@ -257,11 +185,11 @@ public class LineGraphRenderer : IGraphRenderer
                 segmentRenderers.Add(newRenderer);
             }
 
-            LineRenderer r = segmentRenderers[i];
+            LineRenderer renderer = segmentRenderers[i];
             List<Vector3> segment = segments[i];
-            r.positionCount = segment.Count;
-            r.SetPositions(segment.ToArray());
-            r.enabled = true;
+            renderer.positionCount = segment.Count;
+            renderer.SetPositions(segment.ToArray());
+            renderer.enabled = true;
         }
 
         // disable any unused renderers
