@@ -251,28 +251,4 @@ public class EquationParser
         // return the root of the function tree with the only child being the root of the expression tree
         return new ParseTreeNode(function) { right = node };
     }
-
-    // temporary functions to debug the parse tree
-    public string DebugParseTree(ParseTreeNode root)
-    {
-        if (root == null)
-            return "Parse tree is null.";
-
-        return DebugParseTreeHelper(root, 0);
-    }
-
-    private string DebugParseTreeHelper(ParseTreeNode node, int depth)
-    {
-        if (node == null) return "";
-
-        string indent = new string(' ', depth * 2);
-        string result = $"{indent}- {node.token.text} [{node.token.type}]\n";
-
-        if (node.left != null)
-            result += DebugParseTreeHelper(node.left, depth + 1);
-        if (node.right != null)
-            result += DebugParseTreeHelper(node.right, depth + 1);
-
-        return result;
-    }
 }

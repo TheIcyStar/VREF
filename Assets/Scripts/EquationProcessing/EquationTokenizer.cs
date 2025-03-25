@@ -18,45 +18,6 @@ public class EquationTokenizer
     // text box stretch to equation size but right now its hard coded
     private const int MAX_CHARACTERS = 256;
 
-    // temporary function to debug all three lists
-    public string GetDebugInfo()
-    {
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        List<EquationToken> cleanTokens;
-
-        try{
-            cleanTokens = CleanUpEquation();
-        } catch (TokenizerException) {
-            cleanTokens = new List<EquationToken>();
-        }
-
-        sb.AppendLine("=== TOKENS ===");
-        for (int i = 0; i < tokens.Count; i++)
-        {
-            sb.AppendLine($"[{i}] {tokens[i].text} ({tokens[i].type})");
-        }
-
-        sb.AppendLine("\n=== CLEAN TOKENS ===");
-        for (int i = 0; i < cleanTokens.Count; i++)
-        {
-            sb.AppendLine($"[{i}] {cleanTokens[i].text} ({cleanTokens[i].type})");
-        }
-
-        sb.AppendLine("\n=== TOKEN RANGES ===");
-        for (int i = 0; i < tokenRanges.Count; i++)
-        {
-            sb.AppendLine($"[{i}] Start: {tokenRanges[i].start}, End: {tokenRanges[i].end}");
-        }
-
-        sb.AppendLine("\n=== RANGE MAP ===");
-        for (int i = 0; i < rangeMap.Length; i++)
-        {
-            sb.AppendLine($"Char {i} => Token {rangeMap[i]}");
-        }
-
-        return sb.ToString();
-    }
-
     public EquationTokenizer(TMP_InputField equationInput){
         this.equationInput = equationInput;
     }

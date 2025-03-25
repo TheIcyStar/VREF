@@ -9,19 +9,6 @@ public class EquationManager : MonoBehaviour
     private EquationTokenizer tokenizer;
     private EquationParser parser;
 
-
-    // temporarily store the parse tree for debugging
-    private ParseTreeNode debugParseTree;
-    // temporary function to pass along debug info to keyboardManager
-    public string GetTokenizerDebugInfo()
-    {
-        return tokenizer != null ? tokenizer.GetDebugInfo() : "Tokenizer not initialized.";
-    }
-    public string GetParserDebugInfo()
-    {
-        return parser.DebugParseTree(debugParseTree);
-    }
-
     public void InitializeEqManager(TMP_InputField equationInput) {
         if (equationInput == null) throw new EquationUIException("Equation input field is not assigned.");
 
@@ -37,9 +24,6 @@ public class EquationManager : MonoBehaviour
 
         // parse the token list into a tree
         ParseTreeNode equationTree = parser.Parse(tokens);
-
-        // TEMPORARY
-        debugParseTree = equationTree;
 
         // send it to the graph manager
         graphManager.CreateNewGraph(equationTree);

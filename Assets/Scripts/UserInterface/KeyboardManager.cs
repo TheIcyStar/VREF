@@ -15,19 +15,6 @@ public class KeyboardManager : MonoBehaviour
     // handles all equation logic (tokenizing, parsing)
     public EquationManager equationManager;
 
-
-    // temporary text elements to debug
-    public TMP_Text debugOutputTextTokenizer;
-    public TMP_Text debugOutputTextParser;
-
-    // update debug text with info
-    // remove this when done
-    public void Update()
-    {
-        debugOutputTextTokenizer.text = equationManager.GetTokenizerDebugInfo();
-        debugOutputTextParser.text = equationManager.GetParserDebugInfo();
-    }
-
     public void Start() 
     {
         // catch any weird unlinking bugs
