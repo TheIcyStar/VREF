@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class AxisRenderer : MonoBehaviour
 {
+    public int width;
     private LineRenderer xAxis, yAxis, zAxis;
     private Transform xStartArrow, xEndArrow, yStartArrow, yEndArrow, zStartArrow, zEndArrow;
 
