@@ -21,4 +21,19 @@ public class IGraphRendererTests
         Assert.AreEqual(-10f, IGraphRenderer.GetAxisMin(settings, GraphVariable.Y));
         Assert.AreEqual(-15f, IGraphRenderer.GetAxisMin(settings, GraphVariable.Z));
     }
+
+    [Test]
+    public void AxisMax_ReturnsCorrectMaximum()
+    {
+        var settings = new GraphSettings
+        {
+            xMax = 5f,
+            yMax = 10f,
+            zMax = 15f
+        };
+
+        Assert.AreEqual(5f, IGraphRenderer.GetAxisMax(settings, GraphVariable.X));
+        Assert.AreEqual(10f, IGraphRenderer.GetAxisMax(settings, GraphVariable.Y));
+        Assert.AreEqual(15f, IGraphRenderer.GetAxisMax(settings, GraphVariable.Z));
+    }
 }
