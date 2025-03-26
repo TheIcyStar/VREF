@@ -16,7 +16,7 @@ public class ParserTests
     }
 
     [Test]
-    public void ParseAddition_ReturnsCorrectNodes()
+    public void ParseAddition()
     {
         var tokens = new List<EquationToken>
         {
@@ -42,7 +42,7 @@ public class ParserTests
     }
 
     [Test]
-    public void ParseParenthesis_ReturnsNoParenthesis()
+    public void ParseParenthesis()
     {
         var tokens = new List<EquationToken>
         {
