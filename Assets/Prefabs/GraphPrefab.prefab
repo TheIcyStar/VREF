@@ -3324,6 +3324,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3823465585578089295}
+  - component: {fileID: 4372133928288227027}
   m_Layer: 0
   m_Name: GraphPrefab
   m_TagString: Untagged
@@ -3352,6 +3353,30 @@ Transform:
   - {fileID: 7252387306211573707}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4372133928288227027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2918748304824918604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79b2464fb2a2ad742a60b71fb8f2c7b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  axisRenderer: {fileID: 8462478283935580772}
+  graphObj: {fileID: 7215549669981718651}
+  xAxisMin: {fileID: 2141693233587590269}
+  xAxisMax: {fileID: 9157726568696981776}
+  yAxisMin: {fileID: 1828223612063327117}
+  yAxisMax: {fileID: 3470787636523848489}
+  zAxisMin: {fileID: 3613502792110419327}
+  zAxisMax: {fileID: 4575671490641889892}
+  xRotation: {fileID: 1965897939802635643}
+  yRotation: {fileID: 8239834406734868759}
+  zRotation: {fileID: 5567173874073201864}
+  step: {fileID: 804101652246314616}
 --- !u!1 &2966688578530817664
 GameObject:
   m_ObjectHideFlags: 0
@@ -7219,7 +7244,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3627878891719569350}
-  - component: {fileID: 6414271601126655663}
   m_Layer: 0
   m_Name: Graph
   m_TagString: Untagged
@@ -7242,28 +7266,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3823465585578089295}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6414271601126655663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7215549669981718651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79b2464fb2a2ad742a60b71fb8f2c7b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  xAxisMin: {fileID: 2141693233587590269}
-  xAxisMax: {fileID: 9157726568696981776}
-  yAxisMin: {fileID: 1828223612063327117}
-  yAxisMax: {fileID: 3470787636523848489}
-  zAxisMin: {fileID: 3613502792110419327}
-  zAxisMax: {fileID: 4575671490641889892}
-  xRotation: {fileID: 1965897939802635643}
-  yRotation: {fileID: 8239834406734868759}
-  zRotation: {fileID: 5567173874073201864}
-  step: {fileID: 804101652246314616}
 --- !u!1 &7217307617239463199
 GameObject:
   m_ObjectHideFlags: 0
@@ -8624,7 +8626,7 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-        - m_Target: {fileID: 6414271601126655663}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: EquationGrapher, Assembly-CSharp
           m_MethodName: UpdateGraphSettings
           m_Mode: 1
