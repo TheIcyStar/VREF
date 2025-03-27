@@ -17,6 +17,8 @@ public class EquationGrapher : MonoBehaviour
     // single output var computed by the function (dependent variable)
     private GraphVariable outputVar;
 
+    private Vector3 originalPostion;
+
     // all graph settings UI elements
     public TMP_InputField xAxisMin;
     public TMP_InputField xAxisMax;
@@ -35,6 +37,7 @@ public class EquationGrapher : MonoBehaviour
         this.graphSettings = settings;
         this.inputVars = inputVars;
         this.outputVar = outputVar;
+        this.originalPostion = this.transform.position;
         ScaleGraph();
         VisualizeGraph();
     }
@@ -49,7 +52,7 @@ public class EquationGrapher : MonoBehaviour
         this.transform.localScale = Vector3.one * scaleFactor;
 
         // calculate the z offset so that graph spawns above ground
-        this.transform.position += new Vector3(0, -graphSettings.zMin * scaleFactor, 0);
+        this.transform.position = originalPostion + new Vector3(0, -graphSettings.zMin * scaleFactor, 0);
     }
 
     // renders the graph using the respective renderer and settings
@@ -59,7 +62,18 @@ public class EquationGrapher : MonoBehaviour
 
     // updates the graph settings and re-renders the graph
     public void UpdateGraphSettings() {
-        //this.graphSettings = newSettings;
+        float val;
+
+        if (float.TryParse(xAxisMin.text, out val)) graphSettings.xMin = val;
+        if (float.TryParse(xAxisMax.text, out val)) graphSettings.xMax = val;
+        if (float.TryParse(yAxisMin.text, out val)) graphSettings.yMin = val;
+        if (float.TryParse(yAxisMax.text, out val)) graphSettings.yMax = val;
+        if (float.TryParse(zAxisMin.text, out val)) graphSettings.zMin = val;
+        if (float.TryParse(zAxisMax.text, out val)) graphSettings.zMax = val;
+
+        if (float.TryParse(step.text, out val) && val > 0.0001f) graphSettings.step = val;
+
+        ScaleGraph();
         VisualizeGraph();
     }
 }
