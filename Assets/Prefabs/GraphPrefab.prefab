@@ -724,7 +724,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 676428296e22f6d47a34ac3267e08e3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 5
+  xAxis: {fileID: 8285775274744208508}
+  yAxis: {fileID: 7932443611957405533}
+  zAxis: {fileID: 2099186036485182599}
+  xStartArrow: {fileID: 7104250143493568472}
+  xEndArrow: {fileID: 1192150783373079605}
+  yStartArrow: {fileID: 5536975173975505365}
+  yEndArrow: {fileID: 5378140201074044492}
+  zStartArrow: {fileID: 7858653839095433745}
+  zEndArrow: {fileID: 5826568012693905686}
 --- !u!1 &692518730723922016
 GameObject:
   m_ObjectHideFlags: 0

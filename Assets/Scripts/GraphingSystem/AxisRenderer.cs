@@ -3,27 +3,14 @@ using UnityEngine;
 
 public class AxisRenderer : MonoBehaviour
 {
-    public int width;
-    private LineRenderer xAxis, yAxis, zAxis;
-    private Transform xStartArrow, xEndArrow, yStartArrow, yEndArrow, zStartArrow, zEndArrow;
+    // public values assigned in inspector
+    public LineRenderer xAxis, yAxis, zAxis;
+    public Transform xStartArrow, xEndArrow, yStartArrow, yEndArrow, zStartArrow, zEndArrow;
 
-    // get the line renderers from the three axes objects
+    // does nothing for now
     public void InitializeAxes()
     {
-        Transform xAxisObj = transform.GetChild(0);
-        Transform yAxisObj = transform.GetChild(1);
-        Transform zAxisObj = transform.GetChild(2);
-
-        xAxis = xAxisObj.GetComponent<LineRenderer>();
-        yAxis = yAxisObj.GetComponent<LineRenderer>();
-        zAxis = zAxisObj.GetComponent<LineRenderer>();
-
-        xStartArrow = xAxisObj.GetChild(0).transform;
-        xEndArrow = xAxisObj.GetChild(1).transform;
-        yStartArrow = yAxisObj.GetChild(0).transform;
-        yEndArrow = yAxisObj.GetChild(1).transform;
-        zStartArrow = zAxisObj.GetChild(0).transform;
-        zEndArrow = zAxisObj.GetChild(1).transform;
+        // pass
     }
 
     // updates all three axes based on new graph settings
