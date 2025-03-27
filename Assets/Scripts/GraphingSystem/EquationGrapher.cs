@@ -18,6 +18,7 @@ public class EquationGrapher : MonoBehaviour
     private GraphVariable outputVar;
     // store references to scripts and objects
     public AxisRenderer axisRenderer;
+    public GameObject graphVisualsObj;
     public GameObject graphObj;
 
     // all graph settings UI elements
@@ -49,7 +50,7 @@ public class EquationGrapher : MonoBehaviour
         this.outputVar = outputVar;
 
         // pass in the gameobject (1st child, the "graph" object) to add renderers to
-        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphObj.transform);
+        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisualsObj.transform);
         else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         axisRenderer.InitializeAxes();
@@ -66,12 +67,12 @@ public class EquationGrapher : MonoBehaviour
         float baseRange = 2f;
         float maxRange = Mathf.Max(graphSettings.xMax - graphSettings.xMin, graphSettings.yMax - graphSettings.yMin, graphSettings.zMax - graphSettings.zMin);
         float scaleFactor = baseRange / maxRange;
-        graphObj.transform.localScale = Vector3.one * scaleFactor;
+        graphVisualsObj.transform.localScale = Vector3.one * scaleFactor;
 
         float zOffset = -graphSettings.zMin * scaleFactor;
 
         // calculate the z offset so that graph spawns above ground
-        graphObj.transform.localPosition = new Vector3(0, zOffset, 0);
+        graphVisualsObj.transform.localPosition = new Vector3(0, zOffset, 0);
     }
 
     // renders the graph using the respective renderer and settings
@@ -89,6 +90,12 @@ public class EquationGrapher : MonoBehaviour
         if (float.TryParse(yAxisMax.text, out val)) graphSettings.yMax = val;
         if (float.TryParse(zAxisMin.text, out val)) graphSettings.zMin = val;
         if (float.TryParse(zAxisMax.text, out val)) graphSettings.zMax = val;
+
+        float xRot = 0f, yRot = 0f, zRot = 0f;
+        if (float.TryParse(xRotation.text, out val)) xRot = val;
+        if (float.TryParse(yRotation.text, out val)) yRot = val;
+        if (float.TryParse(zRotation.text, out val)) zRot = val;
+        graphObj.transform.localRotation = Quaternion.Euler(xRot, yRot, zRot);
 
         if (float.TryParse(step.text, out val) && val > 0.0001f) graphSettings.step = val;
 
