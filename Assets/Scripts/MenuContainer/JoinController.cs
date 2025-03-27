@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using TMPro;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
+using System;
 
 
 enum ServerResponseStatus {
@@ -77,20 +78,26 @@ public class JoinController : MonoBehaviour {
     private async Task<ServerResponseStatus> checkConnection(string inputText) {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(inputText)){
             webRequest.SetRequestHeader("InsecureHttpOption", "AlwaysAllowed"); //Todo: Make server run HTTPS and remove later
-            await webRequest.SendWebRequest();
+            try {
+                await webRequest.SendWebRequest();
 
 
-            while(!webRequest.isDone){
-                await Task.Yield();
-            }
+                while(!webRequest.isDone){
+                    await Task.Yield();
+                }
 
-            if(webRequest.result != UnityWebRequest.Result.Success){
+                if(webRequest.result != UnityWebRequest.Result.Success){
+                    return ServerResponseStatus.HOST_UNREACHABLE;
+                }
+
+                API_ServerPingResponse parsedJson = JsonUtility.FromJson<API_ServerPingResponse>(webRequest.downloadHandler.text);
+
+                if(parsedJson.protocolVersion != 0){
+                    return ServerResponseStatus.HOST_OLD_PROTOCOL;
+                }
+            } catch(Exception e) {
+                Debug.LogError("Error while connecting to server: "+e.Message);
                 return ServerResponseStatus.HOST_UNREACHABLE;
-            }
-
-            API_ServerPingResponse parsedJson = JsonUtility.FromJson<API_ServerPingResponse>(webRequest.downloadHandler.text);
-            if(parsedJson.protocolVersion != 0){
-                return ServerResponseStatus.HOST_OLD_PROTOCOL;
             }
 
             return ServerResponseStatus.OK;
