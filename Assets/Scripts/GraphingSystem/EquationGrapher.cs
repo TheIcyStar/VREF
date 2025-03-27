@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
+using TMPro;
 using UnityEngine;
 
 public class EquationGrapher : MonoBehaviour
@@ -15,6 +16,18 @@ public class EquationGrapher : MonoBehaviour
     private HashSet<GraphVariable> inputVars;
     // single output var computed by the function (dependent variable)
     private GraphVariable outputVar;
+
+    // all graph settings UI elements
+    public TMP_InputField xAxisMin;
+    public TMP_InputField xAxisMax;
+    public TMP_InputField yAxisMin;
+    public TMP_InputField yAxisMax;
+    public TMP_InputField zAxisMin;
+    public TMP_InputField zAxisMax;
+    public TMP_InputField xRotation;
+    public TMP_InputField yRotation;
+    public TMP_InputField zRotation;
+    public TMP_InputField step;
 
     public void InitializeGraph(ParseTreeNode equationTree, IGraphRenderer renderer, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar) {
         this.equationTree = equationTree;
@@ -45,8 +58,8 @@ public class EquationGrapher : MonoBehaviour
     }
 
     // updates the graph settings and re-renders the graph
-    public void UpdateGraphSettings(GraphSettings newSettings) {
-        this.graphSettings = newSettings;
+    public void UpdateGraphSettings() {
+        //this.graphSettings = newSettings;
         VisualizeGraph();
     }
 }
