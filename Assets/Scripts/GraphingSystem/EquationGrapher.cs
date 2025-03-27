@@ -7,7 +7,7 @@ using UnityEngine;
 public class EquationGrapher : MonoBehaviour
 {
     // the root node of the equation tree
-    private ParseTreeNode equationTree;
+    public ParseTreeNode equationTree;
     // renderer interface set to the correct renderer type
     private IGraphRenderer graphRenderer;
     // graph settings passed in
@@ -41,7 +41,7 @@ public class EquationGrapher : MonoBehaviour
     private const int TYPE_MESH = 1;
 
     // does nothing w/ def lin color for now
-    public void InitializeGraph(ParseTreeNode equationTree, Material defaultLineColor, GraphSettings settings) 
+    public void InitializeGraph(ParseTreeNode equationTree, Material defaultLineColor, GraphSettings settings)
     {
         // determine what equation type is by parsing the whole tree
         var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
