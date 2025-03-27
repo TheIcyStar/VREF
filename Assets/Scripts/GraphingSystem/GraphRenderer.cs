@@ -1,11 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using System.Linq;
-using UnityEngine.Animations;
 using System;
-using UnityEngine.UIElements;
-using UnityEngine.Rendering;
+using UnityEngine.InputSystem;
+
+// TODO: Do the following when refactoring all scripts
+// -move the graph variable enum to its own file
+// -change token type to an enum
+// -store token type in its own file
+// -store the interface in a separate file
+// -store LineGraphRenderer in a separate file
 
 // graph variable enum to avoid string comparison
 public enum GraphVariable {
@@ -15,33 +19,78 @@ public enum GraphVariable {
     Constant
 }
 
-// interface for all graph renderers to be more modular for later changes
+// interface for all graph renderers
 public interface IGraphRenderer
 {
     void RenderGraph(ParseTreeNode equationTree, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar);
 
-    // default implementation for getting min values
-    public static float GetAxisMin(GraphSettings settings, GraphVariable variable)
+    // get min value of inputted variable axis
+    protected static float GetAxisMin(GraphSettings settings, GraphVariable variable)
     {
         return variable switch
         {
             GraphVariable.X => settings.xMin,
             GraphVariable.Y => settings.yMin,
             GraphVariable.Z => settings.zMin,
-            _ => 0
+            _ => throw new GraphEvaluationException("Unknown variable attempting to be graphed.")
         };
     }
 
-    // default implementation for getting max values
-    public static float GetAxisMax(GraphSettings settings, GraphVariable variable)
+    // get max value of inputted variable axis
+    protected static float GetAxisMax(GraphSettings settings, GraphVariable variable)
     {
         return variable switch
         {
             GraphVariable.X => settings.xMax,
             GraphVariable.Y => settings.yMax,
             GraphVariable.Z => settings.zMax,
-            _ => 0
+            _ => throw new GraphEvaluationException("Unknown variable attempting to be graphed.")
         };
+    }
+
+    // evaluates the equation to solve for the LHS value at a certain point
+    protected static float EvaluateEquation(ParseTreeNode node, Dictionary<string, float> vars)
+    {
+        switch (node.token.type)
+        {
+            case EquationParser.TYPE_NUMBER:
+                return float.TryParse(node.token.text, out float num) ? num : throw new GraphEvaluationException($"Incorrect number format for '{node.token.text}'.");
+            case EquationParser.TYPE_VARIABLE:
+                if (!vars.TryGetValue(node.token.text, out float val))
+                    throw new GraphEvaluationException($"Variable '{node.token.text}' not found.");
+                return val;
+            case EquationParser.TYPE_OPERATOR:
+                // treat missing left operand as 0 so that unary minus works without left operand (negation)
+                // every missing operand error should be stopped in the parser before it gets here
+                float left = node.left != null ? EvaluateEquation(node.left, vars) : 0;
+                float right = EvaluateEquation(node.right, vars);
+                return node.token.text switch
+                {
+                    "+" => left + right,
+                    "-" => left - right,
+                    "*" => left * right,
+                    // something like 1 / x will have ungraphable values set to NaN
+                    // but something like 1 / 0 will throw an error
+                    "/" => right != 0 ? left / right : (node.right.token.type == EquationParser.TYPE_NUMBER ? throw new GraphEvaluationException("Cannot divide by zero.") : float.NaN),
+                    "^" => Mathf.Pow(left, right),
+                    // should never happen, should be caught in parser
+                    _ => throw new GraphEvaluationException($"Unsupported operator '{node.token.text}'.")
+                };
+            case EquationParser.TYPE_FUNCTION:
+                // functions have their expression on the right
+                float arg = EvaluateEquation(node.right, vars);
+                return node.token.text switch
+                {
+                    "sin" => Mathf.Sin(arg),
+                    "log" => Mathf.Log(arg),
+                    "sqrt" => Mathf.Sqrt(arg),
+                    // should never happen, should be caught in parser
+                    _ => throw new GraphEvaluationException($"Unsupported function type '{node.token.text}'.")
+                };
+
+            default:
+                throw new GraphEvaluationException("Unknown token type in evaluation.");
+        }
     }
 }
 
@@ -49,87 +98,105 @@ public interface IGraphRenderer
 // and therefore can only graph on a 2d plane (xy, yz, xz)
 public class LineGraphRenderer : IGraphRenderer
 {
-    private LineRenderer lineRenderer;
+    private Transform graphParent;
+    private List<LineRenderer> segmentRenderers;
 
-    public LineGraphRenderer(LineRenderer renderer)
+    public LineGraphRenderer(Transform parent)
     {
-        this.lineRenderer = renderer;
-        this.lineRenderer.useWorldSpace = false;
-        this.lineRenderer.startWidth = .02f;
-        this.lineRenderer.endWidth = .02f;
+        this.graphParent = parent;
+        this.segmentRenderers = new();
     }
 
+    // right now this function uses a very basic approach:
+    // go from inputMin -> inputMax and plot all points
+    // the problem is the output values can be outside the outputRange
+    // one solution was binary search at the edge once the value left the range
+    // you would search between the point in range and the point out of range
+    // to find the closest point to the range value, but that did not end up 
+    // working for graphs with huge jumps from -inf to inf, like y = 1/sin(x)
+    // the next solution to solve this would be to adaptively sample the sections
+    // where the graph jumps too much, and give them a higher step count
+    // this requires much more implementation and will be done later on
+    // for now, endcaps are not touched, and all the points are simply plotted
     public void RenderGraph(ParseTreeNode equationTree, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar)
     {
+        // extract the input var
+        GraphVariable inputVar = inputVars.First();
+
+        // initialize the variable dictionary (only one var for line graph)
+        Dictionary<string, float> variables = new(){ { inputVar.ToString().ToLower(), 0f } };
+
         // since its explicit, dont need LHS of equal sign
         equationTree = equationTree.right;
 
-        // initialize the list of points
-        List<Vector3> points = new List<Vector3>();
-
-        // extract the input var
-        GraphVariable inputVar;
-        if(inputVars.Count == 0) inputVar = GraphVariable.Constant;
-        else inputVar = inputVars.First();
+        // initialize list of graph segments
+        List<List<Vector3>> segments = new();
 
         // deal with constants later, as this would require multiple variable mappings at the same time
         // i.e. x = 5, z = 0 to get a constant line on the xz plane, as just x = 5 would have to decide which var to set to 0
 
-        // find the mins and maxes of the graph for the input only
-        // output range will be cutoff by a shader
+        // find the mins and maxes of the graph for the input and output
         float inputMin = IGraphRenderer.GetAxisMin(settings, inputVar);
         float inputMax = IGraphRenderer.GetAxisMax(settings, inputVar);
+        float outputMin = IGraphRenderer.GetAxisMin(settings, outputVar);
+        float outputMax = IGraphRenderer.GetAxisMax(settings, outputVar);   
+
+        // track when the graph is in range to only graph valid points
+        bool previousInRange = false;
 
         // go through each point of the indepedent variable and calculate the value of the RHS, then plot
-        for (float inputVarVal = inputMin; inputVarVal <= inputMax; inputVarVal += settings.step)
+        for (float inputVal = inputMin; inputVal < inputMax; inputVal += settings.step)
         {
-            float outputVarVal = EvaluateEquation(equationTree, inputVar, inputVarVal);
+            // set the variable dictionary to store the current input val
+            variables[inputVar.ToString().ToLower()] = inputVal;
+            // find what the output evaluates to when given the input at this point
+            float outputVal = IGraphRenderer.EvaluateEquation(equationTree, variables);
+            
+            // check if current function value is in the output range
+            bool currentInRange = !float.IsNaN(outputVal) && outputVal >= outputMin && outputVal <= outputMax;
 
-            // add the point to the correct axis of the graph
-            points.Add(AssignPoint(inputVarVal, outputVarVal, inputVar, outputVar));
+            // only add points when in range
+            if (currentInRange) {
+                // just came back in range, start a new segment
+                if(!previousInRange) segments.Add(new List<Vector3>());
+
+                // determine the correct axis of the graph to add the point to
+                Vector3 currentPoint = AssignPoint(inputVal, outputVal, inputVar, outputVar);
+
+                // add the point to the current segment
+                segments.Last().Add(currentPoint);
+            }
+            
+            previousInRange = currentInRange;
         }
 
-        // give the points to the line renderer
-        lineRenderer.positionCount = points.Count;
-        lineRenderer.SetPositions(points.ToArray());
-    }
-
-    // evaluates the equation to solve for the RHS value at a certain independent variable point
-    // string switch is another potential reason to change the tree to use some unified token,
-    // although strings are very modular and are easy for new additions
-    private float EvaluateEquation(ParseTreeNode node, GraphVariable inputVar, float inputVarVal)
-    {
-        if (node == null) return 0;
-        switch (node.token.type)
+        // basic object pooling, only add new line renderers when needed, and prioritize using old ones
+        // this will only matter for graph editing (later)
+        for (int i = 0; i < segments.Count; i++)
         {
-            case EquationParser.TYPE_NUMBER:
-                return float.TryParse(node.token.text, out float num) ? num : 0;
-            case EquationParser.TYPE_VARIABLE:
-                return node.token.text switch
-                {
-                    // setting to 0 will "null" the equation if incorrect variables are found for this type
-                    // ex: y = xy, y = xz, ...
-                    // probably can remove this if equation validation/error checking is added
-                    // dont really need the switch case either if that is implemented
-                    "x" => inputVar == GraphVariable.X ? inputVarVal : 0,
-                    "y" => inputVar == GraphVariable.Y ? inputVarVal : 0,
-                    "z" => inputVar == GraphVariable.Z ? inputVarVal : 0,
-                    _ => 0
-                };
-            case EquationParser.TYPE_OPERATOR:
-                float left = node.left != null ? EvaluateEquation(node.left, inputVar, inputVarVal) : 0;
-                float right = node.right != null ? EvaluateEquation(node.right, inputVar, inputVarVal) : 0;
-                return node.token.text switch
-                {
-                    "+" => left + right,
-                    "-" => left - right,
-                    "*" => left * right,
-                    "/" => right != 0 ? left / right : 0,
-                    "^" => Mathf.Pow(left, right),
-                    _ => 0
-                };
+            if (i >= segmentRenderers.Count)
+            {
+                GameObject segmentObj = new GameObject($"Segment {i + 1}");
+                segmentObj.transform.SetParent(graphParent, false);
+
+                LineRenderer newRenderer = segmentObj.gameObject.AddComponent<LineRenderer>();
+                newRenderer.useWorldSpace = false;
+                newRenderer.startWidth = newRenderer.endWidth = 0.02f;
+                segmentRenderers.Add(newRenderer);
+            }
+
+            LineRenderer renderer = segmentRenderers[i];
+            List<Vector3> segment = segments[i];
+            renderer.positionCount = segment.Count;
+            renderer.SetPositions(segment.ToArray());
+            renderer.enabled = true;
         }
-        return 0;
+
+        // disable any unused renderers
+        for (int i = segments.Count; i < segmentRenderers.Count; i++)
+        {
+            segmentRenderers[i].enabled = false;
+        }
     }
 
     // assigns the point to the correct axis
@@ -143,7 +210,8 @@ public class LineGraphRenderer : IGraphRenderer
             (GraphVariable.Y, GraphVariable.Z) => new Vector3(0, inputVarVal, outputVarVal),
             (GraphVariable.Z, GraphVariable.X) => new Vector3(outputVarVal, 0, inputVarVal),
             (GraphVariable.Z, GraphVariable.Y) => new Vector3(0, outputVarVal, inputVarVal),
-            _ => new Vector3(inputVarVal, outputVarVal, 0)
+            // this should already be caught in GraphManager
+            _ => throw new GraphEvaluationException("Point lies on unknown plane (only XY, XZ, ZY planes supported).")
         };
     }
 }

@@ -41,18 +41,11 @@ public class EquationTokenizer
     // updates the token map over a specified range starting from a token index
     private void UpdateTokenRanges(int startIndex)
     {
-        // no tokens on update (should not be possible)
+        // no tokens on update (happens when deleting the last token)
         if (tokens.Count == 0) return;
 
-        // add to the end of ranges if startIndex is out of range
-        // (might cause desync problems)
-        // (but token was already added so idk)
-        if (startIndex >= tokenRanges.Count) {
-            startIndex = tokenRanges.Count;
-        }
-
-        // maybe with the previous two errors
-        // we can rebuild the token ranges entirely
+        // starting index cannot be greater than the total number of tokens
+        if (startIndex > tokenRanges.Count) throw new TokenizerException("Starting index past end of token ranges to update.");
 
         // find the string index to start at
         // use previous range as new range might need to be added
@@ -95,7 +88,7 @@ public class EquationTokenizer
     public int RemoveTokenAtCursor(int cursorIndex) 
     {
         // only delete if there is a token to the left
-        if(cursorIndex == 0 || tokens.Count == 0) return 0;
+        if(cursorIndex <= 0 || tokens.Count == 0) return 0;
 
         // find closest token to the left
         // subtracting 1 will allow the correct token to be chosen (left of cursor)
@@ -121,6 +114,9 @@ public class EquationTokenizer
     // inserts a token at the current cursor position and updates the token list accordingly
     public int InsertTokenAtCursor(string text, int type, int cursorIndex)
     {
+        // check that cursorIndex is valid
+        if (cursorIndex < 0 || cursorIndex >= rangeMap.Length) throw new TokenizerException("Cursor is out of range to insert.");
+
         EquationToken newToken = new EquationToken(text, type);
 
         // no previous tokens
@@ -178,7 +174,10 @@ public class EquationTokenizer
     // tokenizer code and range maps at all
     public List<EquationToken> CleanUpEquation()
     {
-        // empty at first, will obtain main token list's values in CombineNumbers
+        // empty equation, nothing to clean
+        if (tokens.Count <= 0) return tokens;
+
+        // initialize clean token list starting empty, will obtain main token list's values in CombineNumbers
         List<EquationToken> cleanTokens = new List<EquationToken>();
 
         // combine all the numbers
@@ -225,7 +224,7 @@ public class EquationTokenizer
                 }
                 // add just the '.' (might cause problems, probably should cause an error here)
                 else {
-                    cleanTokens.Add(tokens[i]);
+                    throw new TokenizerException("Unexpected decimal point.");
                 }
             }
             // non decimal number merge

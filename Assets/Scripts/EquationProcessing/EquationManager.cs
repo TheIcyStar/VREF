@@ -10,6 +10,8 @@ public class EquationManager : MonoBehaviour
     private EquationParser parser;
 
     public void InitializeEqManager(TMP_InputField equationInput) {
+        if (equationInput == null) throw new EquationUIException("Equation input field is not assigned.");
+
         tokenizer = new EquationTokenizer(equationInput);
         parser = new EquationParser();
     }
