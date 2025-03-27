@@ -93,6 +93,7 @@ public class EquationGrapher : MonoBehaviour
         if (float.TryParse(step.text, out val) && val > 0.0001f) graphSettings.step = val;
 
         ScaleGraph();
+        axisRenderer.UpdateAxes(this.graphSettings);
         VisualizeGraph();
     }
 
