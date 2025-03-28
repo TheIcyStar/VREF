@@ -90,17 +90,6 @@ public partial class @XRInput: IInputActionCollection2, IDisposable
                     ""action"": ""Toggle UI"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""70aea492-1750-4feb-9c5d-e4306badd10b"",
-                    ""path"": ""<Keyboard>/z"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Toggle UI"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         }

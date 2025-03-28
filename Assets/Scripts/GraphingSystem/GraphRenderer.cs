@@ -200,16 +200,20 @@ public class LineGraphRenderer : IGraphRenderer
     }
 
     // assigns the point to the correct axis
+    // this goes against the default unity positions
+    // x is z, z is y, and y is x
+    // very annoying
     private Vector3 AssignPoint(float inputVarVal, float outputVarVal, GraphVariable inputVar, GraphVariable outputVar)
     {
         return (inputVar, outputVar) switch
         {
-            (GraphVariable.X, GraphVariable.Y) => new Vector3(inputVarVal, outputVarVal, 0),
-            (GraphVariable.X, GraphVariable.Z) => new Vector3(inputVarVal, 0, outputVarVal),
-            (GraphVariable.Y, GraphVariable.X) => new Vector3(outputVarVal, inputVarVal, 0),
-            (GraphVariable.Y, GraphVariable.Z) => new Vector3(0, inputVarVal, outputVarVal),
-            (GraphVariable.Z, GraphVariable.X) => new Vector3(outputVarVal, 0, inputVarVal),
-            (GraphVariable.Z, GraphVariable.Y) => new Vector3(0, outputVarVal, inputVarVal),
+                                                            //     x       y        z
+            (GraphVariable.X, GraphVariable.Y) => new Vector3(outputVarVal, 0, inputVarVal),
+            (GraphVariable.X, GraphVariable.Z) => new Vector3(0, outputVarVal, inputVarVal),
+            (GraphVariable.Y, GraphVariable.X) => new Vector3(inputVarVal, 0, outputVarVal),
+            (GraphVariable.Y, GraphVariable.Z) => new Vector3(inputVarVal, outputVarVal, 0),
+            (GraphVariable.Z, GraphVariable.X) => new Vector3(0, inputVarVal, outputVarVal),
+            (GraphVariable.Z, GraphVariable.Y) => new Vector3(outputVarVal, inputVarVal, 0),
             // this should already be caught in GraphManager
             _ => throw new GraphEvaluationException("Point lies on unknown plane (only XY, XZ, ZY planes supported).")
         };
