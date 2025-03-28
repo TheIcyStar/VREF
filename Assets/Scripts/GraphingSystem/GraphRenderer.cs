@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using UnityEngine.InputSystem;
 
+
 // TODO: Do the following when refactoring all scripts
 // -move the graph variable enum to its own file
 // -change token type to an enum
@@ -214,8 +215,30 @@ public class LineGraphRenderer : IGraphRenderer
             (GraphVariable.Y, GraphVariable.Z) => new Vector3(inputVarVal, outputVarVal, 0),
             (GraphVariable.Z, GraphVariable.X) => new Vector3(0, inputVarVal, outputVarVal),
             (GraphVariable.Z, GraphVariable.Y) => new Vector3(outputVarVal, inputVarVal, 0),
-            // this should already be caught in GraphManager
+            // this should already be stopped
             _ => throw new GraphEvaluationException("Point lies on unknown plane (only XY, XZ, ZY planes supported).")
         };
+    }
+}
+
+public class SurfaceGraphRenderer : IGraphRenderer
+{
+    private Transform graphParent;
+    // gameobject contains the MeshRenderer and the MeshFilter
+    private List<GameObject> surfaceSegments;
+
+    public SurfaceGraphRenderer(Transform parent) 
+    {
+        this.graphParent = parent;
+        this.surfaceSegments = new();
+    }
+    public void RenderGraph(ParseTreeNode equationTree, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar) 
+    {
+
+    }
+
+    private Vector3 AssignPoint(float inputVar1Val, float inputVar2Val, float outputVarVal, GraphVariable inputVar1, GraphVariable inputVar2, GraphVariable outputVar) 
+    {
+        return new Vector3(0, 0, 0);
     }
 }
