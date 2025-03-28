@@ -54,8 +54,11 @@ public class EquationGrapher : MonoBehaviour
         else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         axisRenderer.InitializeAxes();
-        axisRenderer.UpdateAxes(this.graphSettings);
+        
+        RefreshGraph();
+    }
 
+    private void RefreshGraph() {
         ScaleGraph();
         VisualizeGraph();
     }
@@ -64,15 +67,11 @@ public class EquationGrapher : MonoBehaviour
     private void ScaleGraph()
     {
         // scale the graph object so that the largest dimension fits in view
-        float baseRange = 2f;
-        float maxRange = Mathf.Max(graphSettings.xMax - graphSettings.xMin, graphSettings.yMax - graphSettings.yMin, graphSettings.zMax - graphSettings.zMin);
-        float scaleFactor = baseRange / maxRange;
+        float scaleFactor = GraphUtils.CalculateScaleFactor(graphSettings);
         graphVisualsObj.transform.localScale = Vector3.one * scaleFactor;
 
-        float zOffset = -graphSettings.zMin * scaleFactor;
-
-        // calculate the z offset so that graph spawns above ground
-        graphVisualsObj.transform.localPosition = new Vector3(0, zOffset, 0);
+        // scale the axes
+        axisRenderer.UpdateAxes(this.graphSettings);
     }
 
     // renders the graph using the respective renderer and settings
@@ -82,9 +81,7 @@ public class EquationGrapher : MonoBehaviour
 
     // updates the graph settings and re-renders the graph
     public void UpdateGraphSettings() {
-        float val;
-
-        if (float.TryParse(xAxisMin.text, out val)) graphSettings.xMin = val;
+        if (float.TryParse(xAxisMin.text, out float val)) graphSettings.xMin = val;
         if (float.TryParse(xAxisMax.text, out val)) graphSettings.xMax = val;
         if (float.TryParse(yAxisMin.text, out val)) graphSettings.yMin = val;
         if (float.TryParse(yAxisMax.text, out val)) graphSettings.yMax = val;
@@ -99,9 +96,7 @@ public class EquationGrapher : MonoBehaviour
 
         if (float.TryParse(step.text, out val) && val > 0.0001f) graphSettings.step = val;
 
-        ScaleGraph();
-        axisRenderer.UpdateAxes(this.graphSettings);
-        VisualizeGraph();
+        RefreshGraph();
     }
 
     // for now it just sets rotation to 0, 0, 0

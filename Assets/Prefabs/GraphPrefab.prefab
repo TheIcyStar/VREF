@@ -77,7 +77,7 @@ Transform:
   m_GameObject: {fileID: 164473257694181739}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.059472676, y: -0.015144995, z: -0.0733771}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2362,7 +2362,7 @@ Transform:
   m_GameObject: {fileID: 1576625366581444575}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 2.5, y: 0, z: 0}
+  m_LocalPosition: {x: 2.5, y: -0.684, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3800,7 +3800,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3823465585578089295}
   - component: {fileID: 4372133928288227027}
-  - component: {fileID: 6367815591157289998}
   m_Layer: 0
   m_Name: GraphPrefab
   m_TagString: Untagged
@@ -3853,19 +3852,6 @@ MonoBehaviour:
   yRotation: {fileID: 8239834406734868759}
   zRotation: {fileID: 5567173874073201864}
   step: {fileID: 804101652246314616}
---- !u!114 &6367815591157289998
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2918748304824918604}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94b5a685187ba7e4a9a73f988a9e3f1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handle: {fileID: 4226826942836726207}
 --- !u!1 &2966688578530817664
 GameObject:
   m_ObjectHideFlags: 0

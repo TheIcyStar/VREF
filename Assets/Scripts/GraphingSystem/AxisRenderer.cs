@@ -1,5 +1,6 @@
 using Palmmedia.ReportGenerator.Core;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class AxisRenderer : MonoBehaviour
 {
@@ -16,54 +17,29 @@ public class AxisRenderer : MonoBehaviour
     // updates all three axes based on new graph settings
     public void UpdateAxes(GraphSettings graphSettings)
     {
-        // this is the exact same calculation as EquationGrapher.ScaleGraph
-        // maybe logic can be moved to Graph manager somehow?
-        // not a big deal
-        float baseRange = 2f;
-        float maxRange = Mathf.Max(graphSettings.xMax - graphSettings.xMin, graphSettings.yMax - graphSettings.yMin, graphSettings.zMax - graphSettings.zMin);
-        float scaleFactor = baseRange / maxRange;
+        // OLD IMPLEMENTATION, MAY NOT LINE UP CORRECTLY ANYMORE
+        // -----------------------------------------------------
+        // this scales each axis directly based on its range
+        // ex: x [-2, 2], y [-100, 100] makes x axis VERY tiny
+        // -----------------------------------------------------
+        // float xLength = (graphSettings.xMax - graphSettings.xMin) * scaleFactor;
+        // float yLength = (graphSettings.yMax - graphSettings.yMin) * scaleFactor;
+        // float zLength = (graphSettings.zMax - graphSettings.zMin) * scaleFactor;
 
-        float xLength = (graphSettings.xMax - graphSettings.xMin) * scaleFactor;
-        float yLength = (graphSettings.yMax - graphSettings.yMin) * scaleFactor;
-        float zLength = (graphSettings.zMax - graphSettings.zMin) * scaleFactor;
+        // this is unscaled (the rendered graph will line up with this)
+        float maxRange = 2f;
 
-        float zOffset = -graphSettings.zMin * scaleFactor;
-
-        UpdateAxis(xAxis, 0, xLength, zOffset);
-        UpdateAxis(yAxis, 1, yLength, zOffset);
-        UpdateAxis(zAxis, 2, zLength, zOffset);
+        UpdateAxis(xAxis, Vector3.forward, maxRange, xStartArrow, xEndArrow);
+        UpdateAxis(yAxis, Vector3.right, maxRange, yStartArrow, yEndArrow);
+        UpdateAxis(zAxis, Vector3.up, maxRange, zStartArrow, zEndArrow);
     }
 
     // updates a specific axis's length
-    private void UpdateAxis(LineRenderer line, int direction, float length, float zOffset)
+    private void UpdateAxis(LineRenderer line, Vector3 direction, float length, Transform startArrow, Transform endArrow)
     {
-        Transform startArrow = xStartArrow;
-        Transform endArrow = xEndArrow;
-        Vector3 directionVector = Vector3.forward;
-
-        switch(direction) {
-            // x
-            case 0:
-                // defaults
-                break;
-            // y
-            case 1:
-                startArrow = yStartArrow;
-                endArrow = yEndArrow;
-                directionVector = Vector3.right;
-                break;
-            // z
-            case 2:
-                startArrow = zStartArrow;
-                endArrow = zEndArrow;
-                directionVector = Vector3.up;
-                break;
-        }
-
         line.positionCount = 2;
-        Vector3 displacement = new Vector3(0, zOffset, 0);
-        Vector3 axisStartPos = displacement - (directionVector * length / 2);
-        Vector3 axisEndPos = displacement + (directionVector * length / 2);
+        Vector3 axisStartPos = -(direction * length / 2);
+        Vector3 axisEndPos = direction * length / 2;
         line.SetPositions(new Vector3[] { axisStartPos, axisEndPos });
 
         startArrow.localPosition = axisStartPos;
