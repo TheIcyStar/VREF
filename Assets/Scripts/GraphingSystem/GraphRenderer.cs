@@ -177,7 +177,7 @@ public class LineGraphRenderer : IGraphRenderer
         {
             if (i >= segmentRenderers.Count)
             {
-                GameObject segmentObj = new GameObject($"Segment {i + 1}");
+                GameObject segmentObj = new GameObject($"Line Segment {i + 1}");
                 segmentObj.transform.SetParent(graphParent, false);
 
                 LineRenderer newRenderer = segmentObj.gameObject.AddComponent<LineRenderer>();
@@ -225,20 +225,119 @@ public class SurfaceGraphRenderer : IGraphRenderer
 {
     private Transform graphParent;
     // gameobject contains the MeshRenderer and the MeshFilter
-    private List<GameObject> surfaceSegments;
+    private List<(MeshFilter filter, MeshRenderer renderer)> segmentSurfaces = new();
 
     public SurfaceGraphRenderer(Transform parent) 
     {
         this.graphParent = parent;
-        this.surfaceSegments = new();
+        this.segmentSurfaces = new();
     }
     public void RenderGraph(ParseTreeNode equationTree, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar) 
     {
+        // extract the input vars
+        GraphVariable inputVar1 = inputVars.ElementAt(0);
+        GraphVariable inputVar2 = inputVars.ElementAt(1);
 
+        // initialize the variable dictionary
+        Dictionary<string, float> variables = new() {
+            {inputVar1.ToString().ToLower(), 0f},
+            {inputVar2.ToString().ToLower(), 0f}
+        };
+
+        // since its explicit, dont need LHS of equal sign
+        equationTree = equationTree.right;
+
+        // initialize list of surface segments
+        List<List<Vector3>> segments = new();
+
+        // find the mins and maxes of the graph for the inputs and output
+        float inputMin1 = IGraphRenderer.GetAxisMin(settings, inputVar1);
+        float inputMax1 = IGraphRenderer.GetAxisMax(settings, inputVar1);
+        float inputMin2 = IGraphRenderer.GetAxisMin(settings, inputVar2);
+        float inputMax2 = IGraphRenderer.GetAxisMax(settings, inputVar2);
+        float outputMin = IGraphRenderer.GetAxisMin(settings, outputVar);
+        float outputMax = IGraphRenderer.GetAxisMax(settings, outputVar);
+
+        // track when the graph is in range to only graph valid points
+        bool previousInRange = false;
+
+        // go through each point of the indepedent variable and calculate the value of the RHS, then plot
+        for (float inputVal1 = inputMin1; inputVal1 < inputMax1; inputVal1 += settings.step)
+        {
+            for (float inputVal2 = inputMin2; inputVal2 < inputMax2; inputVal2 += settings.step) {
+                // set the variable dictionary to store the current input vals
+                variables[inputVar1.ToString().ToLower()] = inputVal1;
+                variables[inputVar2.ToString().ToLower()] = inputVal2;
+
+                // find what the output evaluates to when given the input at this point
+                float outputVal = IGraphRenderer.EvaluateEquation(equationTree, variables);
+                
+                // check if current function value is in the output range
+                bool currentInRange = !float.IsNaN(outputVal) && outputVal >= outputMin && outputVal <= outputMax;
+
+                // only add points when in range
+                if (currentInRange) {
+                    // just came back in range, start a new segment
+                    if(!previousInRange) segments.Add(new List<Vector3>());
+
+                    // determine the correct axis of the graph to add the point to
+                    Vector3 currentPoint = AssignPoint(inputVal1, inputVal2, outputVal, inputVar1, inputVar2, outputVar);
+
+                    // add the point to the current segment
+                    segments.Last().Add(currentPoint);
+                }
+                
+                previousInRange = currentInRange;
+            }
+        }
+
+        // basic object pooling, only add new mesh renderers and filters when needed, and prioritize using old ones
+        // this will only matter for graph editing (later)
+        for (int i = 0; i < segments.Count; i++)
+        {
+            if (i >= segmentSurfaces.Count)
+            {
+                GameObject segmentObj = new GameObject($"Surface Segment {i + 1}");
+                segmentObj.transform.SetParent(graphParent, false);
+
+                MeshFilter filter = segmentObj.AddComponent<MeshFilter>();
+                MeshRenderer renderer = segmentObj.AddComponent<MeshRenderer>();
+
+                // renderer.material = [material]
+
+                segmentSurfaces.Add((filter, renderer));
+            }
+
+            MeshFilter meshFilter = segmentSurfaces[i].filter;
+            Mesh mesh = new Mesh();
+
+            List<Vector3> segment = segments[i];
+            mesh.SetVertices(segment);
+
+            // mesh generation logic
+            // [goes here]
+
+            meshFilter.mesh = mesh;
+
+            segmentSurfaces[i].renderer.enabled = true;
+        }
+
+        // disable any unused objects
+        for (int i = segments.Count; i < segmentSurfaces.Count; i++)
+        {
+            segmentSurfaces[i].renderer.enabled = false;
+        }
     }
 
+    // x is z, z is y, and y is x
     private Vector3 AssignPoint(float inputVar1Val, float inputVar2Val, float outputVarVal, GraphVariable inputVar1, GraphVariable inputVar2, GraphVariable outputVar) 
     {
-        return new Vector3(0, 0, 0);
+        return (inputVar1, inputVar2, outputVar) switch {
+            (GraphVariable.X, GraphVariable.Y, GraphVariable.Z) => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
+            (GraphVariable.Y, GraphVariable.Z, GraphVariable.X) => new Vector3(inputVar2Val, outputVarVal, inputVar1Val),
+            (GraphVariable.Z, GraphVariable.X, GraphVariable.Y) => new Vector3(inputVar1Val, inputVar2Val, outputVarVal),
+            // this should already be stopped
+            _ => throw new GraphEvaluationException("Point lies on unknown slice (only XYZ slice supported).")
+        };
     }
 }
