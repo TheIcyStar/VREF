@@ -12,6 +12,8 @@ public class EquationGrapher : MonoBehaviour
     private IGraphRenderer graphRenderer;
     // graph settings passed in
     private GraphSettings graphSettings;
+    // store original settings
+    private GraphSettings originalSettings;
     // set of input variables (independent variables)
     private HashSet<GraphVariable> inputVars;
     // single output var computed by the function (dependent variable)
@@ -46,6 +48,7 @@ public class EquationGrapher : MonoBehaviour
 
         this.equationTree = equationTree;
         this.graphSettings = settings;
+        this.originalSettings = settings;
         this.inputVars = inputVars;
         this.outputVar = outputVar;
 
@@ -54,7 +57,7 @@ public class EquationGrapher : MonoBehaviour
         else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         axisRenderer.InitializeAxes();
-        
+        RefreshAllUIText();
         RefreshGraph();
     }
 
@@ -71,7 +74,7 @@ public class EquationGrapher : MonoBehaviour
         graphVisualsObj.transform.localScale = Vector3.one * scaleFactor;
 
         // scale the axes
-        axisRenderer.UpdateAxes(this.graphSettings);
+        axisRenderer.UpdateAxes(graphSettings);
     }
 
     // renders the graph using the respective renderer and settings
@@ -81,27 +84,59 @@ public class EquationGrapher : MonoBehaviour
 
     // updates the graph settings and re-renders the graph
     public void UpdateGraphSettings() {
-        if (float.TryParse(xAxisMin.text, out float val)) graphSettings.xMin = val;
-        if (float.TryParse(xAxisMax.text, out val)) graphSettings.xMax = val;
-        if (float.TryParse(yAxisMin.text, out val)) graphSettings.yMin = val;
-        if (float.TryParse(yAxisMax.text, out val)) graphSettings.yMax = val;
-        if (float.TryParse(zAxisMin.text, out val)) graphSettings.zMin = val;
-        if (float.TryParse(zAxisMax.text, out val)) graphSettings.zMax = val;
+        // eventually throw an exception when invalid values are input
+        // just so the user can know
+        if (float.TryParse(xAxisMin.text, out float val)) graphSettings.xMin = val; else RefreshUIText(xAxisMin, graphSettings.xMin);
+        if (float.TryParse(xAxisMax.text, out val)) graphSettings.xMax = val; else RefreshUIText(xAxisMax, graphSettings.xMax);
+        if (float.TryParse(yAxisMin.text, out val)) graphSettings.yMin = val; else RefreshUIText(yAxisMin, graphSettings.yMin);
+        if (float.TryParse(yAxisMax.text, out val)) graphSettings.yMax = val; else RefreshUIText(yAxisMax, graphSettings.yMax);
+        if (float.TryParse(zAxisMin.text, out val)) graphSettings.zMin = val; else RefreshUIText(zAxisMin, graphSettings.zMin);
+        if (float.TryParse(zAxisMax.text, out val)) graphSettings.zMax = val; else RefreshUIText(zAxisMax, graphSettings.zMax);
 
-        float xRot = 0f, yRot = 0f, zRot = 0f;
-        if (float.TryParse(xRotation.text, out val)) xRot = val;
-        if (float.TryParse(yRotation.text, out val)) yRot = val;
-        if (float.TryParse(zRotation.text, out val)) zRot = val;
+        float xRot = graphObj.transform.localRotation.x,
+              yRot = graphObj.transform.localRotation.y, 
+              zRot = graphObj.transform.localRotation.z;
+
+        if (float.TryParse(xRotation.text, out val)) xRot = val; else RefreshUIText(xRotation, xRot);
+        if (float.TryParse(yRotation.text, out val)) yRot = val; else RefreshUIText(yRotation, yRot);
+        if (float.TryParse(zRotation.text, out val)) zRot = val; else RefreshUIText(zRotation, zRot);
+
         graphObj.transform.localRotation = Quaternion.Euler(xRot, yRot, zRot);
 
-        if (float.TryParse(step.text, out val) && val > 0.0001f) graphSettings.step = val;
+        if (float.TryParse(step.text, out val) && val > 0.0001f) graphSettings.step = val; else RefreshUIText(step, graphSettings.step);
 
         RefreshGraph();
     }
 
+    // updates the entire UI to have the current graph settings displayed
+    private void RefreshAllUIText() {
+        RefreshUIText(xAxisMin, graphSettings.xMin);
+        RefreshUIText(xAxisMax, graphSettings.xMax);
+        RefreshUIText(yAxisMin, graphSettings.yMin);
+        RefreshUIText(yAxisMax, graphSettings.yMax);
+        RefreshUIText(zAxisMin, graphSettings.zMin);
+        RefreshUIText(zAxisMax, graphSettings.zMax);
+        RefreshUIText(xRotation, graphObj.transform.localRotation.x);
+        RefreshUIText(yRotation, graphObj.transform.localRotation.y);
+        RefreshUIText(zRotation, graphObj.transform.localRotation.z);
+        RefreshUIText(step, graphSettings.step);
+    }
+
+    // updates a specific UI element's text to a value
+    private void RefreshUIText(TMP_InputField textField, float value) {
+        textField.text = value.ToString("G");
+    }
+
     // for now it just sets rotation to 0, 0, 0
     public void ResetToDefault() {
+        // reset to original settings
+        graphSettings = originalSettings;
+
+        // reset rotation
         graphObj.transform.localRotation = Quaternion.Euler(0, 0, 0);
+
+        // reset all UI
+        RefreshAllUIText();
     }
 
     // determines the type of equation by analyzing the parse tree
