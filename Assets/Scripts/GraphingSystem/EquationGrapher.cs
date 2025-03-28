@@ -104,6 +104,11 @@ public class EquationGrapher : MonoBehaviour
         VisualizeGraph();
     }
 
+    // for now it just sets rotation to 0, 0, 0
+    public void ResetToDefault() {
+        graphObj.transform.localRotation = Quaternion.Euler(0, 0, 0);
+    }
+
     // determines the type of equation by analyzing the parse tree
     // also returns the input and output variables
     // ONLY WORKS WITH [output var] = [f(input var)] FOR NOW
