@@ -25,7 +25,7 @@ public interface IGraphRenderer
     void RenderGraph(ParseTreeNode equationTree, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar);
 
     // get min value of inputted variable axis
-    protected static float GetAxisMin(GraphSettings settings, GraphVariable variable)
+    protected internal static float GetAxisMin(GraphSettings settings, GraphVariable variable)
     {
         return variable switch
         {
@@ -37,7 +37,7 @@ public interface IGraphRenderer
     }
 
     // get max value of inputted variable axis
-    protected static float GetAxisMax(GraphSettings settings, GraphVariable variable)
+    protected internal static float GetAxisMax(GraphSettings settings, GraphVariable variable)
     {
         return variable switch
         {
@@ -49,7 +49,7 @@ public interface IGraphRenderer
     }
 
     // evaluates the equation to solve for the LHS value at a certain point
-    protected static float EvaluateEquation(ParseTreeNode node, Dictionary<string, float> vars)
+    protected internal static float EvaluateEquation(ParseTreeNode node, Dictionary<string, float> vars)
     {
         switch (node.token.type)
         {
