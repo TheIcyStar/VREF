@@ -20,4 +20,8 @@ public struct GraphSettings
         this.zMax = zMax;
         this.step = step;
     }
+
+    public string ToJSON() {
+        return JsonUtility.ToJson(this);
+    }
 }

@@ -6401,7 +6401,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hostInputField: {fileID: 6102426989064400460}
   joinButton: {fileID: 2054686928738855038}
-  roomId: 
 --- !u!114 &3708099566244309295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6433,7 +6432,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1503989109714432937, guid: dc067c577ec1b854684d789b6e727cc0, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2077641819426116279, guid: dc067c577ec1b854684d789b6e727cc0, type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
@@ -6652,7 +6651,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hostInputField: {fileID: 1138354086447365978}
   joinButton: {fileID: 1081089022125881602}
-  roomId: 
 --- !u!114 &3425168313877393707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7383,7 +7381,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1503989109714432937, guid: dc067c577ec1b854684d789b6e727cc0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2077641819426116279, guid: dc067c577ec1b854684d789b6e727cc0, type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
@@ -7599,7 +7597,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hostInputField: {fileID: 0}
   joinButton: {fileID: 0}
-  roomId: 
 --- !u!1001 &9153703476014810357
 PrefabInstance:
   m_ObjectHideFlags: 0

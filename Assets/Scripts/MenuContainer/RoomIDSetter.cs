@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Threading.Tasks;
 using System;
+using Newtonsoft.Json;
 
 
 public class RoomIDSetter : MonoBehaviour {
@@ -23,7 +24,7 @@ public class RoomIDSetter : MonoBehaviour {
 
     public void setRoomIdWithInput() {
         string roomId = roomInputField.GetComponent<TMP_InputField>().text;
-        joinController.roomId = roomId;
+        ServerConnection.instance.roomId = roomId;
 
         if(roomIdDisplay != null){
             roomIdDisplay.GetComponent<TMP_Text>().text = roomId;
@@ -57,8 +58,7 @@ public class RoomIDSetter : MonoBehaviour {
                     return;
                 }
 
-                API_RoomInfoResponse response = JsonUtility.FromJson<API_RoomInfoResponse>(webRequest.downloadHandler.text);
-                joinController.roomId = response.data.roomId; //todo: make joincontroller just read ServerConection's roomId
+                API_POST_CreateResult response = JsonConvert.DeserializeObject<API_POST_CreateResult>(webRequest.downloadHandler.text);
                 ServerConnection.instance.roomId = response.data.roomId;
                 ServerConnection.instance.updateToken = response.data.ownerUpdateToken;
                 buttonText.text = "Created";
