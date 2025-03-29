@@ -102,11 +102,13 @@ public class LineGraphRenderer : IGraphRenderer
 {
     private Transform graphParent;
     private List<LineRenderer> segmentRenderers;
+    private Material lineColor;
 
-    public LineGraphRenderer(Transform parent)
+    public LineGraphRenderer(Transform parent, Material lineColor)
     {
         this.graphParent = parent;
         this.segmentRenderers = new();
+        this.lineColor = lineColor;
     }
 
     // right now this function uses a very basic approach:
@@ -182,6 +184,9 @@ public class LineGraphRenderer : IGraphRenderer
                 segmentObj.transform.SetParent(graphParent, false);
 
                 LineRenderer newRenderer = segmentObj.gameObject.AddComponent<LineRenderer>();
+
+                newRenderer.material = lineColor;
+
                 newRenderer.useWorldSpace = false;
                 newRenderer.startWidth = newRenderer.endWidth = 0.02f;
                 segmentRenderers.Add(newRenderer);
@@ -227,11 +232,13 @@ public class SurfaceGraphRenderer : IGraphRenderer
     private Transform graphParent;
     // gameobject contains the MeshRenderer and the MeshFilter
     private List<(MeshFilter filter, MeshRenderer renderer)> segmentSurfaces = new();
+    private Material meshColor;
 
-    public SurfaceGraphRenderer(Transform parent) 
+    public SurfaceGraphRenderer(Transform parent, Material meshColor) 
     {
         this.graphParent = parent;
         this.segmentSurfaces = new();
+        this.meshColor = meshColor;
     }
     public void RenderGraph(ParseTreeNode equationTree, GraphSettings settings, HashSet<GraphVariable> inputVars, GraphVariable outputVar) 
     {
@@ -326,7 +333,7 @@ public class SurfaceGraphRenderer : IGraphRenderer
                 MeshFilter filter = segmentObj.AddComponent<MeshFilter>();
                 MeshRenderer renderer = segmentObj.AddComponent<MeshRenderer>();
 
-                // renderer.material = [material]
+                renderer.material = meshColor;
 
                 segmentSurfaces.Add((filter, renderer));
             }
@@ -360,9 +367,12 @@ public class SurfaceGraphRenderer : IGraphRenderer
     private Vector3 AssignPoint(float inputVar1Val, float inputVar2Val, float outputVarVal, GraphVariable inputVar1, GraphVariable inputVar2, GraphVariable outputVar) 
     {
         return (inputVar1, inputVar2, outputVar) switch {
-            (GraphVariable.X, GraphVariable.Y, GraphVariable.Z) => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
-            (GraphVariable.Y, GraphVariable.Z, GraphVariable.X) => new Vector3(inputVar2Val, outputVarVal, inputVar1Val),
-            (GraphVariable.Z, GraphVariable.X, GraphVariable.Y) => new Vector3(inputVar1Val, inputVar2Val, outputVarVal),
+            (GraphVariable.X, GraphVariable.Y, GraphVariable.Z) or (GraphVariable.Y, GraphVariable.X, GraphVariable.Z) 
+            => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
+            (GraphVariable.Y, GraphVariable.Z, GraphVariable.X) or (GraphVariable.Z, GraphVariable.Y, GraphVariable.X)
+            => new Vector3(inputVar2Val, outputVarVal, inputVar1Val),
+            (GraphVariable.Z, GraphVariable.X, GraphVariable.Y) or (GraphVariable.X, GraphVariable.Z, GraphVariable.Y)
+            => new Vector3(inputVar1Val, inputVar2Val, outputVarVal),
             // this should already be stopped
             _ => throw new GraphEvaluationException("Point lies on unknown slice (only XYZ slice supported).")
         };

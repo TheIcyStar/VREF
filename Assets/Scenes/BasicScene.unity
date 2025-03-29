@@ -6255,8 +6255,9 @@ MonoBehaviour:
   graphPrefab: {fileID: 0}
   equationUITransform: {fileID: 0}
   graphDisplacement: 4
-  lowerGraphMargin: 0.5
+  graphHeight: 1.1
   defaultLineColor: {fileID: 0}
+  defaultMeshColor: {fileID: 0}
 --- !u!1 &1346234977
 GameObject:
   m_ObjectHideFlags: 0
@@ -7310,8 +7311,9 @@ MonoBehaviour:
   graphPrefab: {fileID: 2918748304824918604, guid: e99ff3c840dbbe449a80cba2a8fc4c65, type: 3}
   equationUITransform: {fileID: 408023770}
   graphDisplacement: 4
-  lowerGraphMargin: 0.5
+  graphHeight: 1.1
   defaultLineColor: {fileID: 2100000, guid: 49d0cdeeb713a0846bfd82cdf36ae97f, type: 2}
+  defaultMeshColor: {fileID: 2100000, guid: 907cb2d9a137d9b45878d14a255ec59d, type: 2}
 --- !u!1 &1563498662
 GameObject:
   m_ObjectHideFlags: 0

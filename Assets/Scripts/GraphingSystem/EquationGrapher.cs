@@ -41,7 +41,7 @@ public class EquationGrapher : MonoBehaviour
     private const int TYPE_SURFACE = 1;
 
     // does nothing w/ def lin color for now
-    public void InitializeGraph(ParseTreeNode equationTree, Material defaultLineColor, GraphSettings settings)
+    public void InitializeGraph(ParseTreeNode equationTree, Material defaultLineColor, Material defaultMeshColor, GraphSettings settings) 
     {
         // determine what equation type is by parsing the whole tree
         var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
@@ -53,8 +53,8 @@ public class EquationGrapher : MonoBehaviour
         this.outputVar = outputVar;
 
         // pass in the gameobject (1st child, the "graph" object) to add renderers to
-        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisualsObj.transform);
-        else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisualsObj.transform);
+        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisualsObj.transform, defaultLineColor);
+        else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisualsObj.transform, defaultMeshColor);
         else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         axisRenderer.InitializeAxes();
