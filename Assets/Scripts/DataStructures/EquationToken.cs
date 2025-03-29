@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class EquationToken
 {
     public string text { get; private set; }

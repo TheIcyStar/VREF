@@ -1,9 +1,4 @@
-using UnityEngine;
 using System.Collections.Generic;
-using System.IO;
-using UnityEditor.Experimental.GraphView;
-using NUnit.Framework.Interfaces;
-using UnityEngine.Rendering;
 using System;
 
 public class EquationParser

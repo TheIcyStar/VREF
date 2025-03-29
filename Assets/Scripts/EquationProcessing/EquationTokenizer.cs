@@ -1,7 +1,5 @@
-using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
-using UnityEngine.Android;
 
 public class EquationTokenizer
 {   
