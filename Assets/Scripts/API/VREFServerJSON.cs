@@ -19,6 +19,11 @@ public class API_POST_RoomState {
 }
 
 [Serializable]
+public class API_POST_CreateResult {
+    public RoomInfo data;
+}
+
+[Serializable]
 public class API_ServerPingResponse {
     public string status;
     public int protocolVersion;
@@ -36,4 +41,8 @@ public class RoomInfo {
 public class RoomInfo_RoomState {
     public GraphSettings settings;
     public ParseTreeNode[] equations;
+}
+
+public static class ACCEPTED_PROTOCOL {
+    public const int VERSION = 0;
 }

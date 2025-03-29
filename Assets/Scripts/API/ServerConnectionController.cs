@@ -26,7 +26,8 @@ public class ServerConnection : MonoBehaviour {
     public void Update() {
         if(DateTime.Now.Ticks - lastSync < SYNC_FREQUENCY_MS * 10000){ return; }
         lastSync = DateTime.Now.Ticks;
-        Debug.Log("SCC: Update");
+
+        if(hostname.Length == 0 || roomId.Length == 0){ return; }
 
         if(updateToken != null && updateToken.Length > 0) { // Push to server
             _ = pushRoomState(GraphManager.instance.GetGraphs(), GraphManager.instance.globalGraphSettings);

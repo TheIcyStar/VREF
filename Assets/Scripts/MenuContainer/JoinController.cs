@@ -16,7 +16,6 @@ enum ServerResponseStatus {
 public class JoinController : MonoBehaviour {
     public GameObject hostInputField;
     public GameObject joinButton;
-    public string roomId;
     private TMP_Text buttonTextComponent;
 
     void Start(){
@@ -31,7 +30,7 @@ public class JoinController : MonoBehaviour {
             Invoke("resetButtonText", 3);
             return;
         }
-        if(roomId == ""){
+        if(ServerConnection.instance.roomId == ""){
             buttonTextComponent.text = "Need room ID!";
             Invoke("resetButtonText", 3);
             return;
@@ -52,10 +51,8 @@ public class JoinController : MonoBehaviour {
             return;
         }
 
-        // buttonTextComponent.text = "Checking room...";
-
         //Server connection OK, check the room
-        status = await checkRoom(hostname, roomId);
+        status = await checkRoom(hostname, ServerConnection.instance.roomId);
 
         if(status != ServerResponseStatus.OK) {
             buttonTextComponent.text = "Room not found";
@@ -65,7 +62,6 @@ public class JoinController : MonoBehaviour {
 
         buttonTextComponent.text = "Joining...";
         ServerConnection.instance.hostname = hostname;
-        ServerConnection.instance.roomId = roomId;
 
         SceneManager.LoadScene(1);
     }
@@ -92,7 +88,7 @@ public class JoinController : MonoBehaviour {
 
                 API_ServerPingResponse parsedJson = JsonUtility.FromJson<API_ServerPingResponse>(webRequest.downloadHandler.text);
 
-                if(parsedJson.protocolVersion != 0){
+                if(parsedJson.protocolVersion != ACCEPTED_PROTOCOL.VERSION){
                     return ServerResponseStatus.HOST_OLD_PROTOCOL;
                 }
             } catch(Exception e) {
@@ -126,6 +122,6 @@ public class JoinController : MonoBehaviour {
     }
 
     private void resetButtonText() {
-            buttonTextComponent.text = "Join Room";
+        buttonTextComponent.text = "Join Room";
     }
 }
