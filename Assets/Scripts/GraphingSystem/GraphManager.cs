@@ -22,6 +22,8 @@ public class GraphManager : MonoBehaviour
     public GraphSettings globalGraphSettings = new GraphSettings(-10, 10, -10, 10, -10, 10, .1f);
     // default material of graph lines
     public Material defaultLineColor;
+    // default material of meshes
+    public Material defaultMeshColor;
 
     public static GraphManager instance;
 
@@ -88,7 +90,7 @@ public class GraphManager : MonoBehaviour
         EquationGrapher grapher = graphPrefabObj.GetComponent<EquationGrapher>();
 
         // initialize the graph
-        grapher.InitializeGraph(equationTree, defaultLineColor, globalGraphSettings);
+        grapher.InitializeGraph(equationTree, defaultLineColor, defaultMeshColor, globalGraphSettings);
 
         // add the graph object to the dictionary
         graphs.Add(graphPrefabObj,  grapher);

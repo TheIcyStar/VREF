@@ -38,10 +38,10 @@ public class EquationGrapher : MonoBehaviour
     // equation renderer types
     // change to enums later
     private const int TYPE_LINE = 0;
-    private const int TYPE_MESH = 1;
+    private const int TYPE_SURFACE = 1;
 
     // does nothing w/ def lin color for now
-    public void InitializeGraph(ParseTreeNode equationTree, Material defaultLineColor, GraphSettings settings)
+    public void InitializeGraph(ParseTreeNode equationTree, Material defaultLineColor, Material defaultMeshColor, GraphSettings settings) 
     {
         // determine what equation type is by parsing the whole tree
         var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
@@ -53,7 +53,8 @@ public class EquationGrapher : MonoBehaviour
         this.outputVar = outputVar;
 
         // pass in the gameobject (1st child, the "graph" object) to add renderers to
-        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisualsObj.transform);
+        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisualsObj.transform, defaultLineColor);
+        else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisualsObj.transform, defaultMeshColor);
         else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         axisRenderer.InitializeAxes();
@@ -167,7 +168,7 @@ public class EquationGrapher : MonoBehaviour
 
         // this logic needs to change to support constants, parametrics, planes, etc... in the future
         if (inputVars.Count == 1)                         equationType = TYPE_LINE;
-        else if (inputVars.Count == 2)                    equationType = TYPE_MESH;
+        else if (inputVars.Count == 2)                    equationType = TYPE_SURFACE;
         else                                              throw new GraphEvaluationException("Unsupported variable amount in right hand side of equation.");
 
         return (equationType, inputVars, outputVar);
