@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine.Rendering;
 
-public class KeyboardManager : MonoBehaviour
+public class EquationKeyboardManager : MonoBehaviour
 {
     // text field from the UI
     public TMP_InputField equationInput;
