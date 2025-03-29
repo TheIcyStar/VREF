@@ -15,7 +15,7 @@ public class GraphManager : MonoBehaviour
     // distance from the ground that the origin of the graph spawns above
     [SerializeField] private float graphHeight = 1.1f;
     // dictionary that maps prefabs to their manager script
-    private Dictionary<GameObject, EquationGrapher> graphs;
+    private Dictionary<GameObject, GraphInstance> graphs;
 
     // global graph settings from options menu
     // storing default values for now
@@ -47,7 +47,7 @@ public class GraphManager : MonoBehaviour
         ParseTreeNode[] equations = new ParseTreeNode[graphs.Count];
         int i = 0;
 
-        foreach(KeyValuePair<GameObject, EquationGrapher> entry in graphs) {
+        foreach(KeyValuePair<GameObject, GraphInstance> entry in graphs) {
             equations[i] = entry.Value.equationTree;
             i++;
         }
@@ -57,7 +57,7 @@ public class GraphManager : MonoBehaviour
 
     public void BulkOverwriteGraphs(ParseTreeNode[] equations){
         //clean up objects
-        foreach(KeyValuePair<GameObject, EquationGrapher> entry in graphs) {
+        foreach(KeyValuePair<GameObject, GraphInstance> entry in graphs) {
             Destroy(entry.Key);
         }
         graphs = new();
@@ -87,7 +87,7 @@ public class GraphManager : MonoBehaviour
         graphCount++;
 
         // get the script once
-        EquationGrapher grapher = graphPrefabObj.GetComponent<EquationGrapher>();
+        GraphInstance grapher = graphPrefabObj.GetComponent<GraphInstance>();
 
         // initialize the graph
         grapher.InitializeGraph(equationTree, defaultLineColor, defaultMeshColor, globalGraphSettings);

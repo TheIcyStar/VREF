@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 using TMPro;
 using UnityEngine;
 
-public class EquationGrapher : MonoBehaviour
+public class GraphInstance : MonoBehaviour
 {
     // the root node of the equation tree
     public ParseTreeNode equationTree;
