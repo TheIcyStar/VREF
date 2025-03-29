@@ -178,7 +178,7 @@ public class GraphInstance : MonoBehaviour
     private void DetermineVariables(ParseTreeNode equationTree, HashSet<GraphVariable> variables) {
         if (equationTree == null) return;
 
-        if (equationTree.token.type == EquationParser.TYPE_VARIABLE) {
+        if (equationTree.token.type == TokenType.Variable) {
             variables.Add(ConvertToGraphVariable(equationTree.token.text));
         }
 

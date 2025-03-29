@@ -72,7 +72,7 @@ public class KeyboardManager : MonoBehaviour
     }
 
     // inserts a token at the current cursor position and updates the token list accordingly
-    private void TokenPressed(string text, int type)
+    private void TokenPressed(string text, TokenType type)
     {
         // attempt to insert the token
         try {
@@ -86,24 +86,24 @@ public class KeyboardManager : MonoBehaviour
     //  more than 1 parameter to be passed in through the inspector
 
     // digits
-    public void InsertNumber(string number) { TokenPressed(number, EquationParser.TYPE_NUMBER); }
+    public void InsertNumber(string number) { TokenPressed(number, TokenType.Number); }
 
     // operators (+, -, *, /)
-    public void InsertOperator(string op) { TokenPressed(op, EquationParser.TYPE_OPERATOR); }
+    public void InsertOperator(string op) { TokenPressed(op, TokenType.Operator); }
 
     // variables
-    public void InsertVariable(string variable) { TokenPressed(variable, EquationParser.TYPE_VARIABLE); }
+    public void InsertVariable(string variable) { TokenPressed(variable, TokenType.Variable); }
 
     // parenthesis
-    public void InsertLeftParen() { TokenPressed("(", EquationParser.TYPE_LEFTPAREN); }
-    public void InsertRightParen() { TokenPressed(")", EquationParser.TYPE_RIGHTPAREN); }
+    public void InsertLeftParen() { TokenPressed("(", TokenType.LeftParen); }
+    public void InsertRightParen() { TokenPressed(")", TokenType.RightParen); }
 
     // equal sign
-    public void InsertEquals() { TokenPressed("=", EquationParser.TYPE_RELOP); }
+    public void InsertEquals() { TokenPressed("=", TokenType.Relop); }
 
     // decimal point
-    public void InsertDecimal() { TokenPressed(".", EquationParser.TYPE_DECIMAL); }
+    public void InsertDecimal() { TokenPressed(".", TokenType.Decimal); }
 
     // function
-    public void InsertFunction(string function) { TokenPressed(function, EquationParser.TYPE_FUNCTION); }
+    public void InsertFunction(string function) { TokenPressed(function, TokenType.Function); }
 }

@@ -20,25 +20,25 @@ public class ParserTests
     {
         var tokens = new List<EquationToken>
         {
-            new EquationToken("y", EquationParser.TYPE_VARIABLE),
-            new EquationToken("=", EquationParser.TYPE_RELOP),
-            new EquationToken("2", EquationParser.TYPE_NUMBER),
-            new EquationToken("+", EquationParser.TYPE_OPERATOR),
-            new EquationToken("3", EquationParser.TYPE_NUMBER)
+            new EquationToken("y", TokenType.Variable),
+            new EquationToken("=", TokenType.Relop),
+            new EquationToken("2", TokenType.Number),
+            new EquationToken("+", TokenType.Operator),
+            new EquationToken("3", TokenType.Number)
         };
 
         var result = parser.Parse(tokens);
 
         Assert.AreEqual("=", result.token.text);
-        Assert.AreEqual(EquationParser.TYPE_RELOP, result.token.type);
+        Assert.AreEqual(TokenType.Relop, result.token.type);
         Assert.AreEqual("y", result.left.token.text);
-        Assert.AreEqual(EquationParser.TYPE_VARIABLE, result.left.token.type);
+        Assert.AreEqual(TokenType.Variable, result.left.token.type);
         Assert.AreEqual("+", result.right.token.text);
-        Assert.AreEqual(EquationParser.TYPE_OPERATOR, result.right.token.type);
+        Assert.AreEqual(TokenType.Operator, result.right.token.type);
         Assert.AreEqual("2", result.right.left.token.text);
-        Assert.AreEqual(EquationParser.TYPE_NUMBER, result.right.left.token.type);
+        Assert.AreEqual(TokenType.Number, result.right.left.token.type);
         Assert.AreEqual("3", result.right.right.token.text);
-        Assert.AreEqual(EquationParser.TYPE_NUMBER, result.right.right.token.type);
+        Assert.AreEqual(TokenType.Number, result.right.right.token.type);
     }
 
     [Test]
@@ -46,23 +46,23 @@ public class ParserTests
     {
         var tokens = new List<EquationToken>
         {
-            new EquationToken("y", EquationParser.TYPE_VARIABLE),
-            new EquationToken("=", EquationParser.TYPE_RELOP),
-            new EquationToken("sin", EquationParser.TYPE_FUNCTION),
-            new EquationToken("(", EquationParser.TYPE_LEFTPAREN),
-            new EquationToken("4", EquationParser.TYPE_NUMBER),
-            new EquationToken(")", EquationParser.TYPE_RIGHTPAREN)
+            new EquationToken("y", TokenType.Variable),
+            new EquationToken("=", TokenType.Relop),
+            new EquationToken("sin", TokenType.Function),
+            new EquationToken("(", TokenType.LeftParen),
+            new EquationToken("4", TokenType.Number),
+            new EquationToken(")", TokenType.RightParen)
         };
 
         var result = parser.Parse(tokens);
 
         Assert.AreEqual("=", result.token.text);
-        Assert.AreEqual(EquationParser.TYPE_RELOP, result.token.type);
+        Assert.AreEqual(TokenType.Relop, result.token.type);
         Assert.AreEqual("y", result.left.token.text);
-        Assert.AreEqual(EquationParser.TYPE_VARIABLE, result.left.token.type);
+        Assert.AreEqual(TokenType.Variable, result.left.token.type);
         Assert.AreEqual("sin", result.right.token.text);
-        Assert.AreEqual(EquationParser.TYPE_FUNCTION, result.right.token.type);
+        Assert.AreEqual(TokenType.Function, result.right.token.type);
         Assert.AreEqual("4", result.right.right.token.text);
-        Assert.AreEqual(EquationParser.TYPE_NUMBER, result.right.right.token.type);
+        Assert.AreEqual(TokenType.Number, result.right.right.token.type);
     }
 }

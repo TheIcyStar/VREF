@@ -29,7 +29,7 @@ public class EquationManager : MonoBehaviour
     }
 
     // wrapper methods for the keyboard
-    public int InsertToken(string text, int type, int cursorIndex)
+    public int InsertToken(string text, TokenType type, int cursorIndex)
     {
         return tokenizer.InsertTokenAtCursor(text, type, cursorIndex);
     }

@@ -110,7 +110,7 @@ public class EquationTokenizer
     }
 
     // inserts a token at the current cursor position and updates the token list accordingly
-    public int InsertTokenAtCursor(string text, int type, int cursorIndex)
+    public int InsertTokenAtCursor(string text, TokenType type, int cursorIndex)
     {
         // check that cursorIndex is valid
         if (cursorIndex < 0 || cursorIndex >= rangeMap.Length) throw new TokenizerException("Cursor is out of range to insert.");
@@ -196,16 +196,16 @@ public class EquationTokenizer
         // iterate through all the tokens
         for (int i = 0; i < tokens.Count; i++) {
             // if the token is not the last element, check if num.num structure exists
-            if (i < tokens.Count - 2 && tokens[i].type == EquationParser.TYPE_NUMBER && tokens[i + 1].text == "." && tokens[i + 2].type == EquationParser.TYPE_NUMBER) {
+            if (i < tokens.Count - 2 && tokens[i].type == TokenType.Number && tokens[i + 1].text == "." && tokens[i + 2].type == TokenType.Number) {
                 // check if previous token is also a number
                 // ^1 gets last element
-                if (cleanTokens.Count > 0 && cleanTokens[^1].type == EquationParser.TYPE_NUMBER) {
+                if (cleanTokens.Count > 0 && cleanTokens[^1].type == TokenType.Number) {
                     // merge the current token group from old list with the most recent token added to new list
-                    cleanTokens[^1] = new EquationToken(cleanTokens[^1].text + tokens[i].text + "." + tokens[i + 2].text, EquationParser.TYPE_NUMBER);
+                    cleanTokens[^1] = new EquationToken(cleanTokens[^1].text + tokens[i].text + "." + tokens[i + 2].text, TokenType.Number);
                 }
                 // if not, just add it normally
                 else {
-                    cleanTokens.Add(new EquationToken(tokens[i].text + "." + tokens[i + 2].text, EquationParser.TYPE_NUMBER));
+                    cleanTokens.Add(new EquationToken(tokens[i].text + "." + tokens[i + 2].text, TokenType.Number));
                 }
                 
                 // skip the next two tokens
@@ -214,8 +214,8 @@ public class EquationTokenizer
             // lone decimal point (can only happen as first token)
             else if(tokens[i].text == ".") {
                 // create a number out of it
-                if(i < tokens.Count - 1 && tokens[i + 1].type == EquationParser.TYPE_NUMBER) {
-                    cleanTokens.Add(new EquationToken("0." + tokens[i + 1].text, EquationParser.TYPE_NUMBER));
+                if(i < tokens.Count - 1 && tokens[i + 1].type == TokenType.Number) {
+                    cleanTokens.Add(new EquationToken("0." + tokens[i + 1].text, TokenType.Number));
 
                     // skip the next token
                     i++;
@@ -226,11 +226,11 @@ public class EquationTokenizer
                 }
             }
             // non decimal number merge
-            else if (tokens[i].type == EquationParser.TYPE_NUMBER) {
+            else if (tokens[i].type == TokenType.Number) {
                 // check if previous token is also a number
-                if (cleanTokens.Count > 0 && cleanTokens[^1].type == EquationParser.TYPE_NUMBER) {
+                if (cleanTokens.Count > 0 && cleanTokens[^1].type == TokenType.Number) {
                     // merge the current token from old list with the most recent token added to new list
-                    cleanTokens[^1] = new EquationToken(cleanTokens[^1].text + tokens[i].text, EquationParser.TYPE_NUMBER);
+                    cleanTokens[^1] = new EquationToken(cleanTokens[^1].text + tokens[i].text, TokenType.Number);
                 }
                 // if not, just add it normally
                 else {
@@ -258,24 +258,24 @@ public class EquationTokenizer
             EquationToken next = cleanTokens[i + 1];
 
             // number followed by variable, function, or parenthesis
-            if (current.type == EquationParser.TYPE_NUMBER 
-            && (next.type == EquationParser.TYPE_VARIABLE || next.type == EquationParser.TYPE_FUNCTION || next.type == EquationParser.TYPE_LEFTPAREN)) 
+            if (current.type == TokenType.Number 
+            && (next.type == TokenType.Variable || next.type == TokenType.Function || next.type == TokenType.LeftParen)) 
             {
-                cleanTokens.Insert(i + 1, new EquationToken("*", EquationParser.TYPE_OPERATOR));
+                cleanTokens.Insert(i + 1, new EquationToken("*", TokenType.Operator));
                 i++;
             }
             // closing parenthesis followed by variable, function, number, or another parenthesis
-            else if (current.type == EquationParser.TYPE_RIGHTPAREN 
-            && (next.type == EquationParser.TYPE_VARIABLE || next.type == EquationParser.TYPE_FUNCTION || next.type == EquationParser.TYPE_NUMBER || next.type == EquationParser.TYPE_LEFTPAREN)) 
+            else if (current.type == TokenType.RightParen
+            && (next.type == TokenType.Variable || next.type == TokenType.Function || next.type == TokenType.Number  || next.type == TokenType.LeftParen)) 
             {
-                cleanTokens.Insert(i + 1, new EquationToken("*", EquationParser.TYPE_OPERATOR));
+                cleanTokens.Insert(i + 1, new EquationToken("*", TokenType.Operator));
                 i++;
             }
             // variable followed by function, variable, or opening parenthesis
-            else if (current.type == EquationParser.TYPE_VARIABLE 
-            && (next.type == EquationParser.TYPE_FUNCTION || next.type == EquationParser.TYPE_VARIABLE || next.type == EquationParser.TYPE_LEFTPAREN)) 
+            else if (current.type == TokenType.Variable
+            && (next.type == TokenType.Function || next.type == TokenType.Variable || next.type == TokenType.LeftParen)) 
             {
-                cleanTokens.Insert(i + 1, new EquationToken("*", EquationParser.TYPE_OPERATOR));
+                cleanTokens.Insert(i + 1, new EquationToken("*", TokenType.Operator));
                 i++;
             }
         }

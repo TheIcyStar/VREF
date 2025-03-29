@@ -12,18 +12,6 @@ public class EquationParser
     // index of the current token
     private int tokenIndex;
 
-    // node types
-    // public because the grapher uses them
-    public const int TYPE_NULL = -1;
-    public const int TYPE_NUMBER = 0;
-    public const int TYPE_VARIABLE = 1;
-    public const int TYPE_FUNCTION = 2;
-    public const int TYPE_OPERATOR = 3;
-    public const int TYPE_RELOP = 4;
-    public const int TYPE_DECIMAL = 5;
-    public const int TYPE_LEFTPAREN = 6;
-    public const int TYPE_RIGHTPAREN = 7;
-
     // grammar:
     // add suport for relational operators in the explicit function rule later
     // --------------------------------------------------------------
@@ -64,17 +52,17 @@ public class EquationParser
     // gets the current token
     // returns a null token if tokenIndex is out of range
     private EquationToken CurrentToken() {
-        try {return tokens[tokenIndex];} catch (ArgumentOutOfRangeException) {return new EquationToken("null", -1);}
+        try {return tokens[tokenIndex];} catch (ArgumentOutOfRangeException) {return new EquationToken("null", TokenType.Null);}
     }
 
     // returns true if the current token is the same type as the type passed in, returns false otherwise
-    private bool TypeMatch(int type) {
+    private bool TypeMatch(TokenType type) {
         return CurrentToken().type == type;
     }
 
     // calls TypeMatch to verify that the token matches
     // then increments the token index and returns the used token
-    private EquationToken UseToken(int type) {
+    private EquationToken UseToken(TokenType type) {
         if(TypeMatch(type)) {
             tokenIndex++;
             return tokens[tokenIndex - 1];
@@ -89,12 +77,12 @@ public class EquationParser
     private ParseTreeNode ParseExplicit() {
         // parse a variable on the LHS
         ParseTreeNode variable;
-        try {variable = new ParseTreeNode(UseToken(TYPE_VARIABLE));} catch (ParserException pe) {throw new ParserException($"Expected variable, {pe.Message}");}
+        try {variable = new ParseTreeNode(UseToken(TokenType.Variable));} catch (ParserException pe) {throw new ParserException($"Expected variable, {pe.Message}");}
 
         // try to use up the relational operator ('=' | '>' | '<' | '>=' | '<=')
         // ONLY '=' SUPPORTED
         EquationToken relop;
-        try {relop = UseToken(TYPE_RELOP);} catch (ParserException pe) {throw new ParserException($"Expected relational operator after variable (only '=' supported), {pe.Message}");}
+        try {relop = UseToken(TokenType.Relop);} catch (ParserException pe) {throw new ParserException($"Expected relational operator after variable (only '=' supported), {pe.Message}");}
 
         // parse the expression on the RHS
         ParseTreeNode expression;
@@ -113,9 +101,9 @@ public class EquationParser
         // loop through the rest of the expression
         // keep checking for (( '+' | '-' ) Term )* until 
         // a different token or end of token list
-        while(TypeMatch(TYPE_OPERATOR) && (CurrentToken().text == "+" || CurrentToken().text == "-")) {
+        while(TypeMatch(TokenType.Operator) && (CurrentToken().text == "+" || CurrentToken().text == "-")) {
             // use up the current operator
-            EquationToken op = UseToken(TYPE_OPERATOR);
+            EquationToken op = UseToken(TokenType.Operator);
 
             // parse a term on the RHS
             ParseTreeNode nextTerm ;
@@ -138,9 +126,9 @@ public class EquationParser
         // loop through the rest of the term
         // keep checking for (( '*' | '/' ) Unary )* until 
         // a different token or end of token list
-        while (TypeMatch(TYPE_OPERATOR) && (CurrentToken().text == "*" || CurrentToken().text == "/")) {
+        while (TypeMatch(TokenType.Operator) && (CurrentToken().text == "*" || CurrentToken().text == "/")) {
             // use up the operator
-            EquationToken op = UseToken(TYPE_OPERATOR);
+            EquationToken op = UseToken(TokenType.Operator);
 
             // parse a unary operation on the RHS
             ParseTreeNode nextUnary;
@@ -158,9 +146,9 @@ public class EquationParser
     //  Unary -> ( '-' Unary ) | Power
     private ParseTreeNode ParseUnary() {
         // check for ( '-' Unary )
-        if(TypeMatch(TYPE_OPERATOR) && CurrentToken().text == "-") {
+        if(TypeMatch(TokenType.Operator) && CurrentToken().text == "-") {
             // use up the operator
-            EquationToken op = UseToken(TYPE_OPERATOR);
+            EquationToken op = UseToken(TokenType.Operator);
 
             // parse the unary on the RHS
             ParseTreeNode unary = ParseUnary();
@@ -182,9 +170,9 @@ public class EquationParser
         // only check for Primary ( '^' Unary ) once 
         // as '^' is right associative, so additional
         // powers will be added in the ParseUnary call
-        if(TypeMatch(TYPE_OPERATOR) && CurrentToken().text == "^") {
+        if(TypeMatch(TokenType.Operator) && CurrentToken().text == "^") {
             // use up the operator
-            EquationToken op = UseToken(TYPE_OPERATOR);
+            EquationToken op = UseToken(TokenType.Operator);
 
             // parse a unary on the RHS
             ParseTreeNode unary;
@@ -203,19 +191,19 @@ public class EquationParser
     //  Primary -> Function | Number | Variable | '(' Expression ')'
     private ParseTreeNode ParsePrimary() {
         // check for Function | Number | Variable | '(' Expression ')'
-        if(TypeMatch(TYPE_FUNCTION)) return ParseFunction();
-        if(TypeMatch(TYPE_NUMBER)) return new ParseTreeNode(UseToken(TYPE_NUMBER));
-        if(TypeMatch(TYPE_VARIABLE)) return new ParseTreeNode(UseToken(TYPE_VARIABLE));;
-        if(TypeMatch(TYPE_LEFTPAREN)) {
+        if(TypeMatch(TokenType.Function)) return ParseFunction();
+        if(TypeMatch(TokenType.Number)) return new ParseTreeNode(UseToken(TokenType.Number));
+        if(TypeMatch(TokenType.Variable)) return new ParseTreeNode(UseToken(TokenType.Variable));;
+        if(TypeMatch(TokenType.LeftParen)) {
             // use up the left parenthesis
-            UseToken(TYPE_LEFTPAREN);
+            UseToken(TokenType.LeftParen);
 
             // parse the expression inside the parenthesis
             ParseTreeNode node;
             try {node = ParseExpression();} catch (InvalidOperationException) {throw new ParserException("Invalid/missing expression inside parenthesis.");}
 
             // try to use up the right parenthesis
-            try {UseToken(TYPE_RIGHTPAREN);} catch (ParserException) {throw new ParserException($"Missing right parenthesis to match left parenthesis.");}
+            try {UseToken(TokenType.RightParen);} catch (ParserException) {throw new ParserException($"Missing right parenthesis to match left parenthesis.");}
 
             // return the root of the expression tree (parenthesis ignored)
             return node;
@@ -231,17 +219,17 @@ public class EquationParser
     private ParseTreeNode ParseFunction() {
         // use up the function token (already checked that it exists in ParsePrimary)
         // store the function token to output the function name for other errors
-        EquationToken function = UseToken(TYPE_FUNCTION);
+        EquationToken function = UseToken(TokenType.Function);
 
         // try to use up a left parenthesis
-        try {UseToken(TYPE_LEFTPAREN);} catch(ParserException) {throw new ParserException($"Missing left parenthesis after function: '{function.text}'.");}
+        try {UseToken(TokenType.LeftParen);} catch(ParserException) {throw new ParserException($"Missing left parenthesis after function: '{function.text}'.");}
 
         // parse the expression inside the function
         ParseTreeNode node;
         try {node = ParseExpression();} catch(InvalidOperationException) {throw new ParserException($"Missing expression inside function: '{function.text}'.");}
 
         // try to use up a right parenthesis
-        try {UseToken(TYPE_RIGHTPAREN);} catch (ParserException) {throw new ParserException($"Missing right parenthesis after function: '{function.text}'.");}
+        try {UseToken(TokenType.RightParen);} catch (ParserException) {throw new ParserException($"Missing right parenthesis after function: '{function.text}'.");}
 
         // return the root of the function tree with the only child being the root of the expression tree
         return new ParseTreeNode(function) { right = node };

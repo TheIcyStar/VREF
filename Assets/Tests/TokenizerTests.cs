@@ -22,18 +22,18 @@ public class TokenizerTests
     public void CleanAddition()
     {
         tokenizer.tokens.Clear();
-        tokenizer.InsertTokenAtCursor("2", EquationParser.TYPE_NUMBER, 0);
-        tokenizer.InsertTokenAtCursor("+", EquationParser.TYPE_OPERATOR, 1);
-        tokenizer.InsertTokenAtCursor("3", EquationParser.TYPE_NUMBER, 2);
+        tokenizer.InsertTokenAtCursor("2", TokenType.Number, 0);
+        tokenizer.InsertTokenAtCursor("+", TokenType.Operator, 1);
+        tokenizer.InsertTokenAtCursor("3", TokenType.Number, 2);
 
         var cleanTokens = tokenizer.CleanUpEquation();
 
         Assert.AreEqual(3, cleanTokens.Count);
         Assert.AreEqual("2", cleanTokens[0].text);
-        Assert.AreEqual(EquationParser.TYPE_NUMBER, cleanTokens[0].type);
+        Assert.AreEqual(TokenType.Number, cleanTokens[0].type);
         Assert.AreEqual("+", cleanTokens[1].text);
-        Assert.AreEqual(EquationParser.TYPE_OPERATOR, cleanTokens[1].type);
+        Assert.AreEqual(TokenType.Operator, cleanTokens[1].type);
         Assert.AreEqual("3", cleanTokens[2].text);
-        Assert.AreEqual(EquationParser.TYPE_NUMBER, cleanTokens[2].type);
+        Assert.AreEqual(TokenType.Number, cleanTokens[2].type);
     }
 }

@@ -35,13 +35,13 @@ public interface IGraphRenderer
     {
         switch (node.token.type)
         {
-            case EquationParser.TYPE_NUMBER:
+            case TokenType.Number:
                 return float.TryParse(node.token.text, out float num) ? num : throw new GraphEvaluationException($"Incorrect number format for '{node.token.text}'.");
-            case EquationParser.TYPE_VARIABLE:
+            case TokenType.Variable:
                 if (!vars.TryGetValue(node.token.text, out float val))
                     throw new GraphEvaluationException($"Variable '{node.token.text}' not found.");
                 return val;
-            case EquationParser.TYPE_OPERATOR:
+            case TokenType.Operator:
                 // treat missing left operand as 0 so that unary minus works without left operand (negation)
                 // every missing operand error should be stopped in the parser before it gets here
                 float left = node.left != null ? EvaluateEquation(node.left, vars) : 0;
@@ -53,12 +53,12 @@ public interface IGraphRenderer
                     "*" => left * right,
                     // something like 1 / x will have ungraphable values set to NaN
                     // but something like 1 / 0 will throw an error
-                    "/" => right != 0 ? left / right : (node.right.token.type == EquationParser.TYPE_NUMBER ? throw new GraphEvaluationException("Cannot divide by zero.") : float.NaN),
+                    "/" => right != 0 ? left / right : (node.right.token.type == TokenType.Number ? throw new GraphEvaluationException("Cannot divide by zero.") : float.NaN),
                     "^" => Mathf.Pow(left, right),
                     // should never happen, should be caught in parser
                     _ => throw new GraphEvaluationException($"Unsupported operator '{node.token.text}'.")
                 };
-            case EquationParser.TYPE_FUNCTION:
+            case TokenType.Function:
                 // functions have their expression on the right
                 float arg = EvaluateEquation(node.right, vars);
                 return node.token.text switch
