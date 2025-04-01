@@ -63,11 +63,11 @@ public class SurfaceGraphRenderer : IGraphRenderer
                 // find what the output evaluates to when given the input at this point
                 float outputVal = IGraphRenderer.EvaluateEquation(equationTree, variables);
                 
+                // check if current function value is in the output range
+                bool currentInRange = !float.IsNaN(outputVal) && outputVal >= outputMin && outputVal <= outputMax;
+
                 // hold off on disjoint surfaces for now
                 // -------------------------------------
-                // check if current function value is in the output range
-                // bool currentInRange = !float.IsNaN(outputVal) && outputVal >= outputMin && outputVal <= outputMax;
-                //
                 // only add points when in range
                 // if (currentInRange) {
                 //     // just came back in range, start a new segment
@@ -84,7 +84,10 @@ public class SurfaceGraphRenderer : IGraphRenderer
 
                 // temporary
                 // for non-disjoint surfaces only
-                row.Add(AssignPoint(inputVal1, inputVal2, outputVal, inputVar1, inputVar2, outputVar));
+                if (currentInRange)
+                    row.Add(AssignPoint(inputVal1, inputVal2, outputVal, inputVar1, inputVar2, outputVar));
+                else
+                    row.Add(new Vector3(float.NaN, float.NaN, float.NaN));
             }
 
             // temporary
@@ -192,12 +195,18 @@ public class SurfaceGraphRenderer : IGraphRenderer
 
         // flatten the grid into a vertex list
         // this is to map each vertex (point) to an index
+        int[,] indexMap = new int[rows, cols];
         for (int x = 0; x < rows; x++)
         {
             for (int y = 0; y < cols; y++)
             {
                 // add the point at that spot of the grid to the vertex list
-                vertices.Add(currentGrid[x][y]);
+                if(!float.IsNaN(currentGrid[x][y].x)) {
+                    indexMap[x, y] = vertices.Count;
+                    vertices.Add(currentGrid[x][y]);
+                }
+                else
+                    indexMap[x, y] = -1;
             }
         }
 
@@ -216,26 +225,28 @@ public class SurfaceGraphRenderer : IGraphRenderer
                 //   |  /       |
                 // x+1,y --- x+1,y+1
                 // mutliple by cols since the grid was flattened
-                int topLeft = x * cols + y;                     // (x, y)
-                int topRight = x * cols + y + 1;                // (x, y+1)
-                int bottomLeft = (x + 1) * cols + y;            // (x+1, y)
-                int bottomRight = (x + 1) * cols + y + 1;       // (x+1, y+1)
+                int topLeft = indexMap[x,y];                    // (x, y)
+                int topRight = indexMap[x,y+1];                 // (x, y+1)
+                int bottomLeft = indexMap[x+1,y];               // (x+1, y)
+                int bottomRight = indexMap[x+1,y+1];            // (x+1, y+1)
 
                 // winding order is how you add the points to the triangle
                 // winding order defines the front of the triangle
                 // winding counter-clockwise (like how this code is)
                 // is considered the front in unity
 
-                // these are the two triangles that make the quad
-                // topLeft -> bottomLeft -> topRight is counter-clockwise
-                triangles.Add(topLeft);
-                triangles.Add(bottomLeft);
-                triangles.Add(topRight);
+                if (topLeft >= 0 && topRight >= 0 && bottomLeft >= 0 && bottomRight >= 0) {
+                    // these are the two triangles that make the quad
+                    // topLeft -> bottomLeft -> topRight is counter-clockwise
+                    triangles.Add(topLeft);
+                    triangles.Add(bottomLeft);
+                    triangles.Add(topRight);
 
-                // topRight -> bottomLeft -> bottomRight is also counter-clockwise
-                triangles.Add(topRight);
-                triangles.Add(bottomLeft);
-                triangles.Add(bottomRight);
+                    // topRight -> bottomLeft -> bottomRight is also counter-clockwise
+                    triangles.Add(topRight);
+                    triangles.Add(bottomLeft);
+                    triangles.Add(bottomRight);
+                }
             }
         }
 
