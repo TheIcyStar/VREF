@@ -17,21 +17,21 @@ public class GraphInstance : MonoBehaviour
     // single output var computed by the function (dependent variable)
     private GraphVariable outputVar;
     // store references to scripts and objects
-    public AxisRenderer axisRenderer;
-    public GameObject graphVisualsObj;
-    public GameObject graphObj;
+    [SerializeField] private AxisRenderer axisRenderer;
+    [SerializeField] private GameObject graphVisualsObj;
+    [SerializeField] private GameObject graphObj;
 
     // all graph settings UI elements
-    public TMP_InputField xAxisMinUI;
-    public TMP_InputField xAxisMaxUI;
-    public TMP_InputField yAxisMinUI;
-    public TMP_InputField yAxisMaxUI;
-    public TMP_InputField zAxisMinUI;
-    public TMP_InputField zAxisMaxUI;
-    public TMP_InputField xRotationUI;
-    public TMP_InputField yRotationUI;
-    public TMP_InputField zRotationUI;
-    public TMP_InputField stepUI;
+    [SerializeField] private TMP_InputField xAxisMinUI;
+    [SerializeField] private TMP_InputField xAxisMaxUI;
+    [SerializeField] private TMP_InputField yAxisMinUI;
+    [SerializeField] private TMP_InputField yAxisMaxUI;
+    [SerializeField] private TMP_InputField zAxisMinUI;
+    [SerializeField] private TMP_InputField zAxisMaxUI;
+    [SerializeField] private TMP_InputField xRotationUI;
+    [SerializeField] private TMP_InputField yRotationUI;
+    [SerializeField] private TMP_InputField zRotationUI;
+    [SerializeField] private TMP_InputField stepUI;
 
     // equation renderer types
     // change to enums later
