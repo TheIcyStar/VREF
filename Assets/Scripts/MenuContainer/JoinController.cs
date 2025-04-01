@@ -19,7 +19,9 @@ public class JoinController : MonoBehaviour {
     private TMP_Text buttonTextComponent;
 
     void Start(){
-        buttonTextComponent = joinButton.GetComponentInChildren<TMP_Text>();
+        if(joinButton != null){
+            buttonTextComponent = joinButton.GetComponentInChildren<TMP_Text>();
+        }
     }
 
     public async void beginJoin() {
