@@ -2,5 +2,9 @@ using UnityEngine;
 
 public class RotationGizmoController : MonoBehaviour
 {
-    public GraphInstance graphInstance;
+    [SerializeField] private GraphInstance graphInstance;
+
+    public void SetGraphRotation(Vector3 rotation) {
+        graphInstance.GizmoRotateGraph(rotation);
+    }
 }

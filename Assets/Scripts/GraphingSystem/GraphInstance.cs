@@ -57,10 +57,10 @@ public class GraphInstance : MonoBehaviour
 
         axisRenderer.InitializeAxes();
         RefreshAllUIText();
-        RefreshGraph();
+        RescaleAndVisualizeGraph();
     }
 
-    private void RefreshGraph() {
+    private void RescaleAndVisualizeGraph() {
         ScaleGraph();
         VisualizeGraph();
     }
@@ -79,6 +79,14 @@ public class GraphInstance : MonoBehaviour
     // renders the graph using the respective renderer and settings
     private void VisualizeGraph() {
         graphRenderer.RenderGraph(equationTree, graphSettings, inputVars, outputVar);
+    }
+
+    // rotate the graph object (called from the gizmo)
+    public void GizmoRotateGraph(Vector3 rotation) {
+        graphObj.transform.localRotation = Quaternion.Euler(rotation);
+        RefreshUIText(xRotationUI, rotation.y);
+        RefreshUIText(yRotationUI, rotation.z);
+        RefreshUIText(zRotationUI, rotation.x);
     }
 
     // updates the graph settings and re-renders the graph
@@ -106,7 +114,7 @@ public class GraphInstance : MonoBehaviour
 
         if (float.TryParse(stepUI.text, out val) && val > 0.0001f) graphSettings.step = val; else RefreshUIText(stepUI, graphSettings.step);
 
-        RefreshGraph();
+        RescaleAndVisualizeGraph();
     }
 
     // updates the entire UI to have the current graph settings displayed
