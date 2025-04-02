@@ -1050,6 +1050,7 @@ GameObject:
   - component: {fileID: 494698663819763679}
   - component: {fileID: 6923949664126684054}
   - component: {fileID: 6886756732576445981}
+  - component: {fileID: 6053743728699695471}
   m_Layer: 0
   m_Name: Backward Face
   m_TagString: Untagged
@@ -1140,7 +1141,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6053743728699695471}
+        m_TargetAssemblyTypeName: RotationGizmoFace, Scripts
+        m_MethodName: OnSelectEntered
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -1165,6 +1178,20 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
+--- !u!114 &6053743728699695471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701797860835395925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f82030d978e1d84397519dfb2847369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 1374909303908804354}
+  targetRotation: {x: 0, y: 180, z: 0}
 --- !u!1 &921467324793510894
 GameObject:
   m_ObjectHideFlags: 0
@@ -3307,6 +3334,7 @@ GameObject:
   - component: {fileID: 2061941061167731064}
   - component: {fileID: 3935346909888082112}
   - component: {fileID: 7562463384792527925}
+  - component: {fileID: 7161589528051353576}
   m_Layer: 0
   m_Name: Right Face
   m_TagString: Untagged
@@ -3397,7 +3425,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7161589528051353576}
+        m_TargetAssemblyTypeName: RotationGizmoFace, Scripts
+        m_MethodName: OnSelectEntered
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -3422,6 +3462,20 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
+--- !u!114 &7161589528051353576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2342602877827950793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f82030d978e1d84397519dfb2847369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 1374909303908804354}
+  targetRotation: {x: 0, y: 90, z: 0}
 --- !u!1 &2545501504041734592
 GameObject:
   m_ObjectHideFlags: 0
@@ -4518,6 +4572,7 @@ GameObject:
   - component: {fileID: 1529303171781355089}
   - component: {fileID: 826220711551749147}
   - component: {fileID: 1665498416024749440}
+  - component: {fileID: 3535234399555464397}
   m_Layer: 0
   m_Name: Top Face
   m_TagString: Untagged
@@ -4608,7 +4663,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3535234399555464397}
+        m_TargetAssemblyTypeName: RotationGizmoFace, Scripts
+        m_MethodName: OnSelectEntered
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -4633,6 +4700,20 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
+--- !u!114 &3535234399555464397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3515058025428174549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f82030d978e1d84397519dfb2847369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 1374909303908804354}
+  targetRotation: {x: -90, y: 0, z: 0}
 --- !u!1 &3621583950471609975
 GameObject:
   m_ObjectHideFlags: 0
@@ -5129,6 +5210,7 @@ GameObject:
   - component: {fileID: 9049964520711197823}
   - component: {fileID: 4817666923998516350}
   - component: {fileID: 2822316954822629546}
+  - component: {fileID: 8285221485906385417}
   m_Layer: 0
   m_Name: Left Face
   m_TagString: Untagged
@@ -5219,7 +5301,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8285221485906385417}
+        m_TargetAssemblyTypeName: RotationGizmoFace, Scripts
+        m_MethodName: OnSelectEntered
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -5244,6 +5338,20 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
+--- !u!114 &8285221485906385417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4021201415672440536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f82030d978e1d84397519dfb2847369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 1374909303908804354}
+  targetRotation: {x: 0, y: -90, z: 0}
 --- !u!1 &4030623080309559864
 GameObject:
   m_ObjectHideFlags: 0
@@ -6828,6 +6936,7 @@ GameObject:
   - component: {fileID: 7390856181798206886}
   - component: {fileID: 5338056039999208679}
   - component: {fileID: 6423055136611061027}
+  - component: {fileID: 7357826582576261931}
   m_Layer: 0
   m_Name: Forward Face
   m_TagString: Untagged
@@ -6918,7 +7027,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7357826582576261931}
+        m_TargetAssemblyTypeName: RotationGizmoFace, Scripts
+        m_MethodName: OnSelectEntered
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -6943,6 +7064,20 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
+--- !u!114 &7357826582576261931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5478443116807164972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f82030d978e1d84397519dfb2847369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 1374909303908804354}
+  targetRotation: {x: 0, y: 0, z: 0}
 --- !u!1 &5502802284639550352
 GameObject:
   m_ObjectHideFlags: 0
@@ -8107,6 +8242,7 @@ GameObject:
   - component: {fileID: 5197220439505083983}
   - component: {fileID: 6670755021630425380}
   - component: {fileID: 8006753152249500579}
+  - component: {fileID: 4888669730989735432}
   m_Layer: 0
   m_Name: Bottom Face
   m_TagString: Untagged
@@ -8197,7 +8333,19 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4888669730989735432}
+        m_TargetAssemblyTypeName: RotationGizmoFace, Scripts
+        m_MethodName: OnSelectEntered
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_SelectExited:
     m_PersistentCalls:
       m_Calls: []
@@ -8222,6 +8370,20 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
+--- !u!114 &4888669730989735432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6654631698232007669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f82030d978e1d84397519dfb2847369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 1374909303908804354}
+  targetRotation: {x: 90, y: 0, z: 0}
 --- !u!1 &6691576229486276947
 GameObject:
   m_ObjectHideFlags: 0
