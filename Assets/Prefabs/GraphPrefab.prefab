@@ -4388,6 +4388,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   graphInstance: {fileID: 4372133928288227027}
+  highlightMaterial: {fileID: 0}
+  defaultMaterial: {fileID: 0}
 --- !u!1 &3489159056403360576
 GameObject:
   m_ObjectHideFlags: 0
@@ -10226,27 +10228,25 @@ LineRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Positions:
-  - {x: 1.1, y: 0.6, z: -1.1}
-  - {x: 1.1, y: 0.6, z: -0.9}
-  - {x: 0.9, y: 0.6, z: -0.9}
-  - {x: 0.9, y: 0.6, z: -1.1}
-  - {x: 1.1, y: 0.6, z: -1.1}
-  - {x: 1.1, y: 0.4, z: -1.1}
-  - {x: 1.1, y: 0.4, z: -0.9}
-  - {x: 0.9, y: 0.4, z: -0.9}
-  - {x: 0.9, y: 0.4, z: -0.9}
-  - {x: 0.9, y: 0.4, z: -1.1}
-  - {x: 1.1, y: 0.4, z: -1.1}
-  - {x: 1.1, y: 0.6, z: -1.1}
-  - {x: 0.9, y: 0.6, z: -1.1}
-  - {x: 0.9, y: 0.4, z: -1.1}
-  - {x: 0.9, y: 0.4, z: -0.9}
-  - {x: 0.9, y: 0.6, z: -0.9}
-  - {x: 1.1, y: 0.6, z: -0.9}
-  - {x: 1.1, y: 0.4, z: -0.9}
+  - {x: 0.5, y: 0.5, z: 0.5}
+  - {x: -0.5, y: 0.5, z: 0.5}
+  - {x: -0.5, y: -0.5, z: 0.5}
+  - {x: -0.5, y: -0.5, z: -0.5}
+  - {x: -0.5, y: 0.5, z: -0.5}
+  - {x: -0.5, y: 0.5, z: 0.5}
+  - {x: -0.5, y: -0.5, z: 0.5}
+  - {x: 0.5, y: -0.5, z: 0.5}
+  - {x: 0.5, y: -0.5, z: -0.5}
+  - {x: 0.5, y: 0.5, z: -0.5}
+  - {x: 0.5, y: 0.5, z: 0.5}
+  - {x: 0.5, y: -0.5, z: 0.5}
+  - {x: 0.5, y: -0.5, z: -0.5}
+  - {x: -0.5, y: -0.5, z: -0.5}
+  - {x: -0.5, y: 0.5, z: -0.5}
+  - {x: 0.5, y: 0.5, z: -0.5}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.02
+    widthMultiplier: 0.01
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -10300,7 +10300,7 @@ LineRenderer:
     shadowBias: 0.5
     generateLightingData: 0
   m_MaskInteraction: 0
-  m_UseWorldSpace: 1
+  m_UseWorldSpace: 0
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
 --- !u!1 &8890968681022599180
