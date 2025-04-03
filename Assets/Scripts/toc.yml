@@ -1,0 +1,12 @@
+- name: Server API
+  href: API/
+- name: Data Structures
+  href: DataStructures/
+- name: Graphing System
+  href: GraphingSystem/
+- name: Equation Processing
+  href: EquationProcessing/
+- name: Menu Container
+  href: MenuContainer/
+- name: User Interface
+  href: UserInterface/

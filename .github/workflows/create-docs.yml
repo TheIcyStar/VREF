@@ -1,0 +1,45 @@
+name: Create swagger documentation
+on:
+  push:
+    branches:
+      - docs
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.x
+
+      - name: Set up DocFX
+        run: dotnet tool update -g docfx
+
+      - name: Generate DocFX Site
+        run: docfx ./Documentation/docfx.json
+
+      - name: Upload site Artifacts
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+
+  publish:
+    permissions:
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

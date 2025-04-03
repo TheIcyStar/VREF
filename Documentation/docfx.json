@@ -1,0 +1,26 @@
+{
+  "globalMetadata": {
+    "_appName": "VREF",
+    "_appTitle": "VREF documentation",
+    "_enableSearch": true
+  },
+  "build": {
+    "content": [
+      {
+        "files": ["**/*.md", "**/toc.yml"],
+        "src": "../Assets/Scripts"
+      },
+      {
+        "src": "manual",
+        "files": [ "toc.yml","*.md"],
+        "dest": "manual"
+      },
+      {
+        "src": ".",
+        "files": ["index.md"]
+      }
+    ],
+    "dest": "../_site",
+    "template": ["default"]
+  }
+}
