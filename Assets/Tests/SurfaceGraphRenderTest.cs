@@ -1,61 +1,63 @@
-// using NUnit.Framework;
-// using UnityEngine;
+using NUnit.Framework;
+using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
-// public class SurfaceGraphRendererTests
-// {
-//     [SetUp]
-//     public void Setup()
-//     {
-//         graphParentObj = new GameObject("GraphParent");
-//         graphParent = graphParentObj.transform;
+namespace Tests
+{
 
-//         testMaterial = new Material(Shader.Find("Standard"));
+    public class SurfaceGraphRendererTests
+    {
+        private GameObject graphParent;
+        private Material testMaterial;
+        private SurfaceGraphRenderer renderer;
+        private GraphSettings settings;
+        private ParseTreeNode equationTree;
+        private HashSet<GraphVariable> inputVars;
+        private GraphVariable outputVar;
 
-//         renderer = new SurfaceGraphRenderer(graphParent, testMaterial);
-//     }
+        [SetUp]
+        public void Setup()
+        {
+            graphParent = new GameObject("GraphParent");
 
+            testMaterial = new Material(Shader.Find("Standard"));
 
-//     [Test]
-//     public void RenderGraph_GeneratesMeshObject()
-//     {
-//         var equationTree = new ParseTreeNode("=")
-//         {
-//             right = new ParseTreeNode("+")
-//             {
-//                 left = new ParseTreeNode("x"),
-//                 right = new ParseTreeNode("y")
-//             }
-//         };
+            renderer = new SurfaceGraphRenderer(graphParent.transform, testMaterial);
 
-//         var settings = new GraphSettings
-//         {
-//             step = 1f,
-//             axisMins = new Dictionary<GraphVariable, float>
-//             {
-//                 { GraphVariable.X, 0f },
-//                 { GraphVariable.Y, 0f },
-//                 { GraphVariable.Z, 0f }
-//             },
-//             axisMaxs = new Dictionary<GraphVariable, float>
-//             {
-//                 { GraphVariable.X, 2f },
-//                 { GraphVariable.Y, 2f },
-//                 { GraphVariable.Z, 10f }
-//             }
-//         };
+            settings = new GraphSettings { step = 1f };
 
-//         var inputVars = new HashSet<GraphVariable> { GraphVariable.X, GraphVariable.Y };
-//         var outputVar = GraphVariable.Z;
-//         renderer.RenderGraph(equationTree, settings, inputVars, outputVar);
-//         Assert.Greater(graphParent.childCount, 0);
-//         var meshObj = graphParent.GetChild(0).gameObject;
-//         var meshFilter = meshObj.GetComponent<MeshFilter>();
-//         var meshRenderer = meshObj.GetComponent<MeshRenderer>();
+            inputVars = new HashSet<GraphVariable> { GraphVariable.X, GraphVariable.Y };
 
-//         Assert.IsNotNull(meshFilter);
-//         Assert.IsNotNull(meshRenderer);
-//         Assert.IsTrue(meshRenderer.enabled);
-//         Assert.Greater(meshFilter.mesh.vertexCount, 0);
-//         Assert.Greater(meshFilter.mesh.triangles.Length, 0);
-//     }
-// }
+            outputVar = GraphVariable.Z;
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            Object.DestroyImmediate(graphParent);
+            Object.DestroyImmediate(testMaterial);
+        }
+
+        [Test]
+        public void RenderGraph_GeneratesValidMeshSegments()
+        {
+            renderer.RenderGraph(equationTree, settings, inputVars, outputVar);
+
+            Assert.IsTrue(graphParent.transform.childCount > 0);
+
+            foreach (Transform child in graphParent.transform)
+            {
+                var meshFilter = child.GetComponent<MeshFilter>();
+                var meshRenderer = child.GetComponent<MeshRenderer>();
+
+                Assert.IsNotNull(meshFilter);
+                Assert.IsNotNull(meshRenderer);
+                Assert.IsNotNull(meshFilter.mesh);
+
+                Assert.Greater(meshFilter.mesh.vertexCount, 0);
+                Assert.Greater(meshFilter.mesh.triangles.Length, 0);
+            }
+        }
+    }
+}
