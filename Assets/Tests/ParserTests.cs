@@ -61,4 +61,54 @@ public class ParserTests
         Assert.AreEqual("4", result.right.right.token.text);
         Assert.AreEqual(TokenType.Number, result.right.right.token.type);
     }
+        [Test]
+    public void ParseSin()
+    {
+        var tokens = new List<EquationToken>
+        {
+            new EquationToken("x", TokenType.Variable),
+            new EquationToken("=", TokenType.Relop),
+            new EquationToken("sin", TokenType.Function),
+            new EquationToken("(", TokenType.LeftParen),
+            new EquationToken("y", TokenType.Variable),
+            new EquationToken(")", TokenType.RightParen)
+        };
+
+        var result = parser.Parse(tokens);
+
+        Assert.AreEqual("=", result.token.text);
+        Assert.AreEqual(TokenType.Relop, result.token.type);
+        Assert.AreEqual("x", result.left.token.text);
+        Assert.AreEqual(TokenType.Variable, result.left.token.type);
+        Assert.AreEqual("sin", result.right.token.text);
+        Assert.AreEqual(TokenType.Function, result.right.token.type);
+        Assert.AreEqual("y", result.right.right.token.text);
+        Assert.AreEqual(TokenType.Variable, result.right.right.token.type);
+    }
+        [Test]
+    public void ParseCos()
+    {
+        var tokens = new List<EquationToken>
+        {
+            new EquationToken("x", TokenType.Variable),
+            new EquationToken("=", TokenType.Relop),
+            new EquationToken("cos", TokenType.Function),
+            new EquationToken("(", TokenType.LeftParen),
+            new EquationToken("z", TokenType.Variable),
+            new EquationToken(")", TokenType.RightParen)
+        };
+
+        var result = parser.Parse(tokens);
+
+        Assert.AreEqual("=", result.token.text);
+        Assert.AreEqual(TokenType.Relop, result.token.type);
+        Assert.AreEqual("x", result.left.token.text);
+        Assert.AreEqual(TokenType.Variable, result.left.token.type);
+        Assert.AreEqual("cos", result.right.token.text);
+        Assert.AreEqual(TokenType.Function, result.right.token.type);
+        Assert.AreEqual("z", result.right.right.token.text);
+        Assert.AreEqual(TokenType.Variable, result.right.right.token.type);
+    }
+    
 }
+
