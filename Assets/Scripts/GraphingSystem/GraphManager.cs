@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public class GraphManager : MonoBehaviour
 {
@@ -47,7 +48,8 @@ public class GraphManager : MonoBehaviour
         int i = 0;
 
         foreach(KeyValuePair<GameObject, GraphInstance> entry in graphs) {
-            equations[i] = entry.Value.equationTree;
+            // i changed this line to work with the list (marking this in case it doesnt work anymore)
+            equations[i] = entry.Value.equationTrees.ElementAt(i);
             i++;
         }
 
@@ -89,7 +91,7 @@ public class GraphManager : MonoBehaviour
         GraphInstance grapher = graphPrefabObj.GetComponent<GraphInstance>();
 
         // initialize the graph
-        grapher.InitializeGraph(equationTree, defaultLineColor, defaultMeshColor, globalGraphSettings);
+        grapher.InitializeNewGraph(equationTree, defaultLineColor, defaultMeshColor, globalGraphSettings);
 
         // add the graph object to the dictionary
         graphs.Add(graphPrefabObj,  grapher);

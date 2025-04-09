@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class GraphInstance : MonoBehaviour
 {
-    // the root node of the equation tree
-    public ParseTreeNode equationTree;
+    // the list of equations on this graph object
+    public List<ParseTreeNode> equationTrees = new();
+
     // renderer interface set to the correct renderer type
     private IGraphRenderer graphRenderer;
     // graph settings passed in
@@ -38,31 +39,30 @@ public class GraphInstance : MonoBehaviour
     private const int TYPE_LINE = 0;
     private const int TYPE_SURFACE = 1;
 
-    // does nothing w/ def lin color for now
-    public void InitializeGraph(ParseTreeNode equationTree, Material defaultLineColor, Material defaultMeshColor, GraphSettings settings) 
+    public void InitializeNewGraph(ParseTreeNode equationTree, Material defaultLineColor, Material defaultMeshColor, GraphSettings settings) 
     {
         // determine what equation type is by parsing the whole tree
         var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
 
-        this.equationTree = equationTree;
+        equationTrees.Add(equationTree);
         this.graphSettings = settings;
         this.originalSettings = settings;
         this.inputVars = inputVars;
         this.outputVar = outputVar;
 
-        // pass in the gameobject (1st child, the "graph" object) to add renderers to
-        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisualsObj.transform, defaultLineColor);
-        else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisualsObj.transform, defaultMeshColor);
+        // create a new graph object to add the equation to
+        GameObject graphVisual = new GameObject($"Graph Visual {equationTrees.Count}");
+        graphVisual.transform.SetParent(graphVisualsObj.transform, false);
+
+        // pass in the gameobject to add renderers to
+        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisual.transform, defaultLineColor);
+        else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisual.transform, defaultMeshColor);
         else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         axisRenderer.InitializeAxes();
         RefreshAllUIText();
-        RescaleAndVisualizeGraph();
-    }
-
-    private void RescaleAndVisualizeGraph() {
         ScaleGraph();
-        VisualizeGraph();
+        VisualizeGraph(equationTree);
     }
 
     // scale the graph based on the largest range
@@ -77,7 +77,7 @@ public class GraphInstance : MonoBehaviour
     }
 
     // renders the graph using the respective renderer and settings
-    private void VisualizeGraph() {
+    private void VisualizeGraph(ParseTreeNode equationTree) {
         graphRenderer.RenderGraph(equationTree, graphSettings, inputVars, outputVar);
     }
 
@@ -114,7 +114,10 @@ public class GraphInstance : MonoBehaviour
 
         if (float.TryParse(stepUI.text, out val) && val > 0.0001f) graphSettings.step = val; else RefreshUIText(stepUI, graphSettings.step);
 
-        RescaleAndVisualizeGraph();
+        ScaleGraph();
+
+        foreach(ParseTreeNode equation in equationTrees)
+            VisualizeGraph(equation);
     }
 
     // updates the entire UI to have the current graph settings displayed

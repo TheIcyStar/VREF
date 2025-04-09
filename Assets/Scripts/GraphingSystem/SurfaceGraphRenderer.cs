@@ -176,7 +176,7 @@ public class SurfaceGraphRenderer : IGraphRenderer
         // | /   |
         // D --- E
         //
-        // so iterates through all the points
+        // so iterate through all the points
         // and create a list of vertices (A=(1,0,1), B=(2,3,1), ...) 
         // and triangles (A, D, B, B, D, E) <-- the mesh reads triangles three values at a time
         // so this creates triangles ADB and BDE
