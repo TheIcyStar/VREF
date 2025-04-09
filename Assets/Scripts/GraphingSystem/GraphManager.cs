@@ -91,14 +91,6 @@ public class GraphManager : MonoBehaviour
         // if a graph is currently selected, add a new equation to it
         if (selectedGraph != null) { /*selectedGraph.AddEquation(newEquation);*/ return; }
 
-        // instantiate the list element prefab
-        GameObject graphListItem = Instantiate(graphListElementPrefab, graphListContentTransform);
-        graphListItem.name = $"Graph {graphCount} List Element";
-
-        // get the manager script
-        GraphListElementManager graphUIMan = graphListItem.GetComponent<GraphListElementManager>();
-        graphUIMan.graphListName.text = $"Graph {graphCount}";
-
         // create an instance of the prefab, place it past the UI, and name it
         GameObject graphPrefabObj = Instantiate(graphPrefab, this.transform);
         Vector3 forward = equationUITransform.forward;
@@ -114,8 +106,22 @@ public class GraphManager : MonoBehaviour
         // initialize the graph
         graphInstance.InitializeNewGraph(newEquation, defaultLineColor, defaultMeshColor, globalGraphSettings);
 
+        // instantiate the list element prefab
+        GameObject graphListItem = Instantiate(graphListElementPrefab, graphListContentTransform);
+        graphListItem.name = $"Graph {graphCount} List Element";
+
+        // get the manager script
+        GraphListElementManager graphUIMan = graphListItem.GetComponent<GraphListElementManager>();
+        graphUIMan.Intialize(graphInstance, graphCount);
+
         graphs.Add(graphInstance);
         selectedGraph = graphInstance;
         graphCount++;
+    }
+
+    public void SetSelectedGraph(GraphInstance graph)
+    {
+        if (selectedGraph == graph) selectedGraph = null;
+        else                        selectedGraph = graph;
     }
 }
