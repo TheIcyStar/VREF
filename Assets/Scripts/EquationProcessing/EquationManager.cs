@@ -25,7 +25,7 @@ public class EquationManager : MonoBehaviour
         ParseTreeNode equationTree = parser.Parse(tokens);
 
         // send it to the graph manager
-        graphManager.CreateNewGraph(equationTree);
+        graphManager.AddGraph(equationTree);
     }
 
     // wrapper methods for the keyboard

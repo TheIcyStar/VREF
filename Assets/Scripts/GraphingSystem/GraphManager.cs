@@ -6,16 +6,24 @@ using System.Linq;
 public class GraphManager : MonoBehaviour
 {
     // graph prefab
-    public GameObject graphPrefab;
+    [SerializeField] private GameObject graphPrefab;
+    // graph list element
+    [SerializeField] private GameObject graphListElementPrefab;
 
     // transform of the equation UI
-    public Transform equationUITransform;
+    [SerializeField] private Transform equationUITransform;
+    // place where graph ui elements will be added
+    [SerializeField] private Transform graphListContentTransform;
+
     // distance from the UI that all graphs will spawn in from
     [SerializeField] private float graphDisplacement = 4f;
     // distance from the ground that the origin of the graph spawns above
     [SerializeField] private float graphHeight = 1.1f;
-    // dictionary that maps prefabs to their manager script
-    private Dictionary<GameObject, GraphInstance> graphs;
+
+    // list that stores the graph instances
+    private List<GraphInstance> graphs;
+    // monitor what graph is selected
+    private GraphInstance selectedGraph = null;
 
     // global graph settings from options menu
     // storing default values for now
@@ -47,9 +55,10 @@ public class GraphManager : MonoBehaviour
         ParseTreeNode[] equations = new ParseTreeNode[graphs.Count];
         int i = 0;
 
-        foreach(KeyValuePair<GameObject, GraphInstance> entry in graphs) {
+         // i changed this line to work with the list (marking this in case it doesnt work anymore)
+        foreach(GraphInstance entry in graphs) {
             // i changed this line to work with the list (marking this in case it doesnt work anymore)
-            equations[i] = entry.Value.equationTrees.ElementAt(i);
+            equations[i] = entry.equationTrees.ElementAt(i);
             i++;
         }
 
@@ -58,8 +67,9 @@ public class GraphManager : MonoBehaviour
 
     public void BulkOverwriteGraphs(ParseTreeNode[] equations){
         //clean up objects
-        foreach(KeyValuePair<GameObject, GraphInstance> entry in graphs) {
-            Destroy(entry.Key);
+        // i changed this line to work with the list (marking this in case it doesnt work anymore)
+        foreach(GraphInstance entry in graphs) {
+            Destroy(entry.gameObject);
         }
         graphs = new();
 
@@ -67,7 +77,8 @@ public class GraphManager : MonoBehaviour
         int debugCounter = 0;
         foreach(ParseTreeNode tree in equations){
             try {
-                CreateNewGraph(tree);
+                // i changed this line to work with the list (marking this in case it doesnt work anymore)
+                AddGraph(tree);
             } catch (Exception e){
                 Debug.Log($"Error while parsing fetched equation {debugCounter}: {e.Message}");
             }
@@ -75,25 +86,36 @@ public class GraphManager : MonoBehaviour
         }
     }
 
-    // creates the graph object
-    public void CreateNewGraph(ParseTreeNode equationTree) {
+    // either creates the graph object or adds to the selected object
+    public void AddGraph(ParseTreeNode newEquation) {
+        // if a graph is currently selected, add a new equation to it
+        if (selectedGraph != null) { /*selectedGraph.AddEquation(newEquation);*/ return; }
+
+        // instantiate the list element prefab
+        GameObject graphListItem = Instantiate(graphListElementPrefab, graphListContentTransform);
+        graphListItem.name = $"Graph {graphCount} List Element";
+
+        // get the manager script
+        GraphListElementManager graphUIMan = graphListItem.GetComponent<GraphListElementManager>();
+        graphUIMan.graphListName.text = $"Graph {graphCount}";
+
         // create an instance of the prefab, place it past the UI, and name it
-        GameObject graphPrefabObj = Instantiate(this.graphPrefab, this.transform);
+        GameObject graphPrefabObj = Instantiate(graphPrefab, this.transform);
         Vector3 forward = equationUITransform.forward;
         forward.y = 0;
         forward.Normalize();
         graphPrefabObj.transform.position = new Vector3(equationUITransform.position.x, graphHeight, equationUITransform.position.z) + forward * graphDisplacement;
         graphPrefabObj.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
         graphPrefabObj.name = $"Graph {graphCount}";
-        graphCount++;
 
         // get the script once
-        GraphInstance grapher = graphPrefabObj.GetComponent<GraphInstance>();
+        GraphInstance graphInstance = graphPrefabObj.GetComponent<GraphInstance>();
 
         // initialize the graph
-        grapher.InitializeNewGraph(equationTree, defaultLineColor, defaultMeshColor, globalGraphSettings);
+        graphInstance.InitializeNewGraph(newEquation, defaultLineColor, defaultMeshColor, globalGraphSettings);
 
-        // add the graph object to the dictionary
-        graphs.Add(graphPrefabObj,  grapher);
+        graphs.Add(graphInstance);
+        selectedGraph = graphInstance;
+        graphCount++;
     }
 }

@@ -304,6 +304,7 @@ GameObject:
   - component: {fileID: 8457885276766448366}
   - component: {fileID: 5135678993056987528}
   - component: {fileID: 8863285630928522758}
+  - component: {fileID: 4344699796682838301}
   m_Layer: 5
   m_Name: GraphListElement
   m_TagString: Untagged
@@ -361,6 +362,19 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &4344699796682838301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1060366657553512027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f2378f60556b8743aa4690bcfcdd910, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  graphListName: {fileID: 1162548338084723093}
 --- !u!1 &1328409507543252757
 GameObject:
   m_ObjectHideFlags: 0
