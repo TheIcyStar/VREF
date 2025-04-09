@@ -24,6 +24,7 @@ public class GraphManager : MonoBehaviour
     private List<GraphInstance> graphs;
     // monitor what graph is selected
     private GraphInstance selectedGraph = null;
+    private GraphListElementManager selectedUI;
 
     // global graph settings from options menu
     // storing default values for now
@@ -116,12 +117,24 @@ public class GraphManager : MonoBehaviour
 
         graphs.Add(graphInstance);
         selectedGraph = graphInstance;
+        selectedUI = graphUIMan;
         graphCount++;
     }
 
-    public void SetSelectedGraph(GraphInstance graph)
+    public void SetSelectedGraph(GraphInstance graph, GraphListElementManager ui)
     {
-        if (selectedGraph == graph) selectedGraph = null;
-        else                        selectedGraph = graph;
+        // same graph got selected, deselect old ui set pointers to null
+        if (selectedGraph == graph) {
+            if (selectedUI != null) selectedUI.DeselectGraph();
+            selectedGraph = null; 
+            selectedUI = null; 
+        }
+        // new graph is selected, deselect old ui, update pointers, and select the new one
+        else {
+            if (selectedUI != null) selectedUI.DeselectGraph();
+            selectedGraph = graph; 
+            selectedUI = ui; 
+            selectedUI.SelectGraph(); 
+        }
     }
 }

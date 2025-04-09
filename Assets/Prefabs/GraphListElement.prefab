@@ -375,6 +375,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   graphListName: {fileID: 1162548338084723093}
+  selectButtonText: {fileID: 5333190695206021565}
+  backgroundPanel: {fileID: 9074330166568054066}
 --- !u!1 &1328409507543252757
 GameObject:
   m_ObjectHideFlags: 0
@@ -994,7 +996,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 4344699796682838301}
         m_TargetAssemblyTypeName: GraphListElementManager, Scripts
-        m_MethodName: SelectGraph
+        m_MethodName: SelectGraphField
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
