@@ -17,21 +17,21 @@ public class GraphInstance : MonoBehaviour
     // single output var computed by the function (dependent variable)
     private GraphVariable outputVar;
     // store references to scripts and objects
-    public AxisRenderer axisRenderer;
-    public GameObject graphVisualsObj;
-    public GameObject graphObj;
+    [SerializeField] private AxisRenderer axisRenderer;
+    [SerializeField] private GameObject graphVisualsObj;
+    [SerializeField] private GameObject graphObj;
 
     // all graph settings UI elements
-    public TMP_InputField xAxisMinUI;
-    public TMP_InputField xAxisMaxUI;
-    public TMP_InputField yAxisMinUI;
-    public TMP_InputField yAxisMaxUI;
-    public TMP_InputField zAxisMinUI;
-    public TMP_InputField zAxisMaxUI;
-    public TMP_InputField xRotationUI;
-    public TMP_InputField yRotationUI;
-    public TMP_InputField zRotationUI;
-    public TMP_InputField stepUI;
+    [SerializeField] private TMP_InputField xAxisMinUI;
+    [SerializeField] private TMP_InputField xAxisMaxUI;
+    [SerializeField] private TMP_InputField yAxisMinUI;
+    [SerializeField] private TMP_InputField yAxisMaxUI;
+    [SerializeField] private TMP_InputField zAxisMinUI;
+    [SerializeField] private TMP_InputField zAxisMaxUI;
+    [SerializeField] private TMP_InputField xRotationUI;
+    [SerializeField] private TMP_InputField yRotationUI;
+    [SerializeField] private TMP_InputField zRotationUI;
+    [SerializeField] private TMP_InputField stepUI;
 
     // equation renderer types
     // change to enums later
@@ -57,10 +57,10 @@ public class GraphInstance : MonoBehaviour
 
         axisRenderer.InitializeAxes();
         RefreshAllUIText();
-        RefreshGraph();
+        RescaleAndVisualizeGraph();
     }
 
-    private void RefreshGraph() {
+    private void RescaleAndVisualizeGraph() {
         ScaleGraph();
         VisualizeGraph();
     }
@@ -79,6 +79,14 @@ public class GraphInstance : MonoBehaviour
     // renders the graph using the respective renderer and settings
     private void VisualizeGraph() {
         graphRenderer.RenderGraph(equationTree, graphSettings, inputVars, outputVar);
+    }
+
+    // rotate the graph object (called from the gizmo)
+    public void GizmoRotateGraph(Vector3 rotation) {
+        graphObj.transform.localRotation = Quaternion.Euler(rotation);
+        RefreshUIText(xRotationUI, rotation.y);
+        RefreshUIText(yRotationUI, rotation.z);
+        RefreshUIText(zRotationUI, rotation.x);
     }
 
     // updates the graph settings and re-renders the graph
@@ -106,7 +114,7 @@ public class GraphInstance : MonoBehaviour
 
         if (float.TryParse(stepUI.text, out val) && val > 0.0001f) graphSettings.step = val; else RefreshUIText(stepUI, graphSettings.step);
 
-        RefreshGraph();
+        RescaleAndVisualizeGraph();
     }
 
     // updates the entire UI to have the current graph settings displayed
