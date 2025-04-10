@@ -99,11 +99,7 @@ public class GraphManager : MonoBehaviour
 
             // create an instance of the prefab, place it past the UI, and name it
             graphPrefabObj = Instantiate(graphPrefab, this.transform);
-            Vector3 forward = equationUITransform.forward;
-            forward.y = 0;
-            forward.Normalize();
-            graphPrefabObj.transform.position = new Vector3(equationUITransform.position.x, graphHeight, equationUITransform.position.z) + forward * graphDisplacement;
-            graphPrefabObj.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+            PlaceGraphInFront(graphPrefabObj);
             graphPrefabObj.name = $"Graph {graphCount}";
 
             // get the script once
@@ -163,5 +159,14 @@ public class GraphManager : MonoBehaviour
             }
         }
         // throw an exception here
+    }
+
+    // places graph in front of the equation UI
+    public void PlaceGraphInFront(GameObject gameObj) {
+        Vector3 forward = equationUITransform.forward;
+        forward.y = 0;
+        forward.Normalize();
+        gameObj.transform.position = new Vector3(equationUITransform.position.x, graphHeight, equationUITransform.position.z) + forward * graphDisplacement;
+        gameObj.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
     }
 }

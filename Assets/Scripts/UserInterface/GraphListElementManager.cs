@@ -43,4 +43,8 @@ public class GraphListElementManager : MonoBehaviour
     public void DeleteGraph() {
         GraphManager.instance.DeleteGraphObject(attachedGraph, this);
     }
+
+    public void RepositionGraph() {
+        GraphManager.instance.PlaceGraphInFront(attachedGraph.gameObject);
+    }
 }
