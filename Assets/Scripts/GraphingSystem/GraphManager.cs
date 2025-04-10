@@ -90,7 +90,7 @@ public class GraphManager : MonoBehaviour
     // either creates the graph object or adds to the selected object
     public void AddGraph(ParseTreeNode newEquation) {
         // if a graph is currently selected, add a new equation to it
-        if (selectedGraph != null) { /*selectedGraph.AddEquation(newEquation);*/ return; }
+        if (selectedGraph != null) { selectedGraph.AddEquation(newEquation); return; }
 
         // create an instance of the prefab, place it past the UI, and name it
         GameObject graphPrefabObj = Instantiate(graphPrefab, this.transform);
@@ -105,7 +105,7 @@ public class GraphManager : MonoBehaviour
         GraphInstance graphInstance = graphPrefabObj.GetComponent<GraphInstance>();
 
         // initialize the graph
-        graphInstance.InitializeNewGraph(newEquation, defaultLineColor, defaultMeshColor, globalGraphSettings);
+        graphInstance.AddEquation(newEquation);
 
         // instantiate the list element prefab
         GameObject graphListItem = Instantiate(graphListElementPrefab, graphListContentTransform);

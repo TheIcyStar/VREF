@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.Graphs;
 using UnityEngine;
 
 public class GraphInstance : MonoBehaviour
@@ -39,14 +40,14 @@ public class GraphInstance : MonoBehaviour
     private const int TYPE_LINE = 0;
     private const int TYPE_SURFACE = 1;
 
-    public void InitializeNewGraph(ParseTreeNode equationTree, Material defaultLineColor, Material defaultMeshColor, GraphSettings settings) 
+    public void AddEquation(ParseTreeNode equationTree) 
     {
         // determine what equation type is by parsing the whole tree
         var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
 
         equationTrees.Add(equationTree);
-        this.graphSettings = settings;
-        this.originalSettings = settings;
+        this.graphSettings = GraphManager.instance.globalGraphSettings;
+        this.originalSettings = GraphManager.instance.globalGraphSettings;
         this.inputVars = inputVars;
         this.outputVar = outputVar;
 
@@ -55,8 +56,8 @@ public class GraphInstance : MonoBehaviour
         graphVisual.transform.SetParent(graphVisualsObj.transform, false);
 
         // pass in the gameobject to add renderers to
-        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisual.transform, defaultLineColor);
-        else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisual.transform, defaultMeshColor);
+        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisual.transform, GraphManager.instance.defaultLineColor);
+        else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisual.transform, GraphManager.instance.defaultMeshColor);
         else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
         axisRenderer.InitializeAxes();
