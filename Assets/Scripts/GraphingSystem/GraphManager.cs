@@ -89,36 +89,47 @@ public class GraphManager : MonoBehaviour
 
     // either creates the graph object or adds to the selected object
     public void AddGraph(ParseTreeNode newEquation) {
-        // if a graph is currently selected, add a new equation to it
-        if (selectedGraph != null) { selectedGraph.AddEquation(newEquation); return; }
+        GameObject graphPrefabObj = null;
+        GameObject graphListItem = null;
 
-        // create an instance of the prefab, place it past the UI, and name it
-        GameObject graphPrefabObj = Instantiate(graphPrefab, this.transform);
-        Vector3 forward = equationUITransform.forward;
-        forward.y = 0;
-        forward.Normalize();
-        graphPrefabObj.transform.position = new Vector3(equationUITransform.position.x, graphHeight, equationUITransform.position.z) + forward * graphDisplacement;
-        graphPrefabObj.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
-        graphPrefabObj.name = $"Graph {graphCount}";
+        try {
+            // if a graph is currently selected, add a new equation to it
+            if (selectedGraph != null) { selectedGraph.AddEquation(newEquation); return; }
 
-        // get the script once
-        GraphInstance graphInstance = graphPrefabObj.GetComponent<GraphInstance>();
+            // create an instance of the prefab, place it past the UI, and name it
+            graphPrefabObj = Instantiate(graphPrefab, this.transform);
+            Vector3 forward = equationUITransform.forward;
+            forward.y = 0;
+            forward.Normalize();
+            graphPrefabObj.transform.position = new Vector3(equationUITransform.position.x, graphHeight, equationUITransform.position.z) + forward * graphDisplacement;
+            graphPrefabObj.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+            graphPrefabObj.name = $"Graph {graphCount}";
 
-        // initialize the graph
-        graphInstance.AddEquation(newEquation);
+            // get the script once
+            GraphInstance graphInstance = graphPrefabObj.GetComponent<GraphInstance>();
 
-        // instantiate the list element prefab
-        GameObject graphListItem = Instantiate(graphListElementPrefab, graphListContentTransform);
-        graphListItem.name = $"Graph {graphCount} List Element";
+            // initialize the graph
+            graphInstance.AddEquation(newEquation);
 
-        // get the manager script
-        GraphListElementManager graphUIMan = graphListItem.GetComponent<GraphListElementManager>();
-        graphUIMan.Intialize(graphInstance, graphCount);
+            // instantiate the list element prefab
+            graphListItem = Instantiate(graphListElementPrefab, graphListContentTransform);
+            graphListItem.name = $"Graph {graphCount} List Element";
 
-        graphs.Add(graphInstance);
-        selectedGraph = graphInstance;
-        selectedUI = graphUIMan;
-        graphCount++;
+            // get the manager script
+            GraphListElementManager graphUIMan = graphListItem.GetComponent<GraphListElementManager>();
+            graphUIMan.Intialize(graphInstance, graphCount);
+
+            graphs.Add(graphInstance);
+            selectedGraph = graphInstance;
+            selectedUI = graphUIMan;
+            graphCount++;
+        }
+        catch (GraphEvaluationException ge) {
+            if(graphPrefabObj != null) Destroy(graphPrefabObj);
+            if(graphListItem != null) Destroy(graphListItem);
+
+            throw new GraphEvaluationException(ge.Message);
+        }
     }
 
     public void SetSelectedGraph(GraphInstance graph, GraphListElementManager ui)
