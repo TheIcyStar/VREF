@@ -9440,7 +9440,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3627878891719569350}
   m_Layer: 0
-  m_Name: Graph
+  m_Name: Graph Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
