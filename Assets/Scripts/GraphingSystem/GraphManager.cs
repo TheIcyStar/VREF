@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using UnityEditor.Graphs;
 
 public class GraphManager : MonoBehaviour
 {
@@ -147,5 +148,20 @@ public class GraphManager : MonoBehaviour
             selectedUI = ui; 
             selectedUI.SelectGraph(); 
         }
+    }
+
+    public void DeleteGraphObject(GraphInstance instance, GraphListElementManager ui) {
+        foreach (GraphInstance graphInstance in graphs) {
+            if (instance == graphInstance) {
+                if(instance == selectedGraph) {
+                    selectedGraph = null;
+                    selectedUI = null;
+                }
+                Destroy(graphInstance.gameObject);
+                Destroy(ui.gameObject);
+                return;
+            }
+        }
+        // throw an exception here
     }
 }

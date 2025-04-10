@@ -39,4 +39,8 @@ public class GraphListElementManager : MonoBehaviour
         if (backgroundPanel != null)
             backgroundPanel.color = selected ? Color.gray : Color.white;
     }
+
+    public void DeleteGraph() {
+        GraphManager.instance.DeleteGraphObject(attachedGraph, this);
+    }
 }
