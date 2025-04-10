@@ -42,4 +42,10 @@ public class EquationManager : MonoBehaviour
     public void InitializeTokenizer() {
         tokenizer.BuildTokenRanges();
     }
+
+    public void ClearAllTokens()
+    {
+        tokenizer.tokens.Clear();
+        tokenizer.BuildTokenRanges();
+    }
 }

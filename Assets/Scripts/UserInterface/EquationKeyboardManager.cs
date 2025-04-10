@@ -1,8 +1,6 @@
 using UnityEngine;
 using TMPro;
-using System.Collections.Generic;
 using System;
-using UnityEngine.Rendering;
 
 public class EquationKeyboardManager : MonoBehaviour
 {
@@ -80,6 +78,14 @@ public class EquationKeyboardManager : MonoBehaviour
         } catch (TokenizerException te) {
             equationErrorText.text = te.Message;
         }
+    }
+
+    public void ClearEquation()
+    {
+        equationInput.text = "";
+        cursorIndex = 0;
+        equationManager.ClearAllTokens();
+        equationErrorText.text = "";
     }
 
     // wrapper functions used by the buttons since unity doesnt allow
