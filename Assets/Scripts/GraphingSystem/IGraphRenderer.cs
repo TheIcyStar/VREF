@@ -63,7 +63,9 @@ public interface IGraphRenderer
                 float arg = EvaluateEquation(node.right, vars);
                 return node.token.text switch
                 {
+                    "cos" => Mathf.Cos(arg),
                     "sin" => Mathf.Sin(arg),
+                    "tan" => Mathf.Tan(arg),
                     "log" => Mathf.Log(arg),
                     "sqrt" => Mathf.Sqrt(arg),
                     // should never happen, should be caught in parser
