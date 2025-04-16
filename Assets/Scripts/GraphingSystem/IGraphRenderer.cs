@@ -64,6 +64,8 @@ public interface IGraphRenderer
                 return node.token.text switch
                 {
                     "sin" => Mathf.Sin(arg),
+                    "cos" => Mathf.Cos(arg),
+                    "tan" => Mathf.Tan(arg),
                     "log" => Mathf.Log(arg),
                     "sqrt" => Mathf.Sqrt(arg),
                     // should never happen, should be caught in parser
