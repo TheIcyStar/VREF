@@ -1,23 +1,26 @@
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using TMPro;
 using UnityEditor.Graphs;
 using UnityEngine;
+using System.Linq;
 
 public class GraphInstance : MonoBehaviour
 {
-    // the list of equations on this graph object
-    public List<ParseTreeNode> equationTrees = new();
+    private class GraphData {
+        public ParseTreeNode equation;
+        public IGraphRenderer renderer;
+        public GameObject visualObject;
+        public HashSet<GraphVariable> inputVars;
+        public GraphVariable outputVar;
+        public Material material;
+    }
 
-    // renderer interface set to the correct renderer type
-    private IGraphRenderer graphRenderer;
+    private List<GraphData> graphs = new();
     // graph settings passed in
     private GraphSettings graphSettings;
     // store original settings
     private GraphSettings originalSettings;
-    // set of input variables (independent variables)
-    private HashSet<GraphVariable> inputVars;
-    // single output var computed by the function (dependent variable)
-    private GraphVariable outputVar;
     // store references to scripts and objects
     [SerializeField] private AxisRenderer axisRenderer;
     [SerializeField] private GameObject graphVisualsObj;
@@ -45,38 +48,106 @@ public class GraphInstance : MonoBehaviour
         // determine what equation type is by parsing the whole tree
         var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
 
-        equationTrees.Add(equationTree);
-        this.graphSettings = GraphManager.instance.globalGraphSettings;
-        this.originalSettings = GraphManager.instance.globalGraphSettings;
-        this.inputVars = inputVars;
-        this.outputVar = outputVar;
+        graphSettings = GraphManager.instance.globalGraphSettings;
+        originalSettings = GraphManager.instance.globalGraphSettings;
 
         // create a new graph object to add the equation to
-        GameObject graphVisual = new GameObject($"Graph Visual {equationTrees.Count}");
+        GameObject graphVisual = new GameObject($"Graph Visual {graphs.Count + 1}");
         graphVisual.transform.SetParent(graphVisualsObj.transform, false);
 
         // pass in the gameobject to add renderers to
-        if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisual.transform, GraphManager.instance.defaultLineColor);
-        else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisual.transform, GraphManager.instance.defaultMeshColor);
-        else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
+        // if(equationType == TYPE_LINE) graphRenderer = new LineGraphRenderer(graphVisual.transform, GraphManager.instance.defaultLineColor);
+        // else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisual.transform, GraphManager.instance.defaultMeshColor);
+        // else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
+
+        Material mat = (equationType == TYPE_LINE) ? GraphManager.instance.defaultLineColor : GraphManager.instance.defaultMeshColor;
+
+        IGraphRenderer graphRenderer = equationType switch {
+            TYPE_LINE => new LineGraphRenderer(graphVisual.transform, mat),
+            TYPE_SURFACE => new SurfaceGraphRenderer(graphVisual.transform, mat),
+            _ => throw new GraphEvaluationException("Unsupported equation type."),
+        };
+
+        var graph = new GraphData {
+            equation = equationTree,
+            renderer = graphRenderer,
+            visualObject = graphVisual,
+            inputVars = inputVars,
+            outputVar = outputVar,
+            material = mat
+        };
+
+        graphs.Add(graph);
 
         axisRenderer.InitializeAxes();
         RefreshAllUIText();
         ScaleGraph();
-        VisualizeGraph(equationTree);
+
+        VisualizeGraph(graph);
+    }
+
+    public void SetNewMaterial(Material newColor, ParseTreeNode equation) {
+        var graph = graphs.Find(g => g.equation == equation);
+
+        Destroy(graph.visualObject);
+
+        GameObject newVisual = new GameObject($"Graph Visual {graphs.IndexOf(graph) + 1}");
+        newVisual.transform.SetParent(graphVisualsObj.transform, false);
+
+        int equationType = graph.inputVars.Count switch {
+            1 => TYPE_LINE,
+            2 => TYPE_SURFACE,
+            _ => throw new GraphEvaluationException("Unsupported variable amount.")
+        };
+
+        IGraphRenderer newRenderer = equationType switch {
+            TYPE_LINE => new LineGraphRenderer(newVisual.transform, newColor),
+            TYPE_SURFACE => new SurfaceGraphRenderer(newVisual.transform, newColor),
+            _ => throw new GraphEvaluationException("Unsupported equation type.")
+        };
+
+        graph.visualObject = newVisual;
+        graph.renderer = newRenderer;
+        graph.material = newColor;
+
+        VisualizeGraph(graph);
     }
 
     public void RefreshAllGraphs() {
-        foreach(Transform child in graphVisualsObj.transform) {
-            Destroy(child.gameObject);
-        }
+        foreach (var graph in graphs) {
+            Object.Destroy(graph.visualObject);
+            GameObject newVisual = new GameObject($"Graph Visual {graphs.IndexOf(graph) + 1}");
+            newVisual.transform.SetParent(graphVisualsObj.transform, false);
 
-        List<ParseTreeNode> equationTreesCopy = new List<ParseTreeNode>(equationTrees);
-        equationTrees.Clear();
+            int equationType = graph.inputVars.Count switch {
+                1 => TYPE_LINE,
+                2 => TYPE_SURFACE,
+                _ => throw new GraphEvaluationException("Unsupported variable amount.")
+            };
 
-        foreach(ParseTreeNode equation in equationTreesCopy.ToArray()) {
-            AddEquation(equation);
+            IGraphRenderer newRenderer = equationType switch {
+                TYPE_LINE => new LineGraphRenderer(newVisual.transform, graph.material),
+                TYPE_SURFACE => new SurfaceGraphRenderer(newVisual.transform, graph.material),
+                _ => throw new GraphEvaluationException("Unsupported equation type.")
+            };
+
+            graph.visualObject = newVisual;
+            graph.renderer = newRenderer;
+
+            VisualizeGraph(graph);
         }
+    }
+
+    public void RemoveEquation(ParseTreeNode equation) {
+        var graph = graphs.Find(g => g.equation == equation);
+        if (graph == null) return;
+
+        Object.Destroy(graph.visualObject);
+        graphs.Remove(graph);
+    }
+
+    public List<ParseTreeNode> GetEquations() {
+        return graphs.Select(g => g.equation).ToList();
     }
 
     // scale the graph based on the largest range
@@ -91,8 +162,8 @@ public class GraphInstance : MonoBehaviour
     }
 
     // renders the graph using the respective renderer and settings
-    private void VisualizeGraph(ParseTreeNode equationTree) {
-        graphRenderer.RenderGraph(equationTree, graphSettings, inputVars, outputVar);
+    private void VisualizeGraph(GraphData graph) {
+        graph.renderer.RenderGraph(graph.equation, graphSettings, graph.inputVars, graph.outputVar);
     }
 
     // rotate the graph object (called from the gizmo)
@@ -130,8 +201,10 @@ public class GraphInstance : MonoBehaviour
 
         ScaleGraph();
 
-        foreach(ParseTreeNode equation in equationTrees)
-            VisualizeGraph(equation);
+        foreach(GraphData graph in graphs)
+        {
+            VisualizeGraph(graph);
+        }
     }
 
     // updates the entire UI to have the current graph settings displayed

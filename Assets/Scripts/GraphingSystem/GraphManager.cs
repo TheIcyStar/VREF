@@ -60,17 +60,25 @@ public class GraphManager : MonoBehaviour
     }
 
      public ParseTreeNode[] GetGraphs() {
-        ParseTreeNode[] equations = new ParseTreeNode[graphs.Count];
-        int i = 0;
+        // ParseTreeNode[] equations = new ParseTreeNode[graphs.Count];
+        // int i = 0;
 
-         // i changed this line to work with the list (marking this in case it doesnt work anymore)
-        foreach(GraphInstance entry in graphs) {
-            // i changed this line to work with the list (marking this in case it doesnt work anymore)
-            equations[i] = entry.equationTrees.ElementAt(i);
-            i++;
+        //  // i changed this line to work with the list (marking this in case it doesnt work anymore)
+        // foreach(GraphInstance entry in graphs) {
+        //     // i changed this line to work with the list (marking this in case it doesnt work anymore)
+        //     equations[i] = entry.equationTrees.ElementAt(i);
+        //     i++;
+        // }
+
+        // return equations;
+        
+        List<ParseTreeNode> allEquations = new();
+
+        foreach (GraphInstance entry in graphs) {
+            allEquations.AddRange(entry.GetEquations());
         }
 
-        return equations;
+        return allEquations.ToArray();
     }
 
     public void BulkOverwriteGraphs(ParseTreeNode[] equations){
@@ -152,17 +160,9 @@ public class GraphManager : MonoBehaviour
     public void DeleteEquationUIElement(ParseTreeNode equation, GraphInstance instance, EquationListElementManager elem) {
         foreach (GraphInstance graphInstance in graphs) {
             if (instance == graphInstance) {
-                for (int x = 0; x < instance.equationTrees.Count; x++)
-                {
-                    if (equation == instance.equationTrees.ElementAt(x)) {
-                        instance.equationTrees.RemoveAt(x);
-                        Debug.Log(instance.equationTrees.Count);
-                        instance.RefreshAllGraphs();
-                        Destroy(elem.gameObject);
-                        RefreshGraphListUI();
-                        return;
-                    }
-                }
+                instance.RemoveEquation(equation);
+                Destroy(elem.gameObject);
+                RefreshGraphListUI();
             }
         }
     }
