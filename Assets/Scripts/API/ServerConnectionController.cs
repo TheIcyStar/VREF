@@ -12,7 +12,7 @@ public class ServerConnection : MonoBehaviour {
     public static ServerConnection instance {get; private set;}
 
     private long lastSync = 0;
-    private const int SYNC_FREQUENCY_MS = 10000;
+    private const int SYNC_FREQUENCY_MS = 250;
 
     public void Awake() { //Ensures there's only one ServerConnection object
         if(instance != null & instance != this){
