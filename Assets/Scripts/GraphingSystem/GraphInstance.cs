@@ -66,6 +66,19 @@ public class GraphInstance : MonoBehaviour
         VisualizeGraph(equationTree);
     }
 
+    public void RefreshAllGraphs() {
+        foreach(Transform child in graphVisualsObj.transform) {
+            Destroy(child.gameObject);
+        }
+
+        List<ParseTreeNode> equationTreesCopy = new List<ParseTreeNode>(equationTrees);
+        equationTrees.Clear();
+
+        foreach(ParseTreeNode equation in equationTreesCopy.ToArray()) {
+            AddEquation(equation);
+        }
+    }
+
     // scale the graph based on the largest range
     private void ScaleGraph()
     {

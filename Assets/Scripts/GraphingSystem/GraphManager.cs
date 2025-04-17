@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using UnityEditor.Graphs;
+using TMPro;
+using UnityEngine.UI;
 
 public class GraphManager : MonoBehaviour
 {
@@ -14,7 +16,7 @@ public class GraphManager : MonoBehaviour
     // transform of the equation UI
     [SerializeField] private Transform equationUITransform;
     // place where graph ui elements will be added
-    [SerializeField] private Transform graphListContentTransform;
+    [SerializeField] private RectTransform graphListContentTransform;
 
     // distance from the UI that all graphs will spawn in from
     [SerializeField] private float graphDisplacement = 4f;
@@ -34,6 +36,10 @@ public class GraphManager : MonoBehaviour
     public Material defaultLineColor;
     // default material of meshes
     public Material defaultMeshColor;
+
+    // keyboard text to grab equation
+    [SerializeField] private TMP_Text equationTextArea;
+    [SerializeField] private GameObject equationListElementPrefab;
 
     public static GraphManager instance;
 
@@ -95,7 +101,11 @@ public class GraphManager : MonoBehaviour
 
         try {
             // if a graph is currently selected, add a new equation to it
-            if (selectedGraph != null) { selectedGraph.AddEquation(newEquation); return; }
+            if (selectedGraph != null) {
+                selectedGraph.AddEquation(newEquation);
+                AddEquationListElement(newEquation);
+                return; 
+            }
 
             // create an instance of the prefab, place it past the UI, and name it
             graphPrefabObj = Instantiate(graphPrefab, this.transform);
@@ -120,6 +130,8 @@ public class GraphManager : MonoBehaviour
             selectedGraph = graphInstance;
             selectedUI = graphUIMan;
             graphCount++;
+
+            AddEquationListElement(newEquation);
         }
         catch (GraphEvaluationException ge) {
             if(graphPrefabObj != null) Destroy(graphPrefabObj);
@@ -127,6 +139,36 @@ public class GraphManager : MonoBehaviour
 
             throw new GraphEvaluationException(ge.Message);
         }
+    }
+
+    private void AddEquationListElement(ParseTreeNode equation) {
+        GameObject equationListItem = Instantiate(equationListElementPrefab, selectedUI.equationListObj.transform);
+        EquationListElementManager elem = equationListItem.GetComponent<EquationListElementManager>();
+        elem.equationText.text = equationTextArea.text;
+        elem.Initialize(equation, selectedGraph);
+        RefreshGraphListUI();
+    }
+
+    public void DeleteEquationUIElement(ParseTreeNode equation, GraphInstance instance, EquationListElementManager elem) {
+        foreach (GraphInstance graphInstance in graphs) {
+            if (instance == graphInstance) {
+                for (int x = 0; x < instance.equationTrees.Count; x++)
+                {
+                    if (equation == instance.equationTrees.ElementAt(x)) {
+                        instance.equationTrees.RemoveAt(x);
+                        Debug.Log(instance.equationTrees.Count);
+                        instance.RefreshAllGraphs();
+                        Destroy(elem.gameObject);
+                        RefreshGraphListUI();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    public void RefreshGraphListUI() {
+        LayoutRebuilder.ForceRebuildLayoutImmediate(graphListContentTransform);
     }
 
     public void SetSelectedGraph(GraphInstance graph, GraphListElementManager ui)

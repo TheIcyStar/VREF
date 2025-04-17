@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 6152624045326404493}
   - component: {fileID: 350745028085246210}
   - component: {fileID: 1408237796857718328}
+  - component: {fileID: 5159721362190180721}
   m_Layer: 5
   m_Name: EquationListElement
   m_TagString: Untagged
@@ -221,6 +222,19 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &5159721362190180721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2953833920979033618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a7aec70817931041863912c79725e5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equationText: {fileID: 2637708373461783613}
 --- !u!1 &5208385696081305736
 GameObject:
   m_ObjectHideFlags: 0
@@ -362,7 +376,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7525708667617415963}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5159721362190180721}
+        m_TargetAssemblyTypeName: EquationListElementManager, Scripts
+        m_MethodName: DeleteEquation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6833302739064446778
 GameObject:
   m_ObjectHideFlags: 0

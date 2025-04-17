@@ -8,6 +8,7 @@ public class GraphListElementManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI graphListName;
     [SerializeField] private TextMeshProUGUI selectButtonText;
     [SerializeField] private Image backgroundPanel;
+    [SerializeField] public GameObject equationListObj;
     private GraphInstance attachedGraph;
     private bool selected = false;
 
@@ -46,5 +47,10 @@ public class GraphListElementManager : MonoBehaviour
 
     public void RepositionGraph() {
         GraphManager.instance.PlaceGraphInFront(attachedGraph.gameObject);
+    }
+
+    public void  ExpandHideEquationList() {
+        equationListObj.SetActive(!equationListObj.activeSelf);
+        GraphManager.instance.RefreshGraphListUI();
     }
 }

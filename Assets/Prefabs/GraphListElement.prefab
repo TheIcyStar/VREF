@@ -222,7 +222,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Expand
+  m_text: Toggle List
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -428,6 +428,7 @@ MonoBehaviour:
   graphListName: {fileID: 1162548338084723093}
   selectButtonText: {fileID: 5333190695206021565}
   backgroundPanel: {fileID: 6147590593475421612}
+  equationListObj: {fileID: 1951795825505793522}
 --- !u!1 &1328409507543252757
 GameObject:
   m_ObjectHideFlags: 0
@@ -447,7 +448,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &9037510783849877437
 RectTransform:
   m_ObjectHideFlags: 0
@@ -463,10 +464,10 @@ RectTransform:
   - {fileID: 1617267636215761238}
   m_Father: {fileID: 3816001862946082088}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 85, y: 0}
-  m_SizeDelta: {x: 35, y: 15}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 45, y: 15}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &4363887180178276759
 CanvasRenderer:
@@ -549,7 +550,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6783094655479879544}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 423991941129362067}
+        m_TargetAssemblyTypeName: GraphListElementManager, Scripts
+        m_MethodName: ExpandHideEquationList
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2973629785261488015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -587,7 +600,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4953853200456852789
 RectTransform:
   m_ObjectHideFlags: 0

@@ -54,9 +54,9 @@ public class EquationKeyboardManager : MonoBehaviour
             equationErrorText.text = ge.Message;
         }
         // catch everything else
-        catch (Exception e) {
-            equationErrorText.text = e.Message;
-        }
+        //catch (Exception e) {
+            //equationErrorText.text = e.Message;
+        //}
     }
 
     // backspace button is pressed
