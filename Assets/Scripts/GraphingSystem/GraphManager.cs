@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor.Graphs;
 using TMPro;
 using UnityEngine.UI;
+using PlasticGui.WorkspaceWindow.IssueTrackers;
 
 public class GraphManager : MonoBehaviour
 {
@@ -41,6 +42,18 @@ public class GraphManager : MonoBehaviour
     [SerializeField] private TMP_Text equationTextArea;
     [SerializeField] private GameObject equationListElementPrefab;
 
+    // all graph settings UI elements
+    [SerializeField] private TMP_InputField xAxisMinUI;
+    [SerializeField] private TMP_InputField xAxisMaxUI;
+    [SerializeField] private TMP_InputField yAxisMinUI;
+    [SerializeField] private TMP_InputField yAxisMaxUI;
+    [SerializeField] private TMP_InputField zAxisMinUI;
+    [SerializeField] private TMP_InputField zAxisMaxUI;
+    [SerializeField] private TMP_InputField xRotationUI;
+    [SerializeField] private TMP_InputField yRotationUI;
+    [SerializeField] private TMP_InputField zRotationUI;
+    [SerializeField] private TMP_InputField stepUI;
+
     public static GraphManager instance;
 
     // keep track of graph count solely for naming (for now)
@@ -71,7 +84,7 @@ public class GraphManager : MonoBehaviour
         // }
 
         // return equations;
-        
+
         List<ParseTreeNode> allEquations = new();
 
         foreach (GraphInstance entry in graphs) {
@@ -110,7 +123,7 @@ public class GraphManager : MonoBehaviour
         try {
             // if a graph is currently selected, add a new equation to it
             if (selectedGraph != null) {
-                selectedGraph.AddEquation(newEquation);
+                selectedGraph.AddEquation(newEquation, globalGraphSettings);
                 AddEquationListElement(newEquation);
                 return; 
             }
@@ -122,9 +135,10 @@ public class GraphManager : MonoBehaviour
 
             // get the script once
             GraphInstance graphInstance = graphPrefabObj.GetComponent<GraphInstance>();
+            selectedGraph = graphInstance;
 
             // initialize the graph
-            graphInstance.AddEquation(newEquation);
+            graphInstance.AddEquation(newEquation, globalGraphSettings);
 
             // instantiate the list element prefab
             graphListItem = Instantiate(graphListElementPrefab, graphListContentTransform);
@@ -135,7 +149,6 @@ public class GraphManager : MonoBehaviour
             graphUIMan.Intialize(graphInstance, graphCount);
 
             graphs.Add(graphInstance);
-            selectedGraph = graphInstance;
             selectedUI = graphUIMan;
             graphCount++;
 
@@ -184,7 +197,19 @@ public class GraphManager : MonoBehaviour
             if (selectedUI != null) selectedUI.DeselectGraph();
             selectedGraph = graph; 
             selectedUI = ui; 
-            selectedUI.SelectGraph(); 
+            selectedUI.SelectGraph();
+
+            globalGraphSettings = new GraphSettings(
+                graph.graphSettings.xMin,
+                graph.graphSettings.xMax,
+                graph.graphSettings.yMin,
+                graph.graphSettings.yMax,
+                graph.graphSettings.zMin,
+                graph.graphSettings.zMax,
+                graph.graphSettings.step
+            );
+
+            RefreshAllUIText();
         }
     }
 
@@ -210,5 +235,66 @@ public class GraphManager : MonoBehaviour
         forward.Normalize();
         gameObj.transform.position = new Vector3(equationUITransform.position.x, graphHeight, equationUITransform.position.z) + forward * graphDisplacement;
         gameObj.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+    }
+
+    // updates the graph settings and re-renders the graph
+    public void UpdateGraphSettings() {
+        // eventually throw an exception when invalid values are input
+        // just so the user can know
+        if (float.TryParse(xAxisMinUI.text, out float val)) selectedGraph.graphSettings.xMin = val; else RefreshUIText(xAxisMinUI, selectedGraph.graphSettings.xMin);
+        if (float.TryParse(xAxisMaxUI.text, out val)) selectedGraph.graphSettings.xMax = val; else RefreshUIText(xAxisMaxUI, selectedGraph.graphSettings.xMax);
+        if (float.TryParse(yAxisMinUI.text, out val)) selectedGraph.graphSettings.yMin = val; else RefreshUIText(yAxisMinUI, selectedGraph.graphSettings.yMin);
+        if (float.TryParse(yAxisMaxUI.text, out val)) selectedGraph.graphSettings.yMax = val; else RefreshUIText(yAxisMaxUI, selectedGraph.graphSettings.yMax);
+        if (float.TryParse(zAxisMinUI.text, out val)) selectedGraph.graphSettings.zMin = val; else RefreshUIText(zAxisMinUI, selectedGraph.graphSettings.zMin);
+        if (float.TryParse(zAxisMaxUI.text, out val)) selectedGraph.graphSettings.zMax = val; else RefreshUIText(zAxisMaxUI, selectedGraph.graphSettings.zMax);
+
+        // values are not the same as unity's values
+        float xRot = selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.y,
+              yRot = selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.z, 
+              zRot = selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.x;
+
+        // negative ones are to make all three rotate clockwise
+        if (float.TryParse(xRotationUI.text, out val)) zRot = val; else RefreshUIText(xRotationUI, zRot);
+        if (float.TryParse(yRotationUI.text, out val)) xRot = val; else RefreshUIText(yRotationUI, xRot);
+        if (float.TryParse(zRotationUI.text, out val)) yRot = val; else RefreshUIText(zRotationUI, yRot);
+
+        selectedGraph.gameObject.transform.GetChild(0).transform.localRotation = Quaternion.Euler(xRot, yRot, zRot);
+
+        if (float.TryParse(stepUI.text, out val) && val > 0.0001f) selectedGraph.graphSettings.step = val; else RefreshUIText(stepUI, selectedGraph.graphSettings.step);
+
+        selectedGraph.ScaleGraph();
+
+        selectedGraph.ReVisualize();
+    }
+
+    // updates the entire UI to have the current graph settings displayed
+    public void RefreshAllUIText() {
+        RefreshUIText(xAxisMinUI, selectedGraph.graphSettings.xMin);
+        RefreshUIText(xAxisMaxUI, selectedGraph.graphSettings.xMax);
+        RefreshUIText(yAxisMinUI, selectedGraph.graphSettings.yMin);
+        RefreshUIText(yAxisMaxUI, selectedGraph.graphSettings.yMax);
+        RefreshUIText(zAxisMinUI, selectedGraph.graphSettings.zMin);
+        RefreshUIText(zAxisMaxUI, selectedGraph.graphSettings.zMax);
+        RefreshUIText(xRotationUI, selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.y);
+        RefreshUIText(yRotationUI, selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.z);
+        RefreshUIText(zRotationUI, selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.x);
+        RefreshUIText(stepUI, selectedGraph.graphSettings.step);
+    }
+
+    // updates a specific UI element's text to a value
+    public void RefreshUIText(TMP_InputField textField, float value) {
+        textField.text = value.ToString("G");
+    }
+
+    // for now it just sets rotation to 0, 0, 0
+    public void ResetToDefault() {
+        // reset to original settings
+        selectedGraph.graphSettings = selectedGraph.originalSettings;
+
+        // reset rotation
+        selectedGraph.gameObject.transform.GetChild(0).localRotation = Quaternion.Euler(0, 0, 0);
+
+        // reset all UI
+        RefreshAllUIText();
     }
 }

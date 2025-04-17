@@ -18,38 +18,26 @@ public class GraphInstance : MonoBehaviour
 
     private List<GraphData> graphs = new();
     // graph settings passed in
-    private GraphSettings graphSettings;
+    public GraphSettings graphSettings;
     // store original settings
-    private GraphSettings originalSettings;
+    public GraphSettings originalSettings;
     // store references to scripts and objects
     [SerializeField] private AxisRenderer axisRenderer;
     [SerializeField] private GameObject graphVisualsObj;
     [SerializeField] private GameObject graphObj;
-
-    // all graph settings UI elements
-    [SerializeField] private TMP_InputField xAxisMinUI;
-    [SerializeField] private TMP_InputField xAxisMaxUI;
-    [SerializeField] private TMP_InputField yAxisMinUI;
-    [SerializeField] private TMP_InputField yAxisMaxUI;
-    [SerializeField] private TMP_InputField zAxisMinUI;
-    [SerializeField] private TMP_InputField zAxisMaxUI;
-    [SerializeField] private TMP_InputField xRotationUI;
-    [SerializeField] private TMP_InputField yRotationUI;
-    [SerializeField] private TMP_InputField zRotationUI;
-    [SerializeField] private TMP_InputField stepUI;
 
     // equation renderer types
     // change to enums later
     private const int TYPE_LINE = 0;
     private const int TYPE_SURFACE = 1;
 
-    public void AddEquation(ParseTreeNode equationTree) 
+    public void AddEquation(ParseTreeNode equationTree, GraphSettings graphSettings)
     {
         // determine what equation type is by parsing the whole tree
         var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
 
-        graphSettings = GraphManager.instance.globalGraphSettings;
-        originalSettings = GraphManager.instance.globalGraphSettings;
+        this.graphSettings = graphSettings;
+        this.originalSettings = graphSettings;
 
         // create a new graph object to add the equation to
         GameObject graphVisual = new GameObject($"Graph Visual {graphs.Count + 1}");
@@ -80,7 +68,7 @@ public class GraphInstance : MonoBehaviour
         graphs.Add(graph);
 
         axisRenderer.InitializeAxes();
-        RefreshAllUIText();
+        GraphManager.instance.RefreshAllUIText();
         ScaleGraph();
 
         VisualizeGraph(graph);
@@ -156,7 +144,7 @@ public class GraphInstance : MonoBehaviour
     }
 
     // scale the graph based on the largest range
-    private void ScaleGraph()
+    public void ScaleGraph()
     {
         // scale the graph object so that the largest dimension fits in view
         float scaleFactor = GraphUtils.CalculateScaleFactor(graphSettings);
@@ -164,6 +152,13 @@ public class GraphInstance : MonoBehaviour
 
         // scale the axes
         axisRenderer.UpdateAxes(graphSettings);
+    }
+
+    public void ReVisualize() {
+        foreach(GraphData graph in graphs)
+        {
+            VisualizeGraph(graph);
+        }
     }
 
     // renders the graph using the respective renderer and settings
@@ -174,73 +169,9 @@ public class GraphInstance : MonoBehaviour
     // rotate the graph object (called from the gizmo)
     public void GizmoRotateGraph(Vector3 rotation) {
         graphObj.transform.localRotation = Quaternion.Euler(rotation);
-        RefreshUIText(xRotationUI, rotation.y);
-        RefreshUIText(yRotationUI, rotation.z);
-        RefreshUIText(zRotationUI, rotation.x);
-    }
-
-    // updates the graph settings and re-renders the graph
-    public void UpdateGraphSettings() {
-        // eventually throw an exception when invalid values are input
-        // just so the user can know
-        if (float.TryParse(xAxisMinUI.text, out float val)) graphSettings.xMin = val; else RefreshUIText(xAxisMinUI, graphSettings.xMin);
-        if (float.TryParse(xAxisMaxUI.text, out val)) graphSettings.xMax = val; else RefreshUIText(xAxisMaxUI, graphSettings.xMax);
-        if (float.TryParse(yAxisMinUI.text, out val)) graphSettings.yMin = val; else RefreshUIText(yAxisMinUI, graphSettings.yMin);
-        if (float.TryParse(yAxisMaxUI.text, out val)) graphSettings.yMax = val; else RefreshUIText(yAxisMaxUI, graphSettings.yMax);
-        if (float.TryParse(zAxisMinUI.text, out val)) graphSettings.zMin = val; else RefreshUIText(zAxisMinUI, graphSettings.zMin);
-        if (float.TryParse(zAxisMaxUI.text, out val)) graphSettings.zMax = val; else RefreshUIText(zAxisMaxUI, graphSettings.zMax);
-
-        // values are not the same as unity's values
-        float xRot = graphObj.transform.localRotation.y,
-              yRot = graphObj.transform.localRotation.z, 
-              zRot = graphObj.transform.localRotation.x;
-
-        // negative ones are to make all three rotate clockwise
-        if (float.TryParse(xRotationUI.text, out val)) zRot = -val; else RefreshUIText(xRotationUI, zRot);
-        if (float.TryParse(yRotationUI.text, out val)) xRot = val; else RefreshUIText(yRotationUI, xRot);
-        if (float.TryParse(zRotationUI.text, out val)) yRot = -val; else RefreshUIText(zRotationUI, yRot);
-
-        graphObj.transform.localRotation = Quaternion.Euler(xRot, yRot, zRot);
-
-        if (float.TryParse(stepUI.text, out val) && val > 0.0001f) graphSettings.step = val; else RefreshUIText(stepUI, graphSettings.step);
-
-        ScaleGraph();
-
-        foreach(GraphData graph in graphs)
-        {
-            VisualizeGraph(graph);
-        }
-    }
-
-    // updates the entire UI to have the current graph settings displayed
-    private void RefreshAllUIText() {
-        RefreshUIText(xAxisMinUI, graphSettings.xMin);
-        RefreshUIText(xAxisMaxUI, graphSettings.xMax);
-        RefreshUIText(yAxisMinUI, graphSettings.yMin);
-        RefreshUIText(yAxisMaxUI, graphSettings.yMax);
-        RefreshUIText(zAxisMinUI, graphSettings.zMin);
-        RefreshUIText(zAxisMaxUI, graphSettings.zMax);
-        RefreshUIText(xRotationUI, graphObj.transform.localRotation.y);
-        RefreshUIText(yRotationUI, graphObj.transform.localRotation.z);
-        RefreshUIText(zRotationUI, graphObj.transform.localRotation.x);
-        RefreshUIText(stepUI, graphSettings.step);
-    }
-
-    // updates a specific UI element's text to a value
-    private void RefreshUIText(TMP_InputField textField, float value) {
-        textField.text = value.ToString("G");
-    }
-
-    // for now it just sets rotation to 0, 0, 0
-    public void ResetToDefault() {
-        // reset to original settings
-        graphSettings = originalSettings;
-
-        // reset rotation
-        graphObj.transform.localRotation = Quaternion.Euler(0, 0, 0);
-
-        // reset all UI
-        RefreshAllUIText();
+        //GraphManager.instance.RefreshUIText(xRotationUI, rotation.y);
+        //GraphManager.instance.RefreshUIText(yRotationUI, rotation.z);
+        //GraphManager.instance.RefreshUIText(zRotationUI, rotation.x);
     }
 
     // determines the type of equation by analyzing the parse tree
