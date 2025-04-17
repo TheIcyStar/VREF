@@ -19,7 +19,9 @@ public class RoomIDSetter : MonoBehaviour {
 
     public void Start() {
         joinController = roomsUIContainer.GetComponent<JoinController>();
-        buttonText = createRoomButton.GetComponentInChildren<TMP_Text>();
+        if(buttonText != null){
+            buttonText = createRoomButton.GetComponentInChildren<TMP_Text>();
+        }
     }
 
     public void setRoomIdWithInput() {

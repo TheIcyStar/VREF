@@ -8019,7 +8019,7 @@ MonoBehaviour:
   graphDisplacement: 4
   graphHeight: 1.1
   defaultLineColor: {fileID: 2100000, guid: 49d0cdeeb713a0846bfd82cdf36ae97f, type: 2}
-  defaultMeshColor: {fileID: 2100000, guid: 907cb2d9a137d9b45878d14a255ec59d, type: 2}
+  defaultMeshColor: {fileID: 2100000, guid: cd80fd3c6d043394e813c16f73871753, type: 2}
   equationTextArea: {fileID: 590885845}
   equationListElementPrefab: {fileID: 2953833920979033618, guid: 3b4b09825cd9f204ca6bfa0c7a0bd757, type: 3}
 --- !u!1 &1563498662
