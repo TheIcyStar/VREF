@@ -145,12 +145,18 @@ public class SurfaceGraphRenderer : IGraphRenderer
     private Vector3 AssignPoint(float inputVar1Val, float inputVar2Val, float outputVarVal, GraphVariable inputVar1, GraphVariable inputVar2, GraphVariable outputVar) 
     {
         return (inputVar1, inputVar2, outputVar) switch {
-            (GraphVariable.X, GraphVariable.Y, GraphVariable.Z) or (GraphVariable.Y, GraphVariable.X, GraphVariable.Z) 
-            => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
-            (GraphVariable.Y, GraphVariable.Z, GraphVariable.X) or (GraphVariable.Z, GraphVariable.Y, GraphVariable.X)
+            (GraphVariable.X, GraphVariable.Y, GraphVariable.Z)
             => new Vector3(inputVar2Val, outputVarVal, inputVar1Val),
-            (GraphVariable.Z, GraphVariable.X, GraphVariable.Y) or (GraphVariable.X, GraphVariable.Z, GraphVariable.Y)
+            (GraphVariable.Y, GraphVariable.X, GraphVariable.Z) 
+            => new Vector3(inputVar1Val, outputVarVal, inputVar2Val),
+            (GraphVariable.Y, GraphVariable.Z, GraphVariable.X)
             => new Vector3(inputVar1Val, inputVar2Val, outputVarVal),
+            (GraphVariable.Z, GraphVariable.Y, GraphVariable.X)
+            => new Vector3(inputVar2Val, inputVar1Val, outputVarVal),
+            (GraphVariable.Z, GraphVariable.X, GraphVariable.Y)
+            => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
+            (GraphVariable.X, GraphVariable.Z, GraphVariable.Y)
+            => new Vector3(outputVarVal, inputVar2Val, inputVar1Val),
             // this should already be stopped
             _ => throw new GraphEvaluationException("Point lies on unknown slice (only XYZ slice supported).")
         };
