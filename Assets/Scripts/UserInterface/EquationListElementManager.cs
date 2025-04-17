@@ -40,6 +40,14 @@ public class EquationListElementManager : MonoBehaviour
         }
 
         materialDropdown.onValueChanged.AddListener(OnMaterialChanged);
+
+        // set dropdown to match current material
+        Material current = linkedInstance.GetMaterialForEquation(equationTree);
+        int index = System.Array.IndexOf(materialOptions, current);
+        if (index >= 0)
+            materialDropdown.SetValueWithoutNotify(index);
+        else
+            materialDropdown.SetValueWithoutNotify(0);
     }
 
     public void DeleteEquation() {

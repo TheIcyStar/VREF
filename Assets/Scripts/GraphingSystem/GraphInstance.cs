@@ -113,6 +113,11 @@ public class GraphInstance : MonoBehaviour
         VisualizeGraph(graph);
     }
 
+    public Material GetMaterialForEquation(ParseTreeNode equation) {
+        var graph = graphs.Find(g => g.equation == equation);
+        return graph?.material;
+    }
+
     public void RefreshAllGraphs() {
         foreach (var graph in graphs) {
             Object.Destroy(graph.visualObject);
