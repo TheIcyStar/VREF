@@ -19,7 +19,7 @@ public class RoomIDSetter : MonoBehaviour {
 
     public void Start() {
         joinController = roomsUIContainer.GetComponent<JoinController>();
-        if(buttonText != null){
+        if(createRoomButton != null){
             buttonText = createRoomButton.GetComponentInChildren<TMP_Text>();
         }
     }

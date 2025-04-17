@@ -773,7 +773,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: 
+  m_Text: http://vref.starfrost.dev:3000
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
@@ -2270,7 +2270,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: 
+  m_Text: http://vref.starfrost.dev:3000
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
@@ -6721,7 +6721,7 @@ MonoBehaviour:
   createRoomButton: {fileID: 0}
   roomsUIContainer: {fileID: 9163494016964242696}
   roomIdDisplay: {fileID: 0}
-  hostInputField: {fileID: 0}
+  hostInputField: {fileID: 1138354086447365978}
 --- !u!1001 &8141446661200337395
 PrefabInstance:
   m_ObjectHideFlags: 0
