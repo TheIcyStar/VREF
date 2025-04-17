@@ -144,22 +144,54 @@ public class SurfaceGraphRenderer : IGraphRenderer
     // x is z, z is y, and y is x
     private Vector3 AssignPoint(float inputVar1Val, float inputVar2Val, float outputVarVal, GraphVariable inputVar1, GraphVariable inputVar2, GraphVariable outputVar) 
     {
-        return (inputVar1, inputVar2, outputVar) switch {
-            (GraphVariable.X, GraphVariable.Y, GraphVariable.Z)
-            => new Vector3(inputVar2Val, outputVarVal, inputVar1Val),
-            (GraphVariable.Y, GraphVariable.X, GraphVariable.Z) 
-            => new Vector3(inputVar1Val, outputVarVal, inputVar2Val),
-            (GraphVariable.Y, GraphVariable.Z, GraphVariable.X)
-            => new Vector3(inputVar1Val, inputVar2Val, outputVarVal),
-            (GraphVariable.Z, GraphVariable.Y, GraphVariable.X)
-            => new Vector3(inputVar2Val, inputVar1Val, outputVarVal),
-            (GraphVariable.Z, GraphVariable.X, GraphVariable.Y)
-            => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
-            (GraphVariable.X, GraphVariable.Z, GraphVariable.Y)
-            => new Vector3(outputVarVal, inputVar2Val, inputVar1Val),
-            // this should already be stopped
-            _ => throw new GraphEvaluationException("Point lies on unknown slice (only XYZ slice supported).")
-        };
+        // return (inputVar1, inputVar2, outputVar) switch {
+        //     // (GraphVariable.X, GraphVariable.Y, GraphVariable.Z)
+        //     // => new Vector3(inputVar2Val, outputVarVal, inputVar1Val),
+        //     // (GraphVariable.Y, GraphVariable.X, GraphVariable.Z) 
+        //     // => new Vector3(inputVar1Val, outputVarVal, inputVar2Val),
+        //     // (GraphVariable.Y, GraphVariable.Z, GraphVariable.X)
+        //     // => new Vector3(inputVar1Val, inputVar2Val, outputVarVal),
+        //     // (GraphVariable.Z, GraphVariable.Y, GraphVariable.X)
+        //     // => new Vector3(inputVar2Val, inputVar1Val, outputVarVal),
+        //     // (GraphVariable.Z, GraphVariable.X, GraphVariable.Y)
+        //     // => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
+        //     // (GraphVariable.X, GraphVariable.Z, GraphVariable.Y)
+        //     // => new Vector3(outputVarVal, inputVar2Val, inputVar1Val),
+
+        //     // (GraphVariable.X, GraphVariable.Y, GraphVariable.Z)
+        //     // => new Vector3(inputVar1Val, inputVar2Val, outputVarVal),
+        //     // (GraphVariable.Y, GraphVariable.X, GraphVariable.Z) 
+        //     // => new Vector3(inputVar2Val, inputVar1Val, outputVarVal),
+        //     // (GraphVariable.Y, GraphVariable.Z, GraphVariable.X)
+        //     // => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
+        //     // (GraphVariable.Z, GraphVariable.Y, GraphVariable.X)
+        //     // => new Vector3(outputVarVal, inputVar2Val, inputVar1Val),
+        //     // (GraphVariable.Z, GraphVariable.X, GraphVariable.Y)
+        //     // => new Vector3(inputVar2Val, outputVarVal, inputVar1Val),
+        //     // (GraphVariable.X, GraphVariable.Z, GraphVariable.Y)
+        //     // => new Vector3(inputVar1Val, outputVarVal, inputVar2Val),
+        //     // this should already be stopped
+
+        //     // _ => throw new GraphEvaluationException("Point lies on unknown slice (only XYZ slice supported).")
+        // };
+
+        float xVal = 0f, yVal = 0f, zVal = 0f;
+
+        void Set(GraphVariable var, float val)
+        {
+            switch (var)
+            {
+                case GraphVariable.X: zVal = -val; break;
+                case GraphVariable.Y: xVal = val; break;
+                case GraphVariable.Z: yVal = val; break;
+            }
+        }
+
+        Set(inputVar1, inputVar1Val);
+        Set(inputVar2, inputVar2Val);
+        Set(outputVar, outputVarVal);
+
+        return new Vector3(xVal, yVal, zVal);
     }
 
     // generates a mesh based on a grid of points
