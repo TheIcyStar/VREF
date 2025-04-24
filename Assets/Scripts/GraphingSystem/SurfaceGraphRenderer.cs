@@ -84,10 +84,10 @@ public class SurfaceGraphRenderer : IGraphRenderer
 
                 // temporary
                 // for non-disjoint surfaces only
-                if (currentInRange)
+                //if (currentInRange)
                     row.Add(AssignPoint(inputVal1, inputVal2, outputVal, inputVar1, inputVar2, outputVar));
-                else
-                    row.Add(new Vector3(float.NaN, float.NaN, float.NaN));
+                //else
+                    //row.Add(new Vector3(float.NaN, float.NaN, float.NaN));
             }
 
             // temporary
@@ -111,8 +111,15 @@ public class SurfaceGraphRenderer : IGraphRenderer
                 MeshFilter filter = segmentObj.AddComponent<MeshFilter>();
                 MeshRenderer renderer = segmentObj.AddComponent<MeshRenderer>();
 
-                renderer.material = meshColor;
+                var mat = new Material(meshColor);
+                mat.shader = Shader.Find("Shader Graphs/SurfaceClipShader");
+            
+                if(Shader.Find("SurfaceClipShader")) {Debug.Log("good");}
 
+                mat.SetVector("_ClipBoxMin", new Vector3(inputMin1, outputMin, inputMin2));
+                mat.SetVector("_ClipBoxMax", new Vector3(inputMax1, outputMax, inputMax2));
+            
+                renderer.material = mat;   
                 segmentSurfaces.Add((filter, renderer));
             }
 
@@ -242,14 +249,28 @@ public class SurfaceGraphRenderer : IGraphRenderer
                 // winding counter-clockwise (like how this code is)
                 // is considered the front in unity
 
-                if (topLeft >= 0 && topRight >= 0 && bottomLeft >= 0 && bottomRight >= 0) {
-                    // these are the two triangles that make the quad
-                    // topLeft -> bottomLeft -> topRight is counter-clockwise
+                // if (topLeft >= 0 && topRight >= 0 && bottomLeft >= 0 && bottomRight >= 0) {
+                //     // these are the two triangles that make the quad
+                //     // topLeft -> bottomLeft -> topRight is counter-clockwise
+                //     triangles.Add(topLeft);
+                //     triangles.Add(bottomLeft);
+                //     triangles.Add(topRight);
+
+                //     // topRight -> bottomLeft -> bottomRight is also counter-clockwise
+                //     triangles.Add(topRight);
+                //     triangles.Add(bottomLeft);
+                //     triangles.Add(bottomRight);
+                // }
+
+                if (topLeft >= 0 && bottomLeft >= 0 && topRight >= 0)
+                {
                     triangles.Add(topLeft);
                     triangles.Add(bottomLeft);
                     triangles.Add(topRight);
+                }
 
-                    // topRight -> bottomLeft -> bottomRight is also counter-clockwise
+                if (topRight >= 0 && bottomLeft >= 0 && bottomRight >= 0)
+                {
                     triangles.Add(topRight);
                     triangles.Add(bottomLeft);
                     triangles.Add(bottomRight);
