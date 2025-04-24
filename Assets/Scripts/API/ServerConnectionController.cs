@@ -12,6 +12,7 @@ public class ServerConnection : MonoBehaviour {
     public static ServerConnection instance {get; private set;}
 
     private long lastSync = 0;
+    private Hash128 lastSyncHash;
     private const int SYNC_FREQUENCY_MS = 250;
 
     public void Awake() { //Ensures there's only one ServerConnection object
@@ -54,6 +55,13 @@ public class ServerConnection : MonoBehaviour {
                 Debug.LogWarning($"Webrequest was not successful: {webRequest.error}");
                 return;
             }
+
+            Hash128 requestHash = Hash128.Compute(webRequest.downloadHandler.text);
+            if(requestHash.CompareTo(lastSyncHash) == 0){
+                return;
+            }
+            lastSyncHash = requestHash;
+
 
             API_GET_RoomState response = JsonConvert.DeserializeObject<API_GET_RoomState>(webRequest.downloadHandler.text);
 

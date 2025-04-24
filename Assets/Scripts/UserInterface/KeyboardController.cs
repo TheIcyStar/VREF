@@ -43,7 +43,6 @@ public class KeyboardController : MonoBehaviour {
 
     private void onBoardKeyPress(string text){
         if(text == "<-"){
-            Debug.Log($"{Math.Max(0,targetField.text.Length - 1)}");
             targetField.text = targetField.text.Substring(0,Math.Max(0,targetField.text.Length - 1));
         } else {
             targetField.text += text;

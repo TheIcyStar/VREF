@@ -96,17 +96,16 @@ public class GraphManager : MonoBehaviour
 
     public void BulkOverwriteGraphs(ParseTreeNode[] equations){
         //clean up objects
-        // i changed this line to work with the list (marking this in case it doesnt work anymore)
         foreach(GraphInstance entry in graphs) {
             Destroy(entry.gameObject);
         }
         graphs = new();
+        selectedGraph = null; //Deselect all graphs, fixes the flickering between two updates
 
         //Recreate them //todo?: Might need to start tracking individual graphs instead of just parse trees
         int debugCounter = 0;
         foreach(ParseTreeNode tree in equations){
             try {
-                // i changed this line to work with the list (marking this in case it doesnt work anymore)
                 AddGraph(tree);
             } catch (Exception e){
                 Debug.Log($"Error while parsing fetched equation {debugCounter}: {e.Message}");
@@ -125,7 +124,7 @@ public class GraphManager : MonoBehaviour
             if (selectedGraph != null) {
                 selectedGraph.AddEquation(newEquation, globalGraphSettings);
                 AddEquationListElement(newEquation);
-                return; 
+                return;
             }
 
             // create an instance of the prefab, place it past the UI, and name it
@@ -189,14 +188,14 @@ public class GraphManager : MonoBehaviour
         // same graph got selected, deselect old ui set pointers to null
         if (selectedGraph == graph) {
             if (selectedUI != null) selectedUI.DeselectGraph();
-            selectedGraph = null; 
-            selectedUI = null; 
+            selectedGraph = null;
+            selectedUI = null;
         }
         // new graph is selected, deselect old ui, update pointers, and select the new one
         else {
             if (selectedUI != null) selectedUI.DeselectGraph();
-            selectedGraph = graph; 
-            selectedUI = ui; 
+            selectedGraph = graph;
+            selectedUI = ui;
             selectedUI.SelectGraph();
 
             globalGraphSettings = new GraphSettings(
@@ -250,7 +249,7 @@ public class GraphManager : MonoBehaviour
 
         // values are not the same as unity's values
         float xRot = selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.y,
-              yRot = selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.z, 
+              yRot = selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.z,
               zRot = selectedGraph.gameObject.transform.GetChild(0).transform.localRotation.x;
 
         // negative ones are to make all three rotate clockwise
