@@ -112,17 +112,21 @@ public class SurfaceGraphRenderer : IGraphRenderer
                 MeshRenderer renderer = segmentObj.AddComponent<MeshRenderer>();
 
                 var mat = new Material(meshColor);
+                mat.CopyPropertiesFromMaterial(meshColor);
                 mat.shader = Shader.Find("Shader Graphs/SurfaceClipShader");
-            
-                if(Shader.Find("SurfaceClipShader")) {Debug.Log("good");}
 
-                mat.SetVector("_ClipBoxMin", new Vector3(inputMin1, outputMin, inputMin2));
-                mat.SetVector("_ClipBoxMax", new Vector3(inputMax1, outputMax, inputMax2));
+                mat.SetVector("_ClipBoxMin", new Vector3(-10f, -10f, -10f));
+                mat.SetVector("_ClipBoxMax", new Vector3(10f, 10f, 10f));
             
                 renderer.material = mat;   
                 segmentSurfaces.Add((filter, renderer));
             }
-
+            else
+            {
+                var mat = segmentSurfaces[i].renderer.material;
+                mat.SetVector("_ClipBoxMin", new Vector3(-10f, -10f, -10f));
+                mat.SetVector("_ClipBoxMax", new Vector3(10f, 10f, 10f));
+            }
             MeshFilter meshFilter = segmentSurfaces[i].filter;
             Mesh mesh = new Mesh();
 
