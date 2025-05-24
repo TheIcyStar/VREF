@@ -26,15 +26,10 @@ public class GraphInstance : MonoBehaviour
     [SerializeField] private GameObject graphVisualsObj;
     [SerializeField] private GameObject graphObj;
 
-    // equation renderer types
-    // change to enums later
-    private const int TYPE_LINE = 0;
-    private const int TYPE_SURFACE = 1;
-
     public void AddEquation(ParseTreeNode equationTree, GraphSettings graphSettings)
     {
         // determine what equation type is by parsing the whole tree
-        var (equationType, inputVars, outputVar) = DetermineEquationType(equationTree);
+        var (equationType, inputVars, outputVar) = GraphUtils.DetermineEquationType(equationTree);
 
         this.graphSettings = graphSettings;
         this.originalSettings = graphSettings;
@@ -48,11 +43,11 @@ public class GraphInstance : MonoBehaviour
         // else if(equationType == TYPE_SURFACE) graphRenderer = new SurfaceGraphRenderer(graphVisual.transform, GraphManager.instance.defaultMeshColor);
         // else                          throw new GraphEvaluationException("Unsupported equation type attempting to be graphed.");
 
-        Material mat = (equationType == TYPE_LINE) ? GraphManager.instance.defaultLineColor : GraphManager.instance.defaultMeshColor;
+        Material mat = (equationType == EquationType.LINE) ? GraphManager.instance.defaultLineColor : GraphManager.instance.defaultMeshColor;
 
         IGraphRenderer graphRenderer = equationType switch {
-            TYPE_LINE => new LineGraphRenderer(graphVisual.transform, mat),
-            TYPE_SURFACE => new SurfaceGraphRenderer(graphVisual.transform, mat),
+            EquationType.LINE => new LineGraphRenderer(graphVisual.transform, mat),
+            EquationType.SURFACE => new SurfaceGraphRenderer(graphVisual.transform, mat),
             _ => throw new GraphEvaluationException("Unsupported equation type."),
         };
 
@@ -82,15 +77,15 @@ public class GraphInstance : MonoBehaviour
         GameObject newVisual = new GameObject($"Graph Visual {graphs.IndexOf(graph) + 1}");
         newVisual.transform.SetParent(graphVisualsObj.transform, false);
 
-        int equationType = graph.inputVars.Count switch {
-            1 => TYPE_LINE,
-            2 => TYPE_SURFACE,
+        EquationType equationType = graph.inputVars.Count switch {
+            1 => EquationType.LINE,
+            2 => EquationType.SURFACE,
             _ => throw new GraphEvaluationException("Unsupported variable amount.")
         };
 
         IGraphRenderer newRenderer = equationType switch {
-            TYPE_LINE => new LineGraphRenderer(newVisual.transform, newColor),
-            TYPE_SURFACE => new SurfaceGraphRenderer(newVisual.transform, newColor),
+            EquationType.LINE => new LineGraphRenderer(newVisual.transform, newColor),
+            EquationType.SURFACE => new SurfaceGraphRenderer(newVisual.transform, newColor),
             _ => throw new GraphEvaluationException("Unsupported equation type.")
         };
 
@@ -112,15 +107,15 @@ public class GraphInstance : MonoBehaviour
             GameObject newVisual = new GameObject($"Graph Visual {graphs.IndexOf(graph) + 1}");
             newVisual.transform.SetParent(graphVisualsObj.transform, false);
 
-            int equationType = graph.inputVars.Count switch {
-                1 => TYPE_LINE,
-                2 => TYPE_SURFACE,
+            EquationType equationType = graph.inputVars.Count switch {
+                1 => EquationType.LINE,
+                2 => EquationType.SURFACE,
                 _ => throw new GraphEvaluationException("Unsupported variable amount.")
             };
 
             IGraphRenderer newRenderer = equationType switch {
-                TYPE_LINE => new LineGraphRenderer(newVisual.transform, graph.material),
-                TYPE_SURFACE => new SurfaceGraphRenderer(newVisual.transform, graph.material),
+                EquationType.LINE => new LineGraphRenderer(newVisual.transform, graph.material),
+                EquationType.SURFACE => new SurfaceGraphRenderer(newVisual.transform, graph.material),
                 _ => throw new GraphEvaluationException("Unsupported equation type.")
             };
 
@@ -172,66 +167,5 @@ public class GraphInstance : MonoBehaviour
         //GraphManager.instance.RefreshUIText(xRotationUI, rotation.y);
         //GraphManager.instance.RefreshUIText(yRotationUI, rotation.z);
         //GraphManager.instance.RefreshUIText(zRotationUI, rotation.x);
-    }
-
-    // determines the type of equation by analyzing the parse tree
-    // also returns the input and output variables
-    // ONLY WORKS WITH [output var] = [f(input var)] FOR NOW
-    private (int, HashSet<GraphVariable>, GraphVariable) DetermineEquationType(ParseTreeNode equationTree) {
-        // initialize a set to store all the input vars
-        HashSet<GraphVariable> inputVars = new HashSet<GraphVariable>();
-        GraphVariable outputVar;
-
-        if(equationTree == null || equationTree.token.text != "=") {
-            throw new GraphEvaluationException("Explicit equation not found.");
-        }
-
-        // find output var (left of equal sign)
-        outputVar = ConvertToGraphVariable(equationTree.left.token.text);
-
-        // intialize equation type
-        int equationType;
-
-        // add all input variables to the set (right of equal sign)
-        DetermineVariables(equationTree.right, inputVars);
-
-        // check to see if there is no explicit variable
-        if(inputVars.Contains(outputVar)) throw new GraphEvaluationException("Variable found on left and right hand side of equation.");
-
-        // this logic needs to change to support constants, parametrics, planes, etc... in the future
-        if (inputVars.Count == 1)                         equationType = TYPE_LINE;
-        else if (inputVars.Count == 2)                    equationType = TYPE_SURFACE;
-        else                                              throw new GraphEvaluationException("Unsupported variable amount in right hand side of equation.");
-
-        return (equationType, inputVars, outputVar);
-    }
-
-    // finds all the variables in the given tree and adds them to a set
-    // potentially could create the set during tree creation if this
-    // full tree traversal ends up being too costly
-    private void DetermineVariables(ParseTreeNode equationTree, HashSet<GraphVariable> variables) {
-        if (equationTree == null) return;
-
-        if (equationTree.token.type == TokenType.Variable) {
-            variables.Add(ConvertToGraphVariable(equationTree.token.text));
-        }
-
-        DetermineVariables(equationTree.left, variables);
-        DetermineVariables(equationTree.right, variables);
-    }
-
-    // converts a string to a GraphVariable
-    // if we really want to optimize everything down the line
-    // we can change the tree to use an enum for every possible
-    // token to avoid using strings entirely
-    private GraphVariable ConvertToGraphVariable(string stringVar)
-    {
-        return stringVar switch
-        {
-            "x" => GraphVariable.X,
-            "y" => GraphVariable.Y,
-            "z" => GraphVariable.Z,
-            _ => throw new GraphEvaluationException("Unknown/missing variable attempting to be graphed.")
-        };
     }
 }

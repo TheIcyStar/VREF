@@ -84,10 +84,10 @@ public class SurfaceGraphRenderer : IGraphRenderer
 
                 // temporary
                 // for non-disjoint surfaces only
-                if (currentInRange)
+                //if (currentInRange)
                     row.Add(AssignPoint(inputVal1, inputVal2, outputVal, inputVar1, inputVar2, outputVar));
-                else
-                    row.Add(new Vector3(float.NaN, float.NaN, float.NaN));
+                //else
+                    //row.Add(new Vector3(float.NaN, float.NaN, float.NaN));
             }
 
             // temporary
@@ -111,11 +111,22 @@ public class SurfaceGraphRenderer : IGraphRenderer
                 MeshFilter filter = segmentObj.AddComponent<MeshFilter>();
                 MeshRenderer renderer = segmentObj.AddComponent<MeshRenderer>();
 
-                renderer.material = meshColor;
+                var mat = new Material(meshColor);
+                mat.CopyPropertiesFromMaterial(meshColor);
+                mat.shader = Shader.Find("Shader Graphs/SurfaceClipShader");
 
+                mat.SetVector("_ClipBoxMin", new Vector3(-10f, -10f, -10f));
+                mat.SetVector("_ClipBoxMax", new Vector3(10f, 10f, 10f));
+            
+                renderer.material = mat;   
                 segmentSurfaces.Add((filter, renderer));
             }
-
+            else
+            {
+                var mat = segmentSurfaces[i].renderer.material;
+                mat.SetVector("_ClipBoxMin", new Vector3(-10f, -10f, -10f));
+                mat.SetVector("_ClipBoxMax", new Vector3(10f, 10f, 10f));
+            }
             MeshFilter meshFilter = segmentSurfaces[i].filter;
             Mesh mesh = new Mesh();
 
@@ -144,37 +155,6 @@ public class SurfaceGraphRenderer : IGraphRenderer
     // x is z, z is y, and y is x
     private Vector3 AssignPoint(float inputVar1Val, float inputVar2Val, float outputVarVal, GraphVariable inputVar1, GraphVariable inputVar2, GraphVariable outputVar) 
     {
-        // return (inputVar1, inputVar2, outputVar) switch {
-        //     // (GraphVariable.X, GraphVariable.Y, GraphVariable.Z)
-        //     // => new Vector3(inputVar2Val, outputVarVal, inputVar1Val),
-        //     // (GraphVariable.Y, GraphVariable.X, GraphVariable.Z) 
-        //     // => new Vector3(inputVar1Val, outputVarVal, inputVar2Val),
-        //     // (GraphVariable.Y, GraphVariable.Z, GraphVariable.X)
-        //     // => new Vector3(inputVar1Val, inputVar2Val, outputVarVal),
-        //     // (GraphVariable.Z, GraphVariable.Y, GraphVariable.X)
-        //     // => new Vector3(inputVar2Val, inputVar1Val, outputVarVal),
-        //     // (GraphVariable.Z, GraphVariable.X, GraphVariable.Y)
-        //     // => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
-        //     // (GraphVariable.X, GraphVariable.Z, GraphVariable.Y)
-        //     // => new Vector3(outputVarVal, inputVar2Val, inputVar1Val),
-
-        //     // (GraphVariable.X, GraphVariable.Y, GraphVariable.Z)
-        //     // => new Vector3(inputVar1Val, inputVar2Val, outputVarVal),
-        //     // (GraphVariable.Y, GraphVariable.X, GraphVariable.Z) 
-        //     // => new Vector3(inputVar2Val, inputVar1Val, outputVarVal),
-        //     // (GraphVariable.Y, GraphVariable.Z, GraphVariable.X)
-        //     // => new Vector3(outputVarVal, inputVar1Val, inputVar2Val),
-        //     // (GraphVariable.Z, GraphVariable.Y, GraphVariable.X)
-        //     // => new Vector3(outputVarVal, inputVar2Val, inputVar1Val),
-        //     // (GraphVariable.Z, GraphVariable.X, GraphVariable.Y)
-        //     // => new Vector3(inputVar2Val, outputVarVal, inputVar1Val),
-        //     // (GraphVariable.X, GraphVariable.Z, GraphVariable.Y)
-        //     // => new Vector3(inputVar1Val, outputVarVal, inputVar2Val),
-        //     // this should already be stopped
-
-        //     // _ => throw new GraphEvaluationException("Point lies on unknown slice (only XYZ slice supported).")
-        // };
-
         float xVal = 0f, yVal = 0f, zVal = 0f;
 
         void Set(GraphVariable var, float val)
@@ -273,14 +253,28 @@ public class SurfaceGraphRenderer : IGraphRenderer
                 // winding counter-clockwise (like how this code is)
                 // is considered the front in unity
 
-                if (topLeft >= 0 && topRight >= 0 && bottomLeft >= 0 && bottomRight >= 0) {
-                    // these are the two triangles that make the quad
-                    // topLeft -> bottomLeft -> topRight is counter-clockwise
+                // if (topLeft >= 0 && topRight >= 0 && bottomLeft >= 0 && bottomRight >= 0) {
+                //     // these are the two triangles that make the quad
+                //     // topLeft -> bottomLeft -> topRight is counter-clockwise
+                //     triangles.Add(topLeft);
+                //     triangles.Add(bottomLeft);
+                //     triangles.Add(topRight);
+
+                //     // topRight -> bottomLeft -> bottomRight is also counter-clockwise
+                //     triangles.Add(topRight);
+                //     triangles.Add(bottomLeft);
+                //     triangles.Add(bottomRight);
+                // }
+
+                if (topLeft >= 0 && bottomLeft >= 0 && topRight >= 0)
+                {
                     triangles.Add(topLeft);
                     triangles.Add(bottomLeft);
                     triangles.Add(topRight);
+                }
 
-                    // topRight -> bottomLeft -> bottomRight is also counter-clockwise
+                if (topRight >= 0 && bottomLeft >= 0 && bottomRight >= 0)
+                {
                     triangles.Add(topRight);
                     triangles.Add(bottomLeft);
                     triangles.Add(bottomRight);
