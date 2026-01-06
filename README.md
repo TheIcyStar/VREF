@@ -2,7 +2,7 @@
 VREF is a 3D graphing environment with multi-user synchronization capabilities for students and lecturers. Multi-user VREF sessions require the [VREF-Server synchronization server](https://github.com/TheIcyStar/VREF-Server), and solo sessions do not require a server.
 
 # Screenshots
-<img width="1517" height="917" alt="Untitled" src="https://github.com/user-attachments/assets/1a1fa15f-8293-47ad-8c29-b237558bacc2" />
+<img width="1517" height="917" alt="Untitled" src="https://github.com/user-attachments/assets/0c73a211-11d2-4a03-9ff0-d59f63898394" />
 
 # Usage
 No binaries are currently available. Clone this repository and open the project using the Unity Editor. Use the latest Unity LTS version `6000.0.x` to open the project.
