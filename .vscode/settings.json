@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "VREF.sln"
+    "dotnet.defaultSolution": "VREF.slnx"
 }
